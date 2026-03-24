@@ -1,1 +1,295 @@
-/* Design system tokens — built in Prompt 02 */
+/* ============================================================
+   DISCOVA DESIGN SYSTEM — TOKENS
+   All colour values live here. Nowhere else.
+   ============================================================ */
+
+/* ── DARK THEME (default) ─────────────────────────────────── */
+[data-theme="dark"],
+:root {
+
+  /* Backgrounds */
+  --color-bg-base:        #0C0C0F;
+  --color-bg-surface:     #111115;
+  --color-bg-raised:      #16161E;
+  --color-bg-overlay:     #1C1C26;
+  --color-bg-sunken:      #08080B;
+  --color-bg-canvas:      #0A0A0D;
+
+  /* Borders */
+  --color-border-subtle:  #1A1A22;
+  --color-border-default: #2E2E3A;
+  --color-border-strong:  #3E3E50;
+  --color-border-focus:   #5B8AF0;
+
+  /* Text */
+  --color-text-primary:   #F0ECE2;
+  --color-text-secondary: #9A9AA8;
+  --color-text-muted:     #5A5A68;
+  --color-text-disabled:  #3A3A48;
+  --color-text-inverse:   #0C0C0F;
+  --color-text-link:      #5B8AF0;
+
+  /* Brand Accents */
+  --color-accent-gold:    #E8C547;
+  --color-accent-gold-muted: rgba(232,197,71,0.12);
+  --color-accent-gold-border: rgba(232,197,71,0.25);
+  --color-accent-blue:    #5B8AF0;
+  --color-accent-blue-muted: rgba(91,138,240,0.10);
+  --color-accent-coral:   #E87D5B;
+  --color-accent-coral-muted: rgba(232,125,91,0.10);
+  --color-accent-green:   #7EBF8E;
+  --color-accent-green-muted: rgba(126,191,142,0.10);
+  --color-accent-purple:  #C47DB8;
+  --color-accent-purple-muted: rgba(196,125,184,0.10);
+
+  /* Semantic — Status */
+  --color-status-success: #7EBF8E;
+  --color-status-success-bg: rgba(126,191,142,0.08);
+  --color-status-warning: #E8C547;
+  --color-status-warning-bg: rgba(232,197,71,0.08);
+  --color-status-error:   #E87D5B;
+  --color-status-error-bg: rgba(232,125,91,0.08);
+  --color-status-info:    #5B8AF0;
+  --color-status-info-bg: rgba(91,138,240,0.08);
+
+  /* Semantic — Discova Data Types */
+  --color-research:       #E8C547;
+  --color-research-bg:    rgba(232,197,71,0.06);
+  --color-insight:        #5B8AF0;
+  --color-insight-bg:     rgba(91,138,240,0.06);
+  --color-problem:        #E87D5B;
+  --color-problem-bg:     rgba(232,125,91,0.06);
+  --color-solution:       #7EBF8E;
+  --color-solution-bg:    rgba(126,191,142,0.06);
+  --color-theme-cluster:  #C47DB8;
+  --color-theme-cluster-bg: rgba(196,125,184,0.06);
+  --color-priority-now:   #E87D5B;
+  --color-priority-next:  #E8C547;
+  --color-priority-later: #5B8AF0;
+  --color-priority-someday: #5A5A68;
+
+  /* Collaboration */
+  --color-presence-online: #7EBF8E;
+  --color-presence-away:   #E8C547;
+  --color-presence-offline: #3A3A48;
+  --color-unread:          #E87D5B;
+  --color-mention:         rgba(232,197,71,0.15);
+
+  /* Canvas */
+  --color-canvas-dot:      #16161C;
+  --color-canvas-grid:     #11111A;
+  --color-connection-default: #2E2E3A;
+  --color-connection-active:  #E8C547;
+  --color-connection-weak:    #1E1E28;
+  --color-connection-broken:  #E87D5B;
+
+  /* Shadows */
+  --shadow-xs:     0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm:     0 2px 8px rgba(0,0,0,0.35);
+  --shadow-md:     0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg:     0 8px 32px rgba(0,0,0,0.5);
+  --shadow-xl:     0 16px 48px rgba(0,0,0,0.6);
+  --shadow-card:   0 1px 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-modal:  0 24px 64px rgba(0,0,0,0.7);
+  --shadow-glow-gold:   0 0 40px rgba(232,197,71,0.15);
+  --shadow-glow-blue:   0 0 40px rgba(91,138,240,0.15);
+  --shadow-glow-coral:  0 0 40px rgba(232,125,91,0.15);
+
+  /* Gradients */
+  --gradient-gold:       linear-gradient(135deg, #E8C547, #C4963A);
+  --gradient-page-glow:  radial-gradient(ellipse 80% 60% at 50% -10%, rgba(232,197,71,0.10) 0%, transparent 70%);
+  --gradient-canvas-glow: radial-gradient(ellipse 60% 40% at 70% 50%, rgba(91,138,240,0.06) 0%, transparent 60%);
+  --gradient-fade-bottom: linear-gradient(to bottom, transparent, var(--color-bg-base));
+
+  /* Canvas Patterns */
+  --pattern-dots: radial-gradient(circle, var(--color-canvas-dot) 1px, transparent 1px);
+  --pattern-grid: repeating-linear-gradient(var(--color-canvas-grid) 0px, transparent 1px, transparent 39px, var(--color-canvas-grid) 40px),
+                  repeating-linear-gradient(90deg, var(--color-canvas-grid) 0px, transparent 1px, transparent 39px, var(--color-canvas-grid) 40px);
+
+  /* Scrollbar */
+  --scrollbar-track:  #111115;
+  --scrollbar-thumb:  #2E2E3A;
+  --scrollbar-hover:  #3E3E50;
+}
+
+
+/* ── LIGHT THEME ──────────────────────────────────────────── */
+[data-theme="light"] {
+
+  --color-bg-base:        #F5F2EA;
+  --color-bg-surface:     #FDFAF4;
+  --color-bg-raised:      #FFFFFF;
+  --color-bg-overlay:     #FFFFFF;
+  --color-bg-sunken:      #EDE9DF;
+  --color-bg-canvas:      #EEE9DF;
+
+  --color-border-subtle:  #E4DFD4;
+  --color-border-default: #D0C9BB;
+  --color-border-strong:  #B8AFA0;
+  --color-border-focus:   #2A3F8F;
+
+  --color-text-primary:   #1A1714;
+  --color-text-secondary: #4A4540;
+  --color-text-muted:     #8A8278;
+  --color-text-disabled:  #B8AFA0;
+  --color-text-inverse:   #F5F2EA;
+  --color-text-link:      #2A3F8F;
+
+  --color-accent-gold:    #C4963A;
+  --color-accent-gold-muted: rgba(196,150,58,0.10);
+  --color-accent-gold-border: rgba(196,150,58,0.30);
+  --color-accent-blue:    #2A3F8F;
+  --color-accent-blue-muted: rgba(42,63,143,0.08);
+  --color-accent-coral:   #C4512A;
+  --color-accent-coral-muted: rgba(196,81,42,0.08);
+  --color-accent-green:   #2E7D4F;
+  --color-accent-green-muted: rgba(46,125,79,0.08);
+  --color-accent-purple:  #8B4F9E;
+  --color-accent-purple-muted: rgba(139,79,158,0.08);
+
+  --color-status-success: #2E7D4F;
+  --color-status-success-bg: rgba(46,125,79,0.08);
+  --color-status-warning: #C4963A;
+  --color-status-warning-bg: rgba(196,150,58,0.10);
+  --color-status-error:   #C4512A;
+  --color-status-error-bg: rgba(196,81,42,0.08);
+  --color-status-info:    #2A3F8F;
+  --color-status-info-bg: rgba(42,63,143,0.08);
+
+  --color-research:       #C4963A;
+  --color-research-bg:    rgba(196,150,58,0.08);
+  --color-insight:        #2A3F8F;
+  --color-insight-bg:     rgba(42,63,143,0.07);
+  --color-problem:        #C4512A;
+  --color-problem-bg:     rgba(196,81,42,0.07);
+  --color-solution:       #2E7D4F;
+  --color-solution-bg:    rgba(46,125,79,0.07);
+  --color-theme-cluster:  #8B4F9E;
+  --color-theme-cluster-bg: rgba(139,79,158,0.07);
+  --color-priority-now:   #C4512A;
+  --color-priority-next:  #C4963A;
+  --color-priority-later: #2A3F8F;
+  --color-priority-someday: #8A8278;
+
+  --color-presence-online: #2E7D4F;
+  --color-presence-away:   #C4963A;
+  --color-presence-offline: #B8AFA0;
+  --color-unread:          #C4512A;
+  --color-mention:         rgba(196,150,58,0.18);
+
+  --color-canvas-dot:      #DDD8CE;
+  --color-canvas-grid:     #E4DFD4;
+  --color-connection-default: #D0C9BB;
+  --color-connection-active:  #C4963A;
+  --color-connection-weak:    #E4DFD4;
+  --color-connection-broken:  #C4512A;
+
+  --shadow-xs:     0 1px 2px rgba(26,23,20,0.06);
+  --shadow-sm:     0 2px 8px rgba(26,23,20,0.08);
+  --shadow-md:     0 4px 16px rgba(26,23,20,0.10);
+  --shadow-lg:     0 8px 32px rgba(26,23,20,0.12);
+  --shadow-xl:     0 16px 48px rgba(26,23,20,0.14);
+  --shadow-card:   0 1px 0 rgba(255,255,255,0.8), 0 2px 12px rgba(26,23,20,0.08);
+  --shadow-modal:  0 24px 64px rgba(26,23,20,0.20);
+  --shadow-glow-gold:   0 0 40px rgba(196,150,58,0.12);
+  --shadow-glow-blue:   0 0 40px rgba(42,63,143,0.10);
+  --shadow-glow-coral:  0 0 40px rgba(196,81,42,0.10);
+
+  --gradient-gold:        linear-gradient(135deg, #C4963A, #A67828);
+  --gradient-page-glow:   radial-gradient(ellipse 80% 60% at 50% -10%, rgba(196,150,58,0.08) 0%, transparent 70%);
+  --gradient-canvas-glow: radial-gradient(ellipse 60% 40% at 70% 50%, rgba(42,63,143,0.05) 0%, transparent 60%);
+  --gradient-fade-bottom: linear-gradient(to bottom, transparent, var(--color-bg-base));
+
+  --pattern-dots: radial-gradient(circle, var(--color-canvas-dot) 1px, transparent 1px);
+  --pattern-grid: repeating-linear-gradient(var(--color-canvas-grid) 0px, transparent 1px, transparent 39px, var(--color-canvas-grid) 40px),
+                  repeating-linear-gradient(90deg, var(--color-canvas-grid) 0px, transparent 1px, transparent 39px, var(--color-canvas-grid) 40px);
+
+  --scrollbar-track:  #EDE9DF;
+  --scrollbar-thumb:  #D0C9BB;
+  --scrollbar-hover:  #B8AFA0;
+}
+
+
+/* ── TYPOGRAPHY ───────────────────────────────────────────── */
+:root {
+  --font-display:  var(--font-lora), Georgia, serif;
+  --font-body:     var(--font-dm-sans), system-ui, sans-serif;
+  --font-mono:     var(--font-jetbrains-mono), 'Fira Code', monospace;
+
+  --text-xs:    0.6875rem;
+  --text-sm:    0.8125rem;
+  --text-base:  0.9375rem;
+  --text-md:    1.0625rem;
+  --text-lg:    1.25rem;
+  --text-xl:    1.5rem;
+  --text-2xl:   2rem;
+  --text-3xl:   2.625rem;
+  --text-4xl:   clamp(2.625rem, 5vw, 4rem);
+  --text-5xl:   clamp(3.25rem, 7vw, 5.5rem);
+
+  --leading-tight:   1.1;
+  --leading-snug:    1.3;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.7;
+
+  --tracking-tight:   -0.02em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.05em;
+  --tracking-wider:   0.12em;
+  --tracking-widest:  0.25em;
+
+  --weight-light:    300;
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+}
+
+
+/* ── SPACING ──────────────────────────────────────────────── */
+:root {
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-2xl:  32px;
+  --radius-full: 9999px;
+
+  --sidebar-width:       240px;
+  --detail-panel-width:  400px;
+  --wide-panel-width:    560px;
+  --container-max:       1200px;
+  --topbar-height:       56px;
+
+  --transition-fast:    100ms ease;
+  --transition-normal:  200ms ease;
+  --transition-slow:    350ms ease;
+  --transition-spring:  300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+
+/* ── THEME TRANSITION ─────────────────────────────────────── */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 200ms ease,
+    box-shadow 300ms ease,
+    opacity 200ms ease !important;
+}

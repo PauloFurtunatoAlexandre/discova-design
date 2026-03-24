@@ -1,83 +1,56 @@
-/*
- * Discova — Map Node Visual State Tokens
- *
- * These tokens are the resolved output of the pre-build blocker decision.
- * See docs/map-node-tokens.md for the full specification.
- *
- * CRITICAL: Never hardcode node colours inline in components.
- * Always reference these tokens. They apply to all three node types:
- *   - Insight nodes  (--node-accent: var(--color-accent-blue))
- *   - Problem nodes  (--node-accent: var(--color-accent-coral))
- *   - Solution nodes (--node-accent: var(--color-accent-green))
- *
- * Usage in component:
- *   style={{ "--node-accent": "var(--color-accent-blue)" } as CSSProperties}
- */
+/* ============================================================
+   DISCOVA MAP NODE STATE TOKENS
+   5 states × 3 node types. Imported after tokens.css.
+   Phase colours: Insight=#5B8AF0, Problem=#E87D5B, Solution=#7EBF8E
+   ============================================================ */
 
 :root {
-  /* ── State 1: Connected ──────────────────────────────────────── */
-  /* Node is fully linked. Solid border, full phase colour. */
-  --node-connected-border-opacity:     1.0;
-  --node-connected-bg-opacity-dark:    0.12;
-  --node-connected-bg-opacity-light:   0.08;
-  --node-connected-opacity:            1.0;
-  --node-connected-border-width:       1.5px;
-  --node-connected-border-style:       solid;
 
-  /* ── State 2: Unconnected ────────────────────────────────────── */
-  /* Node exists but is not yet linked into the graph. */
-  --node-unconnected-border-opacity:   0.40;
-  --node-unconnected-bg-opacity-dark:  0.05;
-  --node-unconnected-bg-opacity-light: 0.04;
-  --node-unconnected-opacity:          0.70;
-  --node-unconnected-border-width:     1.5px;
-  --node-unconnected-border-style:     dashed;
-  --node-unconnected-dash-array:       4px 3px;
+  /* ── Connected ── */
+  --node-connected-border-opacity:    1.0;
+  --node-connected-bg-opacity-dark:   0.12;
+  --node-connected-bg-opacity-light:  0.08;
+  --node-connected-opacity:           1.0;
 
-  /* ── State 3: Orphan Warning (Solution nodes only) ───────────── */
-  /* Solution with zero Problem links. Amber tint, not phase-colour tint. */
-  --node-orphan-bg-dark:               rgba(232, 197, 71, 0.08);
-  --node-orphan-bg-light:              rgba(232, 197, 71, 0.06);
-  --node-orphan-border-dark:           #E8C547;
-  --node-orphan-border-light:          #C4963A;
-  --node-orphan-icon-dark:             #E8C547;
-  --node-orphan-icon-light:            #C4963A;
-  --node-orphan-opacity:               0.85;
-  --node-orphan-border-width:          1.5px;
-  --node-orphan-border-style:          dashed;
+  /* ── Unconnected ── */
+  --node-unconnected-border-opacity:  0.40;
+  --node-unconnected-bg-opacity-dark: 0.05;
+  --node-unconnected-bg-opacity-light:0.04;
+  --node-unconnected-opacity:         0.70;
+  --node-unconnected-border-dash:     4px 3px;
 
-  /* ── State 4: Selected ───────────────────────────────────────── */
-  /* User has clicked the node. Connection handles visible. */
-  --node-selected-border-width:        2px;
-  --node-selected-border-style:        solid;
-  --node-selected-glow-opacity-dark:   0.25;
-  --node-selected-glow-opacity-light:  0.20;
-  --node-selected-handle-size:         8px;
-  --node-selected-handle-border-width: 1.5px;
+  /* ── Orphan Warning (Solution only) ── */
+  --node-orphan-opacity:              0.85;
 
-  /* ── State 5: Hover ──────────────────────────────────────────── */
-  /* Pointer over node. Scale + brightened border. */
-  --node-hover-scale:                  1.02;
-  --node-hover-transition:             120ms ease-out;
-  --node-hover-shadow-tint-opacity:    0.10;
-  --node-hover-lightness-boost:        10%;      /* add to HSL lightness of phase colour */
+  /* ── Selected ── */
+  --node-selected-glow-opacity:       0.25;
+  --node-selected-border-width:       2px;
+  --node-selected-handle-size:        8px;
 
-  /* ── Phase colour variables ──────────────────────────────────── */
-  /* Applied via inline style per node type */
-  --node-accent-insight:               #5B8AF0;  /* Phase 02 — Engine */
-  --node-accent-problem:               #E87D5B;  /* Phase 03 — Map */
-  --node-accent-solution:              #7EBF8E;  /* Phase 03 — Map */
+  /* ── Hover ── */
+  --node-hover-scale:                 1.02;
+  --node-hover-transition:            120ms ease-out;
+  --node-hover-shadow-tint-opacity:   0.10;
+  --node-hover-lightness-boost:       10%;
 }
 
-/* ── Reduced motion overrides ──────────────────────────────────────── */
-/*
- * When prefers-reduced-motion is set:
- *   - Remove scale transform on hover
- *   - Remove glow ring animation on selected
- *   - KEEP colour and opacity changes (they communicate state)
- *   - KEEP border style changes (dashed vs solid = state indicator)
- */
+[data-theme="dark"] {
+  --node-orphan-bg:       rgba(232, 197, 71, 0.08);
+  --node-orphan-border:   #E8C547;
+  --node-orphan-icon:     #E8C547;
+  --node-selected-glow-opacity: 0.25;
+}
+
+[data-theme="light"] {
+  --node-orphan-bg:       rgba(232, 197, 71, 0.06);
+  --node-orphan-border:   #C4963A;
+  --node-orphan-icon:     #C4963A;
+  --node-selected-glow-opacity: 0.20;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  --node-hover-scale:       1.0;   /* No scale */
-  --node-hover-transition:  0ms;   /* Instant */
+  :root {
+    --node-hover-scale: 1;
+    --node-hover-transition: 0ms;
+  }
 }
