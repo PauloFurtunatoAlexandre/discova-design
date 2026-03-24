@@ -1,17 +1,17 @@
 "use server";
 
+import { createAuditEntry } from "@/lib/auth/audit";
+import { signIn } from "@/lib/auth/config";
+import { checkRateLimit } from "@/lib/auth/rate-limit";
+import { db } from "@/lib/db";
+import { users, workspaceMembers, workspaces } from "@/lib/db/schema";
+import { logger } from "@/lib/logger";
+import { loginSchema, signupSchema } from "@/lib/validations/auth";
 import bcrypt from "bcryptjs";
-import slugify from "slugify";
+import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { headers } from "next/headers";
-import { eq } from "drizzle-orm";
-import { db } from "@/lib/db";
-import { users, workspaces, workspaceMembers } from "@/lib/db/schema";
-import { signIn } from "@/lib/auth/config";
-import { signupSchema, loginSchema } from "@/lib/validations/auth";
-import { createAuditEntry } from "@/lib/auth/audit";
-import { checkRateLimit } from "@/lib/auth/rate-limit";
-import { logger } from "@/lib/logger";
+import slugify from "slugify";
 
 type ActionResult = {
 	success?: boolean;
@@ -33,10 +33,7 @@ function generateWorkspaceSlug(name: string): string {
 	return `${base}-${nanoid(4)}`;
 }
 
-export async function signupAction(
-	_prevState: unknown,
-	formData: FormData,
-): Promise<ActionResult> {
+export async function signupAction(_prevState: unknown, formData: FormData): Promise<ActionResult> {
 	try {
 		const ip = await getClientIp();
 		const { allowed } = checkRateLimit(`signup:${ip}`, {
@@ -120,10 +117,7 @@ export async function signupAction(
 	}
 }
 
-export async function loginAction(
-	_prevState: unknown,
-	formData: FormData,
-): Promise<ActionResult> {
+export async function loginAction(_prevState: unknown, formData: FormData): Promise<ActionResult> {
 	try {
 		const ip = await getClientIp();
 

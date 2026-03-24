@@ -5,52 +5,51 @@
    ============================================================ */
 
 :root {
+	/* ── Connected ── */
+	--node-connected-border-opacity: 1.0;
+	--node-connected-bg-opacity-dark: 0.12;
+	--node-connected-bg-opacity-light: 0.08;
+	--node-connected-opacity: 1.0;
 
-  /* ── Connected ── */
-  --node-connected-border-opacity:    1.0;
-  --node-connected-bg-opacity-dark:   0.12;
-  --node-connected-bg-opacity-light:  0.08;
-  --node-connected-opacity:           1.0;
+	/* ── Unconnected ── */
+	--node-unconnected-border-opacity: 0.4;
+	--node-unconnected-bg-opacity-dark: 0.05;
+	--node-unconnected-bg-opacity-light: 0.04;
+	--node-unconnected-opacity: 0.7;
+	--node-unconnected-border-dash: 4px 3px;
 
-  /* ── Unconnected ── */
-  --node-unconnected-border-opacity:  0.40;
-  --node-unconnected-bg-opacity-dark: 0.05;
-  --node-unconnected-bg-opacity-light:0.04;
-  --node-unconnected-opacity:         0.70;
-  --node-unconnected-border-dash:     4px 3px;
+	/* ── Orphan Warning (Solution only) ── */
+	--node-orphan-opacity: 0.85;
 
-  /* ── Orphan Warning (Solution only) ── */
-  --node-orphan-opacity:              0.85;
+	/* ── Selected ── */
+	--node-selected-glow-opacity: 0.25;
+	--node-selected-border-width: 2px;
+	--node-selected-handle-size: 8px;
 
-  /* ── Selected ── */
-  --node-selected-glow-opacity:       0.25;
-  --node-selected-border-width:       2px;
-  --node-selected-handle-size:        8px;
-
-  /* ── Hover ── */
-  --node-hover-scale:                 1.02;
-  --node-hover-transition:            120ms ease-out;
-  --node-hover-shadow-tint-opacity:   0.10;
-  --node-hover-lightness-boost:       10%;
+	/* ── Hover ── */
+	--node-hover-scale: 1.02;
+	--node-hover-transition: 120ms ease-out;
+	--node-hover-shadow-tint-opacity: 0.1;
+	--node-hover-lightness-boost: 10%;
 }
 
 [data-theme="dark"] {
-  --node-orphan-bg:       rgba(232, 197, 71, 0.08);
-  --node-orphan-border:   #E8C547;
-  --node-orphan-icon:     #E8C547;
-  --node-selected-glow-opacity: 0.25;
+	--node-orphan-bg: rgba(232, 197, 71, 0.08);
+	--node-orphan-border: #e8c547;
+	--node-orphan-icon: #e8c547;
+	--node-selected-glow-opacity: 0.25;
 }
 
 [data-theme="light"] {
-  --node-orphan-bg:       rgba(232, 197, 71, 0.06);
-  --node-orphan-border:   #C4963A;
-  --node-orphan-icon:     #C4963A;
-  --node-selected-glow-opacity: 0.20;
+	--node-orphan-bg: rgba(232, 197, 71, 0.06);
+	--node-orphan-border: #c4963a;
+	--node-orphan-icon: #c4963a;
+	--node-selected-glow-opacity: 0.2;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root {
-    --node-hover-scale: 1;
-    --node-hover-transition: 0ms;
-  }
+	:root {
+		--node-hover-scale: 1;
+		--node-hover-transition: 0ms;
+	}
 }

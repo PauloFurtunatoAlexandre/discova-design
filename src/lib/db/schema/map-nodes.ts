@@ -1,7 +1,7 @@
 import { boolean, index, pgTable, real, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { users } from "./users";
-import { projects } from "./projects";
 import { insightCards } from "./insight-cards";
+import { projects } from "./projects";
+import { users } from "./users";
 
 export const mapNodes = pgTable(
 	"map_nodes",
@@ -21,7 +21,9 @@ export const mapNodes = pgTable(
 		positionX: real("position_x").notNull().default(0),
 		positionY: real("position_y").notNull().default(0),
 		isCollapsed: boolean("is_collapsed").notNull().default(false),
-		createdBy: uuid("created_by").notNull().references(() => users.id),
+		createdBy: uuid("created_by")
+			.notNull()
+			.references(() => users.id),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 	},

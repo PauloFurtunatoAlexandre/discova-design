@@ -1,6 +1,6 @@
 import { jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
-import { users } from "./users";
 import { projects } from "./projects";
+import { users } from "./users";
 
 export const stackSnapshots = pgTable(
 	"stack_snapshots",
@@ -9,7 +9,9 @@ export const stackSnapshots = pgTable(
 		projectId: uuid("project_id")
 			.notNull()
 			.references(() => projects.id, { onDelete: "cascade" }),
-		lockedBy: uuid("locked_by").notNull().references(() => users.id),
+		lockedBy: uuid("locked_by")
+			.notNull()
+			.references(() => users.id),
 		lockedAt: timestamp("locked_at", { withTimezone: true }).notNull(),
 		snapshotData: jsonb("snapshot_data").notNull(),
 		sharePasscodeHash: text("share_passcode_hash").notNull(),

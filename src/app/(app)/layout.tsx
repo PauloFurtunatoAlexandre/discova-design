@@ -1,7 +1,7 @@
 export default function AppLayout({
-  children,
+	children,
 }: {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-  return <div>{children}</div>;
+	return <div>{children}</div>;
 }

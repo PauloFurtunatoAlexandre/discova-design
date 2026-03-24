@@ -1,6 +1,6 @@
 import { index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { workspaces } from "./workspaces";
 import { users } from "./users";
+import { workspaces } from "./workspaces";
 
 export const auditLog = pgTable(
 	"audit_log",

@@ -1,6 +1,6 @@
 import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { users } from "./users";
 import { projects } from "./projects";
+import { users } from "./users";
 
 export const comments = pgTable(
 	"comments",
@@ -15,7 +15,9 @@ export const comments = pgTable(
 		targetId: uuid("target_id").notNull(),
 		parentId: uuid("parent_id"),
 		content: text("content").notNull(),
-		authorId: uuid("author_id").notNull().references(() => users.id),
+		authorId: uuid("author_id")
+			.notNull()
+			.references(() => users.id),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 	},

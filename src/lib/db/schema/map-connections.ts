@@ -1,8 +1,8 @@
-import { check, index, pgTable, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { users } from "./users";
-import { projects } from "./projects";
+import { check, index, pgTable, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { mapNodes } from "./map-nodes";
+import { projects } from "./projects";
+import { users } from "./users";
 
 export const mapConnections = pgTable(
 	"map_connections",
@@ -17,7 +17,9 @@ export const mapConnections = pgTable(
 		targetNodeId: uuid("target_node_id")
 			.notNull()
 			.references(() => mapNodes.id, { onDelete: "cascade" }),
-		createdBy: uuid("created_by").notNull().references(() => users.id),
+		createdBy: uuid("created_by")
+			.notNull()
+			.references(() => users.id),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 	},
 	(table) => [

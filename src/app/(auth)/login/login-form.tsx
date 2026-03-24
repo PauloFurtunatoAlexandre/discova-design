@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
-import { signIn } from "next-auth/react";
 import { loginAction } from "@/actions/auth";
+import { signIn } from "next-auth/react";
+import { useActionState } from "react";
 
 export function LoginForm() {
 	const [state, action, isPending] = useActionState(loginAction, null);
@@ -42,10 +42,7 @@ export function LoginForm() {
 
 			<div className="relative">
 				<div className="absolute inset-0 flex items-center" aria-hidden="true">
-					<div
-						className="w-full border-t"
-						style={{ borderColor: "var(--color-border-subtle)" }}
-					/>
+					<div className="w-full border-t" style={{ borderColor: "var(--color-border-subtle)" }} />
 				</div>
 				<div className="relative flex justify-center text-xs">
 					<span

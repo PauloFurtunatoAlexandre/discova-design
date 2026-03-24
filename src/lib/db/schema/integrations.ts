@@ -17,11 +17,11 @@ export const integrations = pgTable(
 		refreshTokenEncrypted: text("refresh_token_encrypted"),
 		tokenExpiresAt: timestamp("token_expires_at", { withTimezone: true }),
 		isActive: boolean("is_active").notNull().default(true),
-		connectedBy: uuid("connected_by").notNull().references(() => users.id),
+		connectedBy: uuid("connected_by")
+			.notNull()
+			.references(() => users.id),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 	},
-	(table) => [
-		uniqueIndex("integrations_workspace_type_idx").on(table.workspaceId, table.type),
-	],
+	(table) => [uniqueIndex("integrations_workspace_type_idx").on(table.workspaceId, table.type)],
 );

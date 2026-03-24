@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { loginSchema } from "@/lib/validations/auth";
 import { checkRateLimit } from "@/lib/auth/rate-limit";
+import { loginSchema } from "@/lib/validations/auth";
+import { describe, expect, it } from "vitest";
 
 describe("Login Validation", () => {
 	it("validates valid credentials", () => {

@@ -2,13 +2,13 @@
 // Populated when database schema is created in Prompt 03.
 
 export async function setupTestDatabase() {
-  // TODO: Create test database, run migrations
+	// TODO: Create test database, run migrations
 }
 
 export async function teardownTestDatabase() {
-  // TODO: Drop test database
+	// TODO: Drop test database
 }
 
 export async function resetTestData() {
-  // TODO: Truncate all tables
+	// TODO: Truncate all tables
 }

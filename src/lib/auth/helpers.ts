@@ -1,9 +1,9 @@
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { workspaceMembers, projects } from "@/lib/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
-import { redirect } from "next/navigation";
+import { projects, workspaceMembers } from "@/lib/db/schema";
 import { logger } from "@/lib/logger";
+import { and, eq, isNull } from "drizzle-orm";
+import { redirect } from "next/navigation";
 
 export async function getCurrentSession() {
 	return await auth();

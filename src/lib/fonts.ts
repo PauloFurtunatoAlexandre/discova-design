@@ -1,4 +1,4 @@
-import { Lora, DM_Sans, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, JetBrains_Mono, Lora } from "next/font/google";
 
 export const lora = Lora({
 	subsets: ["latin", "latin-ext"],

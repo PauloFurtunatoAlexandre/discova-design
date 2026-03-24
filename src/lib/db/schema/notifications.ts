@@ -1,7 +1,7 @@
 import { boolean, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { projects } from "./projects";
 import { users } from "./users";
 import { workspaces } from "./workspaces";
-import { projects } from "./projects";
 
 export const notifications = pgTable(
 	"notifications",
@@ -11,7 +11,13 @@ export const notifications = pgTable(
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
 		type: text("type", {
-			enum: ["mention", "insight_validated", "priority_changed", "invite_received", "comment_reply"],
+			enum: [
+				"mention",
+				"insight_validated",
+				"priority_changed",
+				"invite_received",
+				"comment_reply",
+			],
 		}).notNull(),
 		title: text("title").notNull(),
 		body: text("body"),

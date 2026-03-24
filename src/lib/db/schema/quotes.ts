@@ -1,6 +1,6 @@
 import { boolean, index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { users } from "./users";
 import { researchNotes } from "./research-notes";
+import { users } from "./users";
 
 export const quotes = pgTable(
 	"quotes",
@@ -13,7 +13,9 @@ export const quotes = pgTable(
 		startOffset: integer("start_offset").notNull(),
 		endOffset: integer("end_offset").notNull(),
 		isStale: boolean("is_stale").notNull().default(false),
-		createdBy: uuid("created_by").notNull().references(() => users.id),
+		createdBy: uuid("created_by")
+			.notNull()
+			.references(() => users.id),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 	},
 	(table) => [index("quotes_note_idx").on(table.noteId)],

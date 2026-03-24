@@ -1,7 +1,7 @@
-import { boolean, date, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { users } from "./users";
+import { boolean, date, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { projects } from "./projects";
+import { users } from "./users";
 
 export const researchNotes = pgTable(
 	"research_notes",
@@ -23,7 +23,9 @@ export const researchNotes = pgTable(
 		assumptionsTested: text("assumptions_tested"),
 		followUpNeeded: boolean("follow_up_needed").notNull().default(false),
 		sessionRecordingUrl: text("session_recording_url"),
-		createdBy: uuid("created_by").notNull().references(() => users.id),
+		createdBy: uuid("created_by")
+			.notNull()
+			.references(() => users.id),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 		searchVector: text("search_vector"),

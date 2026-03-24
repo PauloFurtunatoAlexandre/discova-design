@@ -12,7 +12,9 @@ export const projects = pgTable(
 		name: text("name").notNull(),
 		slug: text("slug").notNull(),
 		description: text("description"),
-		createdBy: uuid("created_by").notNull().references(() => users.id),
+		createdBy: uuid("created_by")
+			.notNull()
+			.references(() => users.id),
 		archivedAt: timestamp("archived_at", { withTimezone: true }),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock next/navigation to prevent redirect errors in tests
 vi.mock("next/navigation", () => ({

@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { signIn } from "next-auth/react";
 import { signupAction } from "@/actions/auth";
+import { signIn } from "next-auth/react";
+import { useActionState, useState } from "react";
 
 function PasswordStrength({ password }: { password: string }) {
 	const checks = [
@@ -70,10 +70,7 @@ export function SignupForm() {
 
 			<div className="relative">
 				<div className="absolute inset-0 flex items-center" aria-hidden="true">
-					<div
-						className="w-full border-t"
-						style={{ borderColor: "var(--color-border-subtle)" }}
-					/>
+					<div className="w-full border-t" style={{ borderColor: "var(--color-border-subtle)" }} />
 				</div>
 				<div className="relative flex justify-center text-xs">
 					<span

@@ -1,24 +1,24 @@
 import { relations } from "drizzle-orm";
+import { auditLog } from "./audit-log";
 import { accounts, sessions } from "./auth";
-import { users } from "./users";
-import { workspaces } from "./workspaces";
-import { workspaceMembers } from "./workspace-members";
-import { projects } from "./projects";
-import { projectMembers } from "./project-members";
-import { researchNotes } from "./research-notes";
-import { tags } from "./tags";
-import { noteTags } from "./note-tags";
-import { quotes } from "./quotes";
+import { comments } from "./comments";
 import { insightCards } from "./insight-cards";
 import { insightEvidence } from "./insight-evidence";
-import { mapNodes } from "./map-nodes";
+import { integrations } from "./integrations";
 import { mapConnections } from "./map-connections";
+import { mapNodes } from "./map-nodes";
+import { noteTags } from "./note-tags";
+import { notifications } from "./notifications";
+import { projectMembers } from "./project-members";
+import { projects } from "./projects";
+import { quotes } from "./quotes";
+import { researchNotes } from "./research-notes";
 import { stackItems } from "./stack-items";
 import { stackSnapshots } from "./stack-snapshots";
-import { comments } from "./comments";
-import { notifications } from "./notifications";
-import { integrations } from "./integrations";
-import { auditLog } from "./audit-log";
+import { tags } from "./tags";
+import { users } from "./users";
+import { workspaceMembers } from "./workspace-members";
+import { workspaces } from "./workspaces";
 
 export const usersRelations = relations(users, ({ many }) => ({
 	accounts: many(accounts),

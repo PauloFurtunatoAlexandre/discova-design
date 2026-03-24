@@ -1,7 +1,7 @@
 import { index, pgTable, real, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
-import { users } from "./users";
-import { projects } from "./projects";
 import { mapNodes } from "./map-nodes";
+import { projects } from "./projects";
+import { users } from "./users";
 
 export const stackItems = pgTable(
 	"stack_items",

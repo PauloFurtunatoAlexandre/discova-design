@@ -1,27 +1,27 @@
 // Inferred types from Drizzle schema
 // Never define DB types manually — always infer from schema
 
-import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 import type {
-	users,
-	workspaces,
-	workspaceMembers,
-	projects,
-	projectMembers,
-	researchNotes,
-	tags,
-	quotes,
+	auditLog,
+	comments,
 	insightCards,
 	insightEvidence,
-	mapNodes,
+	integrations,
 	mapConnections,
+	mapNodes,
+	notifications,
+	projectMembers,
+	projects,
+	quotes,
+	researchNotes,
 	stackItems,
 	stackSnapshots,
-	comments,
-	notifications,
-	integrations,
-	auditLog,
+	tags,
+	users,
+	workspaceMembers,
+	workspaces,
 } from "@/lib/db/schema";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 // Select types (reading from DB)
 export type User = InferSelectModel<typeof users>;
@@ -53,34 +53,32 @@ export type NewMapNode = InferInsertModel<typeof mapNodes>;
 export type NewStackItem = InferInsertModel<typeof stackItems>;
 
 // ── Permission types ──────────────────────────────────────────────────
-export type Tier    = "admin" | "member" | "viewer"
-export type Preset  = "researcher" | "pm" | "member"
-export type Phase   = "vault" | "engine" | "map" | "stack" | "team"
-export type Action  = "read" | "write"
+export type Tier = "admin" | "member" | "viewer";
+export type Preset = "researcher" | "pm" | "member";
+export type Phase = "vault" | "engine" | "map" | "stack" | "team";
+export type Action = "read" | "write";
 
 // ── UI-specific types ─────────────────────────────────────────────────
-export type MapNodeState =
-  | "connected"
-  | "unconnected"
-  | "orphan-warning"
-  | "selected"
-  | "hover"
+export type MapNodeState = "connected" | "unconnected" | "orphan-warning" | "selected" | "hover";
 
-export type MapNodeType = "insight" | "problem" | "solution"
+export type MapNodeType = "insight" | "problem" | "solution";
 
-export type ShareMode = "stakeholder" | "presentation"
+export type ShareMode = "stakeholder" | "presentation";
 
-export type PhaseId = 1 | 2 | 3 | 4 | 5
+export type PhaseId = 1 | 2 | 3 | 4 | 5;
 
-export const PHASE_META: Record<PhaseId, {
-  name: string
-  action: string
-  accent: string
-  route: string
-}> = {
-  1: { name: "Vault",  action: "Store",      accent: "var(--color-accent-gold)",   route: "/vault"  },
-  2: { name: "Engine", action: "Synthesise",  accent: "var(--color-accent-blue)",   route: "/engine" },
-  3: { name: "Map",    action: "Connect",     accent: "var(--color-accent-coral)",  route: "/map"    },
-  4: { name: "Stack",  action: "Decide",      accent: "var(--color-accent-green)",  route: "/stack"  },
-  5: { name: "Team",   action: "Align",       accent: "var(--color-accent-purple)", route: "/team"   },
-}
+export const PHASE_META: Record<
+	PhaseId,
+	{
+		name: string;
+		action: string;
+		accent: string;
+		route: string;
+	}
+> = {
+	1: { name: "Vault", action: "Store", accent: "var(--color-accent-gold)", route: "/vault" },
+	2: { name: "Engine", action: "Synthesise", accent: "var(--color-accent-blue)", route: "/engine" },
+	3: { name: "Map", action: "Connect", accent: "var(--color-accent-coral)", route: "/map" },
+	4: { name: "Stack", action: "Decide", accent: "var(--color-accent-green)", route: "/stack" },
+	5: { name: "Team", action: "Align", accent: "var(--color-accent-purple)", route: "/team" },
+};

@@ -11,22 +11,22 @@ interface RateLimitEntry {
 const store = new Map<string, RateLimitEntry>();
 
 if (typeof setInterval !== "undefined") {
-	setInterval(() => {
-		const now = Date.now();
-		for (const [key, entry] of store) {
-			if (now > entry.resetAt) {
-				store.delete(key);
+	setInterval(
+		() => {
+			const now = Date.now();
+			for (const [key, entry] of store) {
+				if (now > entry.resetAt) {
+					store.delete(key);
+				}
 			}
-		}
-	}, 5 * 60 * 1000);
+		},
+		5 * 60 * 1000,
+	);
 }
 
 export function checkRateLimit(
 	key: string,
-	{
-		maxAttempts = 5,
-		windowMs = 60_000,
-	}: { maxAttempts?: number; windowMs?: number } = {},
+	{ maxAttempts = 5, windowMs = 60_000 }: { maxAttempts?: number; windowMs?: number } = {},
 ): { allowed: boolean; remaining: number; resetAt: number } {
 	const now = Date.now();
 	const entry = store.get(key);

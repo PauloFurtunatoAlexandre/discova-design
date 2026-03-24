@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { signupSchema, loginSchema } from "@/lib/validations/auth";
 import { checkRateLimit } from "@/lib/auth/rate-limit";
+import { loginSchema, signupSchema } from "@/lib/validations/auth";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Test the validation schemas directly (no DB needed)
 describe("Signup Validation", () => {

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import * as relations from "@/lib/db/schema";
+import { describe, expect, it } from "vitest";
 
 describe("Database Relations", () => {
 	it("exports all relation definitions", () => {

@@ -1,6 +1,6 @@
 import { boolean, index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { users } from "./users";
 import { projects } from "./projects";
+import { users } from "./users";
 
 export const insightCards = pgTable(
 	"insight_cards",
@@ -13,7 +13,9 @@ export const insightCards = pgTable(
 		confidenceScore: integer("confidence_score").notNull().default(0),
 		themeTag: text("theme_tag"),
 		isAiGenerated: boolean("is_ai_generated").notNull().default(false),
-		createdBy: uuid("created_by").notNull().references(() => users.id),
+		createdBy: uuid("created_by")
+			.notNull()
+			.references(() => users.id),
 		acceptedBy: uuid("accepted_by").references(() => users.id),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

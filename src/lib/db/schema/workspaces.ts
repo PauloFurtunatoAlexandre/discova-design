@@ -8,7 +8,9 @@ export const workspaces = pgTable(
 		name: text("name").notNull(),
 		slug: text("slug").notNull(),
 		logoUrl: text("logo_url"),
-		createdBy: uuid("created_by").notNull().references(() => users.id),
+		createdBy: uuid("created_by")
+			.notNull()
+			.references(() => users.id),
 		isDemo: boolean("is_demo").notNull().default(false),
 		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
