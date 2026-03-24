@@ -95,7 +95,7 @@ export function UserMenu({ user, isOpen, onClose, userTier, position = "above" }
 					className="absolute z-50 w-60"
 					style={{
 						[position === "above" ? "bottom" : "top"]: "calc(100% + 8px)",
-						left: 0,
+						right: 0,
 						backgroundColor: "var(--color-bg-overlay)",
 						border: "1px solid var(--color-border-default)",
 						borderRadius: "var(--radius-lg)",
