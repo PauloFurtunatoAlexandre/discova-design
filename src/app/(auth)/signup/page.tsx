@@ -1,8 +1,36 @@
+import type { Metadata } from "next";
+import { SignupForm } from "./signup-form";
+
+export const metadata: Metadata = {
+	title: "Create Account — Discova",
+};
+
 export default function SignupPage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-semibold">Sign Up</h1>
-      <p className="text-gray-500 mt-2">Auth — built in Prompt 04.</p>
-    </div>
-  );
+	return (
+		<div>
+			<div className="text-center mb-10">
+				<h1
+					className="text-3xl tracking-tight"
+					style={{
+						fontFamily: "var(--font-display)",
+						color: "var(--color-text-primary)",
+					}}
+				>
+					discova
+				</h1>
+				<p className="mt-2 text-sm" style={{ color: "var(--color-text-muted)" }}>
+					Create your account
+				</p>
+			</div>
+
+			<SignupForm />
+
+			<p className="text-center mt-8 text-sm" style={{ color: "var(--color-text-muted)" }}>
+				Already have an account?{" "}
+				<a href="/login" className="underline" style={{ color: "var(--color-accent-gold)" }}>
+					Sign in
+				</a>
+			</p>
+		</div>
+	);
 }
