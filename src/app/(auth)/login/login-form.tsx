@@ -2,10 +2,18 @@
 
 import { loginAction } from "@/actions/auth";
 import { signIn } from "next-auth/react";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
 
 export function LoginForm() {
 	const [state, action, isPending] = useActionState(loginAction, null);
+	const router = useRouter();
+
+	useEffect(() => {
+		if (state?.success) {
+			router.push("/dashboard");
+		}
+	}, [state?.success, router]);
 
 	return (
 		<div className="space-y-6">
