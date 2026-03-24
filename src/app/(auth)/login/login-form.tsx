@@ -1,25 +1,37 @@
 "use client";
 
-import { loginAction } from "@/actions/auth";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useActionState, useEffect } from "react";
+import { useState } from "react";
 
 export function LoginForm() {
-	const [state, action, isPending] = useActionState(loginAction, null);
-	const router = useRouter();
+	const [error, setError] = useState<string | null>(null);
+	const [isPending, setIsPending] = useState(false);
 
-	useEffect(() => {
-		if (state?.success) {
-			router.push("/dashboard");
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		setIsPending(true);
+		setError(null);
+
+		const form = new FormData(e.currentTarget);
+		const result = await signIn("credentials", {
+			email: form.get("email") as string,
+			password: form.get("password") as string,
+			redirect: false,
+		});
+
+		if (result?.error) {
+			setError("Invalid email or password.");
+			setIsPending(false);
+		} else {
+			window.location.href = "/";
 		}
-	}, [state?.success, router]);
+	}
 
 	return (
 		<div className="space-y-6">
 			<button
 				type="button"
-				onClick={() => signIn("google", { callbackUrl: "/onboarding" })}
+				onClick={() => signIn("google", { callbackUrl: "/" })}
 				className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg text-sm font-medium transition-colors"
 				style={{
 					backgroundColor: "var(--color-bg-raised)",
@@ -29,7 +41,7 @@ export function LoginForm() {
 			>
 				<svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
 					<path
-						d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+						d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.77c2.08-1.92 3.28-4.74 3.28-8.1z"
 						fill="#4285F4"
 					/>
 					<path
@@ -65,8 +77,8 @@ export function LoginForm() {
 				</div>
 			</div>
 
-			<form action={action} className="space-y-4">
-				{state?.error && (
+			<form onSubmit={handleSubmit} className="space-y-4">
+				{error && (
 					<div
 						className="px-4 py-3 rounded-lg text-sm"
 						style={{
@@ -76,7 +88,7 @@ export function LoginForm() {
 						}}
 						role="alert"
 					>
-						{state.error}
+						{error}
 					</div>
 				)}
 
@@ -106,11 +118,6 @@ export function LoginForm() {
 						}}
 						placeholder="you@company.com"
 					/>
-					{state?.fieldErrors?.email && (
-						<p className="mt-1 text-xs" style={{ color: "var(--color-status-error)" }}>
-							{state.fieldErrors.email[0]}
-						</p>
-					)}
 				</div>
 
 				<div>
@@ -139,11 +146,6 @@ export function LoginForm() {
 						}}
 						placeholder="••••••••"
 					/>
-					{state?.fieldErrors?.password && (
-						<p className="mt-1 text-xs" style={{ color: "var(--color-status-error)" }}>
-							{state.fieldErrors.password[0]}
-						</p>
-					)}
 				</div>
 
 				<button

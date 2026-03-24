@@ -9,16 +9,9 @@ export default function LoginPage() {
 	return (
 		<div>
 			<div className="text-center mb-10">
-				<h1
-					className="text-3xl tracking-tight"
-					style={{
-						fontFamily: "var(--font-display)",
-						color: "var(--color-text-primary)",
-					}}
-				>
-					discova
-				</h1>
-				<p className="mt-2 text-sm" style={{ color: "var(--color-text-muted)" }}>
+				<img src="/discova-lockup-dark.svg" alt="Discova" className="logo-dark" style={{ height: "36px", width: "auto", display: "inline-block" }} />
+				<img src="/discova-lockup-light.svg" alt="Discova" className="logo-light" style={{ height: "36px", width: "auto", display: "none" }} />
+				<p className="mt-3 text-sm" style={{ color: "var(--color-text-muted)" }}>
 					Sign in to your account
 				</p>
 			</div>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" role="img" aria-label="Discova mark">
+  <title>Discova</title>
+  <defs>
+    <filter id="mgl" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.0" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="24" cy="24" r="21.5" stroke="#C0B9AA" stroke-width="1.4"/>
+  <circle cx="15" cy="15" r="1.1" fill="#DDD8CE"/><circle cx="24" cy="15" r="1.1" fill="#DDD8CE"/><circle cx="33" cy="15" r="1.1" fill="#DDD8CE"/>
+  <circle cx="15" cy="24" r="1.1" fill="#DDD8CE"/><circle cx="33" cy="24" r="1.1" fill="#DDD8CE"/>
+  <circle cx="15" cy="33" r="1.1" fill="#DDD8CE"/><circle cx="24" cy="33" r="1.1" fill="#DDD8CE"/><circle cx="33" cy="33" r="1.1" fill="#DDD8CE"/>
+  <line x1="15" y1="33" x2="24" y2="13.5" stroke="#B0A898" stroke-width="1.4" stroke-linecap="round"/>
+  <line x1="33" y1="33" x2="24" y2="13.5" stroke="#B0A898" stroke-width="1.4" stroke-linecap="round"/>
+  <line x1="15" y1="33" x2="33" y2="33" stroke="#C0B9AA" stroke-width="1.1" stroke-linecap="round"/>
+  <circle cx="15" cy="33" r="3.2" fill="#CCC5B8" stroke="#B0A898" stroke-width="0.8"/>
+  <circle cx="33" cy="33" r="3.2" fill="#CCC5B8" stroke="#B0A898" stroke-width="0.8"/>
+  <circle cx="24" cy="13.5" r="6.0" fill="#B8852A" filter="url(#mgl)"/>
+  <circle cx="22.5" cy="12.0" r="1.9" fill="rgba(255,255,255,0.30)"/>
+</svg>

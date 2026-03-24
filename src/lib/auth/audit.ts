@@ -12,12 +12,12 @@ interface AuditEntry {
 	ipAddress?: string;
 }
 
-const SYSTEM_WORKSPACE_ID = "00000000-0000-0000-0000-000000000000";
-
 export async function createAuditEntry(entry: AuditEntry): Promise<void> {
+	if (!entry.workspaceId) return;
+
 	try {
 		await db.insert(auditLog).values({
-			workspaceId: entry.workspaceId ?? SYSTEM_WORKSPACE_ID,
+			workspaceId: entry.workspaceId,
 			userId: entry.userId ?? null,
 			action: entry.action,
 			targetType: entry.targetType,

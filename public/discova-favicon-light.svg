@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Discova">
+  <title>Discova</title>
+  <rect width="32" height="32" rx="6" fill="#F5F2EA"/>
+  <circle cx="16" cy="16" r="13" stroke="#C0B9AA" stroke-width="1.2"/>
+  <circle cx="10" cy="10" r="0.8" fill="#DDD8CE"/>
+  <circle cx="16" cy="10" r="0.8" fill="#DDD8CE"/>
+  <circle cx="22" cy="10" r="0.8" fill="#DDD8CE"/>
+  <circle cx="10" cy="16" r="0.8" fill="#DDD8CE"/>
+  <circle cx="22" cy="16" r="0.8" fill="#DDD8CE"/>
+  <circle cx="10" cy="22" r="0.8" fill="#DDD8CE"/>
+  <circle cx="16" cy="22" r="0.8" fill="#DDD8CE"/>
+  <circle cx="22" cy="22" r="0.8" fill="#DDD8CE"/>
+  <line x1="10" y1="22" x2="16" y2="9" stroke="#B0A898" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="22" y1="22" x2="16" y2="9" stroke="#B0A898" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="10" y1="22" x2="22" y2="22" stroke="#C0B9AA" stroke-width="0.9" stroke-linecap="round"/>
+  <circle cx="10" cy="22" r="2.2" fill="#CCC5B8" stroke="#B0A898" stroke-width="0.7"/>
+  <circle cx="22" cy="22" r="2.2" fill="#CCC5B8" stroke="#B0A898" stroke-width="0.7"/>
+  <circle cx="16" cy="9" r="4" fill="#B8852A"/>
+  <circle cx="15" cy="8" r="1.2" fill="rgba(255,255,255,0.30)"/>
+</svg>

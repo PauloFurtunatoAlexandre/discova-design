@@ -10,15 +10,16 @@ export default async function AppHomePage() {
 		redirect("/login");
 	}
 
-	const membership = await db.query.workspaceMembers.findFirst({
+	const memberships = await db.query.workspaceMembers.findMany({
 		where: and(eq(workspaceMembers.userId, session.user.id), isNull(workspaceMembers.removedAt)),
 		with: { workspace: true },
 	});
 
-	if (!membership) {
+	if (memberships.length === 0) {
 		redirect("/onboarding");
 	}
 
-	// Redirect to the user's first workspace
-	redirect(`/${membership.workspace.id}`);
+	// Match the same selection logic as the app layout
+	const active = memberships.find((m) => !m.workspace.isDemo) ?? memberships[0];
+	redirect(`/${active.workspace.id}`);
 }

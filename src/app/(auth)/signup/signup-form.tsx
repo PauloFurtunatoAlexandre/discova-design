@@ -2,7 +2,6 @@
 
 import { signupAction } from "@/actions/auth";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 
 function PasswordStrength({ password }: { password: string }) {
@@ -34,14 +33,16 @@ function PasswordStrength({ password }: { password: string }) {
 
 export function SignupForm() {
 	const [state, action, isPending] = useActionState(signupAction, null);
+	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const router = useRouter();
+	const [signingIn, setSigningIn] = useState(false);
 
 	useEffect(() => {
 		if (state?.success) {
-			router.push("/login");
+			setSigningIn(true);
+			signIn("credentials", { email, password, callbackUrl: "/onboarding" });
 		}
-	}, [state?.success, router]);
+	}, [state?.success, email, password]);
 
 	return (
 		<div className="space-y-6">
@@ -159,6 +160,8 @@ export function SignupForm() {
 						type="email"
 						autoComplete="email"
 						required
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
 						className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-colors"
 						style={{
 							backgroundColor: "var(--color-bg-sunken)",
@@ -212,15 +215,15 @@ export function SignupForm() {
 
 				<button
 					type="submit"
-					disabled={isPending}
+					disabled={isPending || signingIn}
 					className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all"
 					style={{
 						background: "var(--gradient-gold)",
 						color: "var(--color-text-inverse)",
-						opacity: isPending ? 0.7 : 1,
+						opacity: isPending || signingIn ? 0.7 : 1,
 					}}
 				>
-					{isPending ? "Creating account..." : "Create account"}
+					{signingIn ? "Signing in..." : isPending ? "Creating account..." : "Create account"}
 				</button>
 			</form>
 		</div>

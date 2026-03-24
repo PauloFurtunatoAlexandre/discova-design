@@ -131,6 +131,13 @@ h6 {
 	border-radius: var(--radius-sm);
 }
 
+/* ── Theme-aware logo visibility ─────────────────────────── */
+.logo-light { display: none; }
+.logo-dark  { display: block; }
+
+[data-theme="light"] .logo-dark  { display: none; }
+[data-theme="light"] .logo-light { display: block; }
+
 /* ── Reduced motion ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
 	*,
@@ -149,3 +156,4 @@ h6 {
 		transition-duration: 200ms !important;
 	}
 }
+

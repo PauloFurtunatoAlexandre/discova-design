@@ -1,6 +1,6 @@
 import { createAuditEntry } from "@/lib/auth/audit";
 import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
+import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema";
 import { logger } from "@/lib/logger";
 import { loginSchema } from "@/lib/validations/auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
@@ -11,10 +11,17 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-	adapter: DrizzleAdapter(db),
+	adapter: DrizzleAdapter(db, {
+		usersTable: users,
+		accountsTable: accounts,
+		sessionsTable: sessions,
+		verificationTokensTable: verificationTokens,
+	}),
 
 	session: {
-		strategy: "database",
+		// NOTE: Auth.js v5 credentials provider always uses JWT internally,
+		// regardless of strategy setting. JWT strategy is required for credentials to work.
+		strategy: "jwt",
 		maxAge: 30 * 24 * 60 * 60,
 		updateAge: 24 * 60 * 60,
 	},
@@ -89,9 +96,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 	],
 
 	callbacks: {
-		async session({ session, user }) {
-			if (session.user && user.id) {
-				session.user.id = user.id;
+		async jwt({ token, user }) {
+			if (user?.id) {
+				token.id = user.id;
+			}
+			return token;
+		},
+		async session({ session, token }) {
+			if (token.id) {
+				session.user.id = token.id as string;
 			}
 			return session;
 		},

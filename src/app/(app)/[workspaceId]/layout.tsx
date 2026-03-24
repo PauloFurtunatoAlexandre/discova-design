@@ -28,8 +28,7 @@ export default async function WorkspaceLayout({
 	});
 
 	if (!membership) {
-		// Not a member — redirect to their default workspace
-		redirect("/");
+		redirect("/onboarding");
 	}
 
 	return <>{children}</>;
