@@ -1,16 +1,23 @@
 import { createAuditEntry } from "@/lib/auth/audit";
 import { db } from "@/lib/db";
-import { accounts, sessions, users, verificationTokens, workspaceMembers, workspaces } from "@/lib/db/schema";
-import { nanoid } from "nanoid";
-import slugify from "slugify";
+import {
+	accounts,
+	sessions,
+	users,
+	verificationTokens,
+	workspaceMembers,
+	workspaces,
+} from "@/lib/db/schema";
 import { logger } from "@/lib/logger";
 import { loginSchema } from "@/lib/validations/auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import slugify from "slugify";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	adapter: DrizzleAdapter(db, {

@@ -8,8 +8,16 @@ export const metadata: Metadata = {
 	description: "The missing layer between what your users say and what your team decides to build.",
 	icons: {
 		icon: [
-			{ url: "/discova-favicon-dark.svg", media: "(prefers-color-scheme: dark)", type: "image/svg+xml" },
-			{ url: "/discova-favicon-light.svg", media: "(prefers-color-scheme: light)", type: "image/svg+xml" },
+			{
+				url: "/discova-favicon-dark.svg",
+				media: "(prefers-color-scheme: dark)",
+				type: "image/svg+xml",
+			},
+			{
+				url: "/discova-favicon-light.svg",
+				media: "(prefers-color-scheme: light)",
+				type: "image/svg+xml",
+			},
 		],
 	},
 };

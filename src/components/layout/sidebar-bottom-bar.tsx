@@ -2,6 +2,7 @@
 
 import { UserMenu } from "@/components/layout/user-menu";
 import { HelpCircle, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface SidebarBottomBarProps {
@@ -12,11 +13,13 @@ interface SidebarBottomBarProps {
 		image: string | null;
 	};
 	userTier?: string | undefined;
+	workspaceId: string;
 }
 
-export function SidebarBottomBar({ user, userTier }: SidebarBottomBarProps) {
+export function SidebarBottomBar({ user, userTier, workspaceId }: SidebarBottomBarProps) {
+	const router = useRouter();
 	const [menuOpen, setMenuOpen] = useState(false);
-	const isAdmin = userTier === "admin";
+	const isAdminTier = userTier === "admin";
 
 	const initials = user.name
 		? user.name
@@ -64,7 +67,7 @@ export function SidebarBottomBar({ user, userTier }: SidebarBottomBarProps) {
 			</button>
 
 			{/* Settings icon — Admin only */}
-			{isAdmin && (
+			{isAdminTier && (
 				<button
 					type="button"
 					className="rounded-md p-1.5 transition-colors"
@@ -75,7 +78,8 @@ export function SidebarBottomBar({ user, userTier }: SidebarBottomBarProps) {
 					onMouseLeave={(e) => {
 						(e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)";
 					}}
-					aria-label="Settings"
+					onClick={() => router.push(`/${workspaceId}/settings`)}
+					aria-label="Workspace settings"
 				>
 					<Settings size={16} />
 				</button>

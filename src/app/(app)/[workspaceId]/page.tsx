@@ -30,7 +30,10 @@ export default async function WorkspaceRootPage({
 			<div className="text-center max-w-sm px-6">
 				<div
 					className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-3xl"
-					style={{ backgroundColor: "var(--color-bg-raised)", border: "1px solid var(--color-border-subtle)" }}
+					style={{
+						backgroundColor: "var(--color-bg-raised)",
+						border: "1px solid var(--color-border-subtle)",
+					}}
 				>
 					📂
 				</div>

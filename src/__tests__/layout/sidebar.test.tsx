@@ -130,6 +130,7 @@ function renderSidebar(
 		<SidebarProvider>
 			<Sidebar
 				workspace={mockWorkspace}
+				allWorkspaces={[{ ...mockWorkspace, isDemo: false, tier: "admin" }]}
 				projects={overrides.projects ?? mockProjects}
 				user={mockUser}
 				userTier={overrides.userTier ?? "member"}

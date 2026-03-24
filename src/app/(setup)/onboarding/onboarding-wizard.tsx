@@ -1,9 +1,6 @@
 "use client";
 
-import {
-	createOnboardingProjectAction,
-	updateWorkspaceNameAction,
-} from "@/actions/onboarding";
+import { createOnboardingProjectAction, updateWorkspaceNameAction } from "@/actions/onboarding";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Briefcase, Check, FolderOpen } from "lucide-react";
 import { useState } from "react";
@@ -146,7 +143,10 @@ export function OnboardingWizard({ workspace, userName }: OnboardingWizardProps)
 								<div>
 									<h1
 										className="text-2xl font-semibold tracking-tight"
-										style={{ fontFamily: "var(--font-display)", color: "var(--color-text-primary)" }}
+										style={{
+											fontFamily: "var(--font-display)",
+											color: "var(--color-text-primary)",
+										}}
 									>
 										Welcome, {firstName}!
 									</h1>
@@ -174,7 +174,6 @@ export function OnboardingWizard({ workspace, userName }: OnboardingWizardProps)
 										onChange={(e) => setWorkspaceName(e.target.value)}
 										required
 										maxLength={64}
-										autoFocus
 										className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-colors"
 										style={{
 											backgroundColor: "var(--color-bg-sunken)",
@@ -221,7 +220,10 @@ export function OnboardingWizard({ workspace, userName }: OnboardingWizardProps)
 								{/* Icon */}
 								<div
 									className="flex h-12 w-12 items-center justify-center rounded-xl"
-									style={{ backgroundColor: "var(--color-accent-blue-muted, color-mix(in srgb, var(--color-accent-blue) 12%, transparent))" }}
+									style={{
+										backgroundColor:
+											"var(--color-accent-blue-muted, color-mix(in srgb, var(--color-accent-blue) 12%, transparent))",
+									}}
 								>
 									<FolderOpen size={22} style={{ color: "var(--color-accent-blue)" }} />
 								</div>
@@ -229,12 +231,16 @@ export function OnboardingWizard({ workspace, userName }: OnboardingWizardProps)
 								<div>
 									<h1
 										className="text-2xl font-semibold tracking-tight"
-										style={{ fontFamily: "var(--font-display)", color: "var(--color-text-primary)" }}
+										style={{
+											fontFamily: "var(--font-display)",
+											color: "var(--color-text-primary)",
+										}}
 									>
 										Create your first project
 									</h1>
 									<p className="mt-1.5 text-sm" style={{ color: "var(--color-text-muted)" }}>
-										Projects are where you store research, generate insights, and build your product roadmap.
+										Projects are where you store research, generate insights, and build your product
+										roadmap.
 									</p>
 								</div>
 
@@ -257,7 +263,6 @@ export function OnboardingWizard({ workspace, userName }: OnboardingWizardProps)
 											value={projectName}
 											onChange={(e) => setProjectName(e.target.value)}
 											maxLength={100}
-											autoFocus
 											className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-colors"
 											style={{
 												backgroundColor: "var(--color-bg-sunken)",
@@ -347,7 +352,10 @@ export function OnboardingWizard({ workspace, userName }: OnboardingWizardProps)
 								<div className="flex justify-center">
 									<div
 										className="flex h-14 w-14 items-center justify-center rounded-full"
-										style={{ backgroundColor: "var(--color-status-success-bg, color-mix(in srgb, var(--color-accent-green) 12%, transparent))" }}
+										style={{
+											backgroundColor:
+												"var(--color-status-success-bg, color-mix(in srgb, var(--color-accent-green) 12%, transparent))",
+										}}
 									>
 										<Check size={26} style={{ color: "var(--color-accent-green)" }} />
 									</div>
@@ -356,7 +364,10 @@ export function OnboardingWizard({ workspace, userName }: OnboardingWizardProps)
 								<div>
 									<h1
 										className="text-2xl font-semibold tracking-tight"
-										style={{ fontFamily: "var(--font-display)", color: "var(--color-text-primary)" }}
+										style={{
+											fontFamily: "var(--font-display)",
+											color: "var(--color-text-primary)",
+										}}
 									>
 										You're all set!
 									</h1>
@@ -387,7 +398,10 @@ export function OnboardingWizard({ workspace, userName }: OnboardingWizardProps)
 									</div>
 									{createdProjectId && (
 										<div className="flex items-center gap-2 text-sm">
-											<Check size={13} style={{ color: "var(--color-accent-gold)", flexShrink: 0 }} />
+											<Check
+												size={13}
+												style={{ color: "var(--color-accent-gold)", flexShrink: 0 }}
+											/>
 											<span style={{ color: "var(--color-text-secondary)" }}>
 												Project:{" "}
 												<span style={{ color: "var(--color-text-primary)", fontWeight: 500 }}>

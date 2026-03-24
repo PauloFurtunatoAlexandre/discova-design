@@ -35,6 +35,16 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
 	const activeWorkspace = activeMembership.workspace;
 
+	// All workspaces for the switcher dropdown
+	const allWorkspaces = memberships.map((m) => ({
+		id: m.workspace.id,
+		name: m.workspace.name,
+		slug: m.workspace.slug,
+		logoUrl: m.workspace.logoUrl,
+		isDemo: m.workspace.isDemo,
+		tier: m.tier,
+	}));
+
 	// Get projects for the active workspace
 	const workspaceProjects = await db.query.projects.findMany({
 		where: and(eq(projects.workspaceId, activeWorkspace.id), isNull(projects.archivedAt)),
@@ -50,6 +60,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 					slug: activeWorkspace.slug,
 					logoUrl: activeWorkspace.logoUrl,
 				}}
+				allWorkspaces={allWorkspaces}
 				projects={workspaceProjects.map((p) => ({
 					id: p.id,
 					name: p.name,

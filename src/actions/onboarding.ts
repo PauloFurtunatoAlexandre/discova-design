@@ -44,7 +44,11 @@ export async function createOnboardingProjectAction(
 	workspaceId: string,
 	name: string,
 	description: string,
-): Promise<{ error?: string | undefined; success?: boolean | undefined; projectId?: string | undefined }> {
+): Promise<{
+	error?: string | undefined;
+	success?: boolean | undefined;
+	projectId?: string | undefined;
+}> {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Unauthorized" };
 

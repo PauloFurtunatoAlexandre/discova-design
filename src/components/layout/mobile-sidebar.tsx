@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Sidebar } from "./sidebar";
+import type { WorkspaceItem } from "./workspace-switcher";
 
 interface MobileSidebarProps {
 	workspace: {
@@ -13,6 +14,7 @@ interface MobileSidebarProps {
 		slug: string;
 		logoUrl: string | null;
 	};
+	allWorkspaces?: WorkspaceItem[];
 	projects: Array<{
 		id: string;
 		name: string;
@@ -27,7 +29,13 @@ interface MobileSidebarProps {
 	userTier?: string | undefined;
 }
 
-export function MobileSidebar({ workspace, projects, user, userTier }: MobileSidebarProps) {
+export function MobileSidebar({
+	workspace,
+	allWorkspaces = [],
+	projects,
+	user,
+	userTier,
+}: MobileSidebarProps) {
 	const { isOpen, close } = useSidebar();
 	const pathname = usePathname();
 
@@ -74,7 +82,13 @@ export function MobileSidebar({ workspace, projects, user, userTier }: MobileSid
 						transition={{ type: "spring", stiffness: 400, damping: 35 }}
 						className="fixed left-0 top-0 z-50 h-full md:hidden"
 					>
-						<Sidebar workspace={workspace} projects={projects} user={user} userTier={userTier} />
+						<Sidebar
+							workspace={workspace}
+							allWorkspaces={allWorkspaces}
+							projects={projects}
+							user={user}
+							userTier={userTier}
+						/>
 					</motion.div>
 				</>
 			)}

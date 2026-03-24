@@ -9,8 +9,18 @@ export default function SignupPage() {
 	return (
 		<div>
 			<div className="text-center mb-10">
-				<img src="/discova-lockup-dark.svg" alt="Discova" className="logo-dark" style={{ height: "36px", width: "auto", display: "inline-block" }} />
-				<img src="/discova-lockup-light.svg" alt="Discova" className="logo-light" style={{ height: "36px", width: "auto", display: "none" }} />
+				<img
+					src="/discova-lockup-dark.svg"
+					alt="Discova"
+					className="logo-dark"
+					style={{ height: "36px", width: "auto", display: "inline-block" }}
+				/>
+				<img
+					src="/discova-lockup-light.svg"
+					alt="Discova"
+					className="logo-light"
+					style={{ height: "36px", width: "auto", display: "none" }}
+				/>
 				<p className="mt-3 text-sm" style={{ color: "var(--color-text-muted)" }}>
 					Create your account
 				</p>

@@ -2,8 +2,8 @@ import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { workspaceMembers, workspaces } from "@/lib/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
-import type { Metadata } from "next";
 import { nanoid } from "nanoid";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
 import { OnboardingWizard } from "./onboarding-wizard";
@@ -17,10 +17,7 @@ export default async function OnboardingPage() {
 	if (!session?.user?.id) redirect("/login");
 
 	let membership = await db.query.workspaceMembers.findFirst({
-		where: and(
-			eq(workspaceMembers.userId, session.user.id),
-			isNull(workspaceMembers.removedAt),
-		),
+		where: and(eq(workspaceMembers.userId, session.user.id), isNull(workspaceMembers.removedAt)),
 		with: { workspace: true },
 	});
 

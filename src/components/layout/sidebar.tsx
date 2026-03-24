@@ -5,6 +5,7 @@ import { SidebarBottomBar } from "./sidebar-bottom-bar";
 import { SidebarPhaseNav } from "./sidebar-phase-nav";
 import { SidebarProjectList } from "./sidebar-project-list";
 import { SidebarWorkspaceHeader } from "./sidebar-workspace-header";
+import type { WorkspaceItem } from "./workspace-switcher";
 
 interface SidebarProps {
 	workspace: {
@@ -13,6 +14,7 @@ interface SidebarProps {
 		slug: string;
 		logoUrl: string | null;
 	};
+	allWorkspaces: WorkspaceItem[];
 	projects: Array<{
 		id: string;
 		name: string;
@@ -27,7 +29,7 @@ interface SidebarProps {
 	userTier?: string | undefined;
 }
 
-export function Sidebar({ workspace, projects, user, userTier }: SidebarProps) {
+export function Sidebar({ workspace, allWorkspaces, projects, user, userTier }: SidebarProps) {
 	const pathname = usePathname();
 	const segments = pathname.split("/").filter(Boolean);
 	// segments[0] = workspaceId, segments[1] = projectId, segments[2] = phase
@@ -43,7 +45,7 @@ export function Sidebar({ workspace, projects, user, userTier }: SidebarProps) {
 			}}
 		>
 			{/* Section A — Workspace Header */}
-			<SidebarWorkspaceHeader workspace={workspace} />
+			<SidebarWorkspaceHeader workspace={workspace} allWorkspaces={allWorkspaces} />
 
 			{/* Sections B + C — scrollable middle */}
 			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
@@ -57,7 +59,7 @@ export function Sidebar({ workspace, projects, user, userTier }: SidebarProps) {
 			</div>
 
 			{/* Section D — Bottom Bar */}
-			<SidebarBottomBar user={user} userTier={userTier} />
+			<SidebarBottomBar user={user} userTier={userTier} workspaceId={workspace.id} />
 		</aside>
 	);
 }

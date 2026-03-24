@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { MobileSidebar } from "./mobile-sidebar";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
+import type { WorkspaceItem } from "./workspace-switcher";
 
 interface AppShellProps {
 	children: ReactNode;
@@ -14,6 +15,7 @@ interface AppShellProps {
 		slug: string;
 		logoUrl: string | null;
 	};
+	allWorkspaces: WorkspaceItem[];
 	projects: Array<{
 		id: string;
 		name: string;
@@ -30,7 +32,14 @@ interface AppShellProps {
 	activePhase?: string;
 }
 
-function AppShellInner({ children, workspace, projects, user, userTier }: AppShellProps) {
+function AppShellInner({
+	children,
+	workspace,
+	allWorkspaces,
+	projects,
+	user,
+	userTier,
+}: AppShellProps) {
 	// useSidebar is available here because AppShell wraps with SidebarProvider
 	useSidebar(); // ensure context is available; actual usage is in Topbar/MobileSidebar
 
@@ -41,7 +50,13 @@ function AppShellInner({ children, workspace, projects, user, userTier }: AppShe
 		>
 			{/* Desktop Sidebar — hidden on mobile */}
 			<div className="hidden md:flex">
-				<Sidebar workspace={workspace} projects={projects} user={user} userTier={userTier} />
+				<Sidebar
+					workspace={workspace}
+					allWorkspaces={allWorkspaces}
+					projects={projects}
+					user={user}
+					userTier={userTier}
+				/>
 			</div>
 
 			{/* Mobile Sidebar — drawer */}

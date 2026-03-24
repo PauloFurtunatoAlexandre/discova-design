@@ -1,5 +1,3 @@
-"use server";
-
 import { createAuditEntry } from "@/lib/auth/audit";
 import { auth } from "@/lib/auth/config";
 import { logger } from "@/lib/logger";
