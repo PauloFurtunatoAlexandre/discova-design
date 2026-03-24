@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, createContext, useContext } from "react";
+import { type ReactNode, createElement, createContext, useContext } from "react";
 
 interface ProjectContextValue {
 	projectId: string;
@@ -18,8 +18,7 @@ export function ProjectProvider({
 	children: ReactNode;
 	value: ProjectContextValue;
 }) {
-	// Use the context Provider directly to avoid JSX in a .ts file
-	return ProjectContext.Provider({ value, children });
+	return createElement(ProjectContext.Provider, { value }, children);
 }
 
 export function useProjectContext(): ProjectContextValue {
