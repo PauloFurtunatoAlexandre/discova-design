@@ -10,7 +10,7 @@ import {
 } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 import { users } from "./users"
-import { projects } from "./workspaces"
+import { projects } from "./projects"
 
 // ── Research Notes (Phase 01 — Vault) ────────────────────────────────
 export const researchNotes = pgTable(

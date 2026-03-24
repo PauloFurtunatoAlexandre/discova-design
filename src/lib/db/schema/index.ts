@@ -1,7 +1,21 @@
-// Single import point for all Drizzle schema tables and relations
-// Usage: import { users, workspaces, researchNotes } from "@/lib/db/schema"
-
-export * from "./users"
-export * from "./workspaces"
-export * from "./vault"
-export * from "./discovery"
+export * from "./auth";
+export * from "./users";
+export * from "./workspaces";
+export * from "./workspace-members";
+export * from "./projects";
+export * from "./project-members";
+export * from "./research-notes";
+export * from "./tags";
+export * from "./note-tags";
+export * from "./quotes";
+export * from "./insight-cards";
+export * from "./insight-evidence";
+export * from "./map-nodes";
+export * from "./map-connections";
+export * from "./stack-items";
+export * from "./stack-snapshots";
+export * from "./comments";
+export * from "./notifications";
+export * from "./integrations";
+export * from "./audit-log";
+export * from "./relations";

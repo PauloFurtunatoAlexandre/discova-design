@@ -1,75 +1,62 @@
 // Inferred types from Drizzle schema
 // Never define DB types manually — always infer from schema
 
-import type { InferSelectModel, InferInsertModel } from "drizzle-orm"
+import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 import type {
-  users,
-  workspaces,
-  workspaceMembers,
-  projects,
-  projectMembers,
-  researchNotes,
-  quoteObjects,
-  insightCards,
-  insightEvidenceLinks,
-  mapProblems,
-  mapSolutions,
-  insightProblemLinks,
-  problemSolutionLinks,
-  stackItems,
-  stackSnapshots,
-} from "@/lib/db/schema"
+	users,
+	workspaces,
+	workspaceMembers,
+	projects,
+	projectMembers,
+	researchNotes,
+	tags,
+	quotes,
+	insightCards,
+	insightEvidence,
+	mapNodes,
+	mapConnections,
+	stackItems,
+	stackSnapshots,
+	comments,
+	notifications,
+	integrations,
+	auditLog,
+} from "@/lib/db/schema";
 
-// ── Select types (reading from DB) ───────────────────────────────────
-export type User               = InferSelectModel<typeof users>
-export type Workspace          = InferSelectModel<typeof workspaces>
-export type WorkspaceMember    = InferSelectModel<typeof workspaceMembers>
-export type Project            = InferSelectModel<typeof projects>
-export type ProjectMember      = InferSelectModel<typeof projectMembers>
-export type ResearchNote       = InferSelectModel<typeof researchNotes>
-export type QuoteObject        = InferSelectModel<typeof quoteObjects>
-export type InsightCard        = InferSelectModel<typeof insightCards>
-export type InsightEvidenceLink = InferSelectModel<typeof insightEvidenceLinks>
-export type MapProblem         = InferSelectModel<typeof mapProblems>
-export type MapSolution        = InferSelectModel<typeof mapSolutions>
-export type InsightProblemLink = InferSelectModel<typeof insightProblemLinks>
-export type ProblemSolutionLink = InferSelectModel<typeof problemSolutionLinks>
-export type StackItem          = InferSelectModel<typeof stackItems>
-export type StackSnapshot      = InferSelectModel<typeof stackSnapshots>
+// Select types (reading from DB)
+export type User = InferSelectModel<typeof users>;
+export type Workspace = InferSelectModel<typeof workspaces>;
+export type WorkspaceMember = InferSelectModel<typeof workspaceMembers>;
+export type Project = InferSelectModel<typeof projects>;
+export type ProjectMember = InferSelectModel<typeof projectMembers>;
+export type ResearchNote = InferSelectModel<typeof researchNotes>;
+export type Tag = InferSelectModel<typeof tags>;
+export type Quote = InferSelectModel<typeof quotes>;
+export type InsightCard = InferSelectModel<typeof insightCards>;
+export type InsightEvidence = InferSelectModel<typeof insightEvidence>;
+export type MapNode = InferSelectModel<typeof mapNodes>;
+export type MapConnection = InferSelectModel<typeof mapConnections>;
+export type StackItem = InferSelectModel<typeof stackItems>;
+export type StackSnapshot = InferSelectModel<typeof stackSnapshots>;
+export type Comment = InferSelectModel<typeof comments>;
+export type Notification = InferSelectModel<typeof notifications>;
+export type Integration = InferSelectModel<typeof integrations>;
+export type AuditLog = InferSelectModel<typeof auditLog>;
 
-// ── Insert types (writing to DB) ─────────────────────────────────────
-export type NewResearchNote    = InferInsertModel<typeof researchNotes>
-export type NewQuoteObject     = InferInsertModel<typeof quoteObjects>
-export type NewInsightCard     = InferInsertModel<typeof insightCards>
-export type NewMapProblem      = InferInsertModel<typeof mapProblems>
-export type NewMapSolution     = InferInsertModel<typeof mapSolutions>
-export type NewStackItem       = InferInsertModel<typeof stackItems>
+// Insert types (writing to DB)
+export type NewUser = InferInsertModel<typeof users>;
+export type NewWorkspace = InferInsertModel<typeof workspaces>;
+export type NewProject = InferInsertModel<typeof projects>;
+export type NewResearchNote = InferInsertModel<typeof researchNotes>;
+export type NewInsightCard = InferInsertModel<typeof insightCards>;
+export type NewMapNode = InferInsertModel<typeof mapNodes>;
+export type NewStackItem = InferInsertModel<typeof stackItems>;
 
 // ── Permission types ──────────────────────────────────────────────────
 export type Tier    = "admin" | "member" | "viewer"
 export type Preset  = "researcher" | "pm" | "member"
 export type Phase   = "vault" | "engine" | "map" | "stack" | "team"
 export type Action  = "read" | "write"
-
-// ── Enriched types (joined queries) ──────────────────────────────────
-export type ResearchNoteWithQuotes = ResearchNote & {
-  quotes: QuoteObject[]
-}
-
-export type InsightCardWithEvidence = InsightCard & {
-  evidence: Array<InsightEvidenceLink & { quote: QuoteObject }>
-}
-
-export type MapNodeWithConnections = MapProblem & {
-  insights: InsightCard[]
-  solutions: MapSolution[]
-}
-
-export type StackItemWithSolution = StackItem & {
-  solution: MapSolution & {
-    problemLinks: Array<{ problem: MapProblem }>
-  }
-}
 
 // ── UI-specific types ─────────────────────────────────────────────────
 export type MapNodeState =

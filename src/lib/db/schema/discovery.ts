@@ -12,7 +12,7 @@ import {
 } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 import { users } from "./users"
-import { projects } from "./workspaces"
+import { projects } from "./projects"
 import { quoteObjects } from "./vault"
 
 // ════════════════════════════════════════════════════════════════════
