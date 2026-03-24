@@ -1,4 +1,4 @@
-export default function AppLayout({
+export default function WorkspaceLayout({
   children,
 }: {
   children: React.ReactNode;
