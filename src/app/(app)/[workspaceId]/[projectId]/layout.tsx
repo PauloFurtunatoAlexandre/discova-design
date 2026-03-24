@@ -1,3 +1,5 @@
+import { ProjectProvider } from "@/hooks/useProjectContext";
+import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
@@ -11,6 +13,9 @@ export default async function ProjectLayout({
 	children: ReactNode;
 	params: Promise<{ workspaceId: string; projectId: string }>;
 }) {
+	const session = await auth();
+	if (!session?.user?.id) redirect("/login");
+
 	const { workspaceId, projectId } = await params;
 
 	// Verify project belongs to this workspace and is not archived
@@ -20,12 +25,22 @@ export default async function ProjectLayout({
 			eq(projects.workspaceId, workspaceId),
 			isNull(projects.archivedAt),
 		),
-		columns: { id: true },
 	});
 
 	if (!project) {
 		redirect(`/${workspaceId}`);
 	}
 
-	return <>{children}</>;
+	return (
+		<ProjectProvider
+			value={{
+				projectId: project.id,
+				projectName: project.name,
+				projectSlug: project.slug,
+				workspaceId: project.workspaceId,
+			}}
+		>
+			{children}
+		</ProjectProvider>
+	);
 }

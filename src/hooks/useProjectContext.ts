@@ -1,21 +1,31 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { type ReactNode, createContext, useContext } from "react";
 
 interface ProjectContextValue {
-	project: {
-		id: string;
-		name: string;
-		slug: string;
-	};
+	projectId: string;
+	projectName: string;
+	projectSlug: string;
+	workspaceId: string;
 }
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
 
-export const ProjectContextProvider = ProjectContext.Provider;
+export function ProjectProvider({
+	children,
+	value,
+}: {
+	children: ReactNode;
+	value: ProjectContextValue;
+}) {
+	// Use the context Provider directly to avoid JSX in a .ts file
+	return ProjectContext.Provider({ value, children });
+}
 
 export function useProjectContext(): ProjectContextValue {
 	const ctx = useContext(ProjectContext);
-	if (!ctx) throw new Error("useProjectContext must be used within ProjectContextProvider");
+	if (!ctx) {
+		throw new Error("useProjectContext must be used within a ProjectProvider");
+	}
 	return ctx;
 }

@@ -50,7 +50,7 @@ export function Sidebar({ workspace, allWorkspaces, projects, user, userTier }: 
 			{/* Sections B + C — scrollable middle */}
 			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
 				<div className="pt-2">
-					<SidebarProjectList workspaceId={workspace.id} projects={projects} />
+					<SidebarProjectList workspaceId={workspace.id} projects={projects} userTier={userTier} />
 				</div>
 
 				<div className="mt-2 pt-2" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
