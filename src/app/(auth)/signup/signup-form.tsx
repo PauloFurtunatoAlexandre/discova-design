@@ -2,7 +2,8 @@
 
 import { signupAction } from "@/actions/auth";
 import { signIn } from "next-auth/react";
-import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useState } from "react";
 
 function PasswordStrength({ password }: { password: string }) {
 	const checks = [
@@ -34,6 +35,13 @@ function PasswordStrength({ password }: { password: string }) {
 export function SignupForm() {
 	const [state, action, isPending] = useActionState(signupAction, null);
 	const [password, setPassword] = useState("");
+	const router = useRouter();
+
+	useEffect(() => {
+		if (state?.success) {
+			router.push("/login");
+		}
+	}, [state?.success, router]);
 
 	return (
 		<div className="space-y-6">
