@@ -1,6 +1,8 @@
 import { createAuditEntry } from "@/lib/auth/audit";
 import { db } from "@/lib/db";
-import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema";
+import { accounts, sessions, users, verificationTokens, workspaceMembers, workspaces } from "@/lib/db/schema";
+import { nanoid } from "nanoid";
+import slugify from "slugify";
 import { logger } from "@/lib/logger";
 import { loginSchema } from "@/lib/validations/auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
@@ -111,6 +113,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 	},
 
 	events: {
+		async createUser({ user }) {
+			// Create a workspace for every new OAuth user (credentials users get
+			// their workspace created in signupAction before they ever reach here)
+			if (!user.id || !user.email) return;
+
+			const existing = await db.query.workspaceMembers.findFirst({
+				where: eq(workspaceMembers.userId, user.id),
+			});
+			if (existing) return; // workspace already set up
+
+			const workspaceName = user.name ? `${user.name}'s Workspace` : "My Workspace";
+			const base = slugify(workspaceName, { lower: true, strict: true, trim: true }) || "workspace";
+			const workspaceSlug = `${base}-${nanoid(4)}`;
+
+			const [workspace] = await db
+				.insert(workspaces)
+				.values({ name: workspaceName, slug: workspaceSlug, createdBy: user.id })
+				.returning({ id: workspaces.id });
+
+			if (workspace) {
+				await db.insert(workspaceMembers).values({
+					workspaceId: workspace.id,
+					userId: user.id,
+					tier: "admin",
+					workspacePreset: "member",
+					invitedBy: user.id,
+					inviteAcceptedAt: new Date(),
+				});
+			}
+		},
+
 		async signIn({ user, account }) {
 			logger.info({ userId: user.id, provider: account?.provider }, "User signed in");
 			if (user.id) {

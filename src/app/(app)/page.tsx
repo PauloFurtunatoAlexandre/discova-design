@@ -21,5 +21,6 @@ export default async function AppHomePage() {
 
 	// Match the same selection logic as the app layout
 	const active = memberships.find((m) => !m.workspace.isDemo) ?? memberships[0];
+	if (!active) redirect("/onboarding");
 	redirect(`/${active.workspace.id}`);
 }

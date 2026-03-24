@@ -40,7 +40,13 @@ export function SignupForm() {
 	useEffect(() => {
 		if (state?.success) {
 			setSigningIn(true);
-			signIn("credentials", { email, password, callbackUrl: "/onboarding" });
+			signIn("credentials", { email, password, redirect: false }).then((result) => {
+				if (result?.ok) {
+					window.location.href = "/onboarding";
+				} else {
+					setSigningIn(false);
+				}
+			});
 		}
 	}, [state?.success, email, password]);
 

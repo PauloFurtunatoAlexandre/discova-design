@@ -13,17 +13,22 @@ export function LoginForm() {
 		setError(null);
 
 		const form = new FormData(e.currentTarget);
-		const result = await signIn("credentials", {
-			email: form.get("email") as string,
-			password: form.get("password") as string,
-			redirect: false,
-		});
+		try {
+			const result = await signIn("credentials", {
+				email: form.get("email") as string,
+				password: form.get("password") as string,
+				redirect: false,
+			});
 
-		if (result?.error) {
-			setError("Invalid email or password.");
+			if (result?.error || !result?.ok) {
+				setError("Invalid email or password.");
+				setIsPending(false);
+			} else {
+				window.location.href = "/";
+			}
+		} catch {
+			setError("Something went wrong. Please try again.");
 			setIsPending(false);
-		} else {
-			window.location.href = "/";
 		}
 	}
 
