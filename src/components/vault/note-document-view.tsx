@@ -223,6 +223,9 @@ export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: Note
 						suggestions={suggestions}
 						onDismiss={dismissSuggestion}
 						onRetry={retry}
+						noteId={note.id}
+						workspaceId={workspaceId}
+						projectId={projectId}
 					/>
 					<div
 						style={{

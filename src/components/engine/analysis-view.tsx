@@ -3,14 +3,16 @@
 import type { AISuggestion, AnalysisState } from "@/lib/engine/types";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ProcessingAnimation } from "./processing-animation";
-import { SuggestionCardPreview } from "./suggestion-card-preview";
+import { SuggestionCard } from "./suggestion-card";
 
 interface AnalysisViewProps {
 	state: AnalysisState;
 	suggestions: AISuggestion[];
 	onDismiss: (id: string) => void;
 	onRetry: () => void;
-	onSuggestionAccepted?: (suggestion: AISuggestion) => void;
+	noteId: string;
+	workspaceId: string;
+	projectId: string;
 }
 
 export function AnalysisView({
@@ -18,7 +20,9 @@ export function AnalysisView({
 	suggestions,
 	onDismiss,
 	onRetry,
-	onSuggestionAccepted,
+	noteId,
+	workspaceId,
+	projectId,
 }: AnalysisViewProps) {
 	const prefersReducedMotion = useReducedMotion();
 
@@ -27,7 +31,7 @@ export function AnalysisView({
 	return (
 		<div className="mb-6">
 			<AnimatePresence mode="wait">
-				{/* Reading / analysing state → processing animation */}
+				{/* Reading / analysing → processing animation */}
 				{(state.status === "reading" || state.status === "analysing") && (
 					<ProcessingAnimation
 						key="processing"
@@ -38,7 +42,7 @@ export function AnalysisView({
 					/>
 				)}
 
-				{/* Complete → suggestion cards */}
+				{/* Complete / streaming → suggestion cards */}
 				{(state.status === "complete" || state.status === "streaming") && (
 					<motion.div
 						key="suggestions"
@@ -59,12 +63,17 @@ export function AnalysisView({
 							</p>
 						) : (
 							suggestions.map((s, i) => (
-								<SuggestionCardPreview
+								<SuggestionCard
 									key={s.id}
 									suggestion={s}
 									index={i}
-									onDismiss={onDismiss}
-									onAccept={onSuggestionAccepted}
+									noteId={noteId}
+									workspaceId={workspaceId}
+									projectId={projectId}
+									onAccepted={() => {
+										// Insight persisted to DB — no client state change needed
+									}}
+									onDismissed={onDismiss}
 								/>
 							))
 						)}
@@ -98,7 +107,7 @@ export function AnalysisView({
 							<button
 								type="button"
 								onClick={onRetry}
-								className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
+								className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-150 hover:bg-white/5 focus-visible:outline-none"
 								style={{
 									fontFamily: "var(--font-body)",
 									color: "var(--color-accent-blue)",
