@@ -1,8 +1,8 @@
 "use client";
 
 import type { ResolvedPreset } from "@/lib/permissions/types";
-import { useRouter } from "next/navigation";
 import { SearchX } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface VaultEmptyStateProps {
 	preset: ResolvedPreset;
@@ -55,11 +55,7 @@ export function VaultEmptyState({
 	if (noResults) {
 		return (
 			<div className="flex flex-col items-center justify-center py-20 text-center">
-				<SearchX
-					size={20}
-					className="mb-4 text-[--color-text-muted]"
-					strokeWidth={1.5}
-				/>
+				<SearchX size={20} className="mb-4 text-[--color-text-muted]" strokeWidth={1.5} />
 
 				<h2 className="mb-2 text-lg font-semibold">No notes match your filters</h2>
 				<p className="mb-6 max-w-xs text-sm leading-relaxed text-[--color-text-secondary]">
