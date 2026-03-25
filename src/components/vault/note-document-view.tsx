@@ -2,12 +2,14 @@
 
 import { createQuoteAction, deleteQuoteAction, markQuoteStaleAction } from "@/actions/quotes";
 import { updateNoteContentAction } from "@/actions/vault";
+import { AnalysisView } from "@/components/engine/analysis-view";
+import { useAnalysis } from "@/hooks/useAnalysis";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import type { NoteQuote, NoteWithRelations } from "@/lib/queries/vault";
 import { getPlainTextAtRange } from "@/lib/vault/quote-offsets";
 import type { Editor } from "@tiptap/react";
 import { motion, useReducedMotion } from "framer-motion";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { NoteEditor } from "./note-editor";
 import { NoteHeader } from "./note-header";
 import { NoteMetadataPanel } from "./note-metadata-panel";
@@ -21,10 +23,38 @@ interface NoteDocumentViewProps {
 
 const STORAGE_KEY = "discova-metadata-panel-open";
 
+function countParagraphs(rawContent: string): number {
+	try {
+		const doc = JSON.parse(rawContent) as { type?: string; content?: Array<{ type?: string }> };
+		if (doc?.type === "doc" && Array.isArray(doc.content)) {
+			const n = doc.content.filter((node) => node.type === "paragraph").length;
+			return Math.max(n, 1);
+		}
+	} catch {
+		// plain text
+	}
+	return Math.max(rawContent.split("\n").filter((l) => l.trim()).length, 1);
+}
+
 export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: NoteDocumentViewProps) {
 	const prefersReducedMotion = useReducedMotion();
 	const editorRef = useRef<Editor | null>(null);
 	const quotesRef = useRef<NoteQuote[]>(note.quotes);
+
+	// ── Analysis ────────────────────────────────────────────────────────────────
+	const totalParagraphs = useMemo(() => countParagraphs(note.rawContent), [note.rawContent]);
+	const {
+		state: analysisState,
+		suggestions,
+		startAnalysis,
+		retry,
+		dismissSuggestion,
+		isLoading: isAnalysing,
+	} = useAnalysis({ noteId: note.id, workspaceId, projectId, totalParagraphs });
+
+	const showAnalyseAgain = analysisState.status === "complete" && suggestions.length === 0;
+	const hideAnalyseButton = analysisState.status === "complete" && suggestions.length > 0;
+	const editorDimmed = analysisState.status === "reading" || analysisState.status === "analysing";
 
 	// Live quotes state — updated optimistically on create/delete
 	const [quotes, setQuotes] = useState<NoteQuote[]>(note.quotes);
@@ -173,24 +203,47 @@ export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: Note
 				noteId={note.id}
 				canEdit={canEdit}
 				saveStatus={saveStatus}
+				onAnalyse={
+					canEdit && !hideAnalyseButton
+						? () => {
+								startAnalysis();
+							}
+						: undefined
+				}
+				isAnalysing={isAnalysing}
+				showAnalyseAgain={showAnalyseAgain}
 			/>
 
 			{/* Two-panel body */}
 			<div className="flex flex-1 overflow-hidden lg:flex-row flex-col">
 				{/* Left: Editor */}
 				<div className="flex min-w-0 flex-1 flex-col overflow-y-auto p-6">
-					<NoteEditor
-						initialContent={note.rawContent}
-						canEdit={canEdit}
-						noteId={note.id}
-						workspaceId={workspaceId}
-						projectId={projectId}
-						quotes={quotes}
-						onContentChange={triggerSave}
-						onEditorReady={handleEditorReady}
-						onExtractQuote={handleExtractQuote}
-						onDeleteQuote={handleDeleteQuote}
+					<AnalysisView
+						state={analysisState}
+						suggestions={suggestions}
+						onDismiss={dismissSuggestion}
+						onRetry={retry}
 					/>
+					<div
+						style={{
+							opacity: editorDimmed ? 0.5 : 1,
+							pointerEvents: editorDimmed ? "none" : undefined,
+							transition: "opacity 300ms",
+						}}
+					>
+						<NoteEditor
+							initialContent={note.rawContent}
+							canEdit={canEdit}
+							noteId={note.id}
+							workspaceId={workspaceId}
+							projectId={projectId}
+							quotes={quotes}
+							onContentChange={triggerSave}
+							onEditorReady={handleEditorReady}
+							onExtractQuote={handleExtractQuote}
+							onDeleteQuote={handleDeleteQuote}
+						/>
+					</div>
 				</div>
 
 				{/* Right: Metadata panel */}

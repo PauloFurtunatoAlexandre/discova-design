@@ -15,6 +15,9 @@ interface NoteHeaderProps {
 	noteId: string;
 	canEdit: boolean;
 	saveStatus: SaveStatus;
+	onAnalyse?: (() => void) | undefined;
+	isAnalysing?: boolean | undefined;
+	showAnalyseAgain?: boolean | undefined;
 }
 
 function formatDate(dateStr: string): string {
@@ -30,6 +33,9 @@ export function NoteHeader({
 	noteId,
 	canEdit,
 	saveStatus,
+	onAnalyse,
+	isAnalysing = false,
+	showAnalyseAgain = false,
 }: NoteHeaderProps) {
 	const router = useRouter();
 	const [showMenu, setShowMenu] = useState(false);
@@ -102,28 +108,18 @@ export function NoteHeader({
 					<div className="flex items-center gap-2">
 						<button
 							type="button"
-							onClick={() => console.log("Analyse triggered")}
-							className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors duration-150 focus:outline-none"
+							onClick={onAnalyse}
+							disabled={isAnalysing}
+							className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors duration-150 hover:bg-[--color-accent-blue-muted] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 							style={{
 								fontFamily: "var(--font-body)",
 								fontSize: "0.8125rem",
 								color: "var(--color-accent-blue)",
 								border: "1px solid color-mix(in srgb, var(--color-accent-blue) 30%, transparent)",
 							}}
-							onMouseEnter={(e) => {
-								(e.currentTarget as HTMLElement).style.background =
-									"var(--color-accent-blue-muted)";
-								(e.currentTarget as HTMLElement).style.borderColor =
-									"color-mix(in srgb, var(--color-accent-blue) 60%, transparent)";
-							}}
-							onMouseLeave={(e) => {
-								(e.currentTarget as HTMLElement).style.background = "transparent";
-								(e.currentTarget as HTMLElement).style.borderColor =
-									"color-mix(in srgb, var(--color-accent-blue) 30%, transparent)";
-							}}
 						>
 							<Sparkles size={13} strokeWidth={2} />
-							Analyse
+							{isAnalysing ? "Analysing…" : showAnalyseAgain ? "Analyse again" : "Analyse"}
 						</button>
 
 						{/* More menu */}
