@@ -1,9 +1,9 @@
 "use client";
 
 import { updateNoteMetadataAction, updateNoteTagsAction } from "@/actions/vault";
-import type { NoteWithRelations } from "@/lib/queries/vault";
+import type { NoteQuote, NoteWithRelations } from "@/lib/queries/vault";
 import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { LinkedInsightsList } from "./linked-insights-list";
 import { QuotesList } from "./quotes-list";
 import { TagInput } from "./tag-input";
@@ -17,26 +17,10 @@ const TONE_COLORS: Record<string, string> = {
 	mixed: "var(--color-status-warning)",
 };
 
-const labelStyle: React.CSSProperties = {
-	display: "block",
-	fontFamily: "var(--font-mono)",
-	fontSize: "0.7rem",
-	color: "var(--color-text-muted)",
-	textTransform: "uppercase",
-	letterSpacing: "0.08em",
-	marginBottom: "6px",
-};
-
-const inputStyle: React.CSSProperties = {
-	background: "var(--color-bg-sunken)",
-	border: "1px solid var(--color-border-default)",
-	color: "var(--color-text-primary)",
-	width: "100%",
-	fontFamily: "var(--font-body)",
-};
-
 interface NoteMetadataPanelProps {
 	note: NoteWithRelations;
+	/** Live-updated quotes from parent state (replaces note.quotes for reactivity) */
+	quotes: NoteQuote[];
 	canEdit: boolean;
 	workspaceId: string;
 	projectId: string;
@@ -47,6 +31,7 @@ interface NoteMetadataPanelProps {
 
 export function NoteMetadataPanel({
 	note,
+	quotes,
 	canEdit,
 	workspaceId,
 	projectId,
@@ -65,11 +50,7 @@ export function NoteMetadataPanel({
 	});
 	const [, startTransition] = useTransition();
 
-	function saveField(
-		field: string,
-		// biome-ignore lint/suspicious/noExplicitAny: discriminated union value
-		value: any,
-	) {
+	function saveField(field: string, value: string | boolean | null) {
 		if (!canEdit) return;
 		startTransition(async () => {
 			await updateNoteMetadataAction({
@@ -110,12 +91,7 @@ export function NoteMetadataPanel({
 			<button
 				type="button"
 				onClick={onToggle}
-				className="absolute -left-3 top-8 z-10 hidden h-6 w-6 items-center justify-center rounded-full transition-colors duration-150 hover:opacity-80 focus:outline-none lg:flex"
-				style={{
-					background: "var(--color-bg-raised)",
-					border: "1px solid var(--color-border-default)",
-					color: "var(--color-text-muted)",
-				}}
+				className="absolute -left-3 top-8 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-[--color-border-default] bg-[--color-bg-raised] text-[--color-text-muted] transition-colors duration-150 hover:opacity-80 focus:outline-none lg:flex"
 			>
 				{isOpen ? (
 					<ChevronRight size={12} strokeWidth={2.5} />
@@ -125,26 +101,13 @@ export function NoteMetadataPanel({
 			</button>
 
 			{!isOpen ? null : (
-				<div
-					className="flex flex-col gap-5 overflow-y-auto"
-					style={{ padding: "20px", height: "100%" }}
-				>
+				<div className="flex flex-col gap-5 overflow-y-auto p-5 h-full">
 					{/* Section: DETAILS */}
-					<p
-						style={{
-							fontFamily: "var(--font-mono)",
-							fontSize: "0.7rem",
-							color: "var(--color-text-muted)",
-							textTransform: "uppercase",
-							letterSpacing: "0.08em",
-						}}
-					>
-						Details
-					</p>
+					<p className="meta-label" style={{ marginBottom: 0 }}>Details</p>
 
 					{/* Research Method */}
 					<div>
-						<label htmlFor="meta-panel-method" style={labelStyle}>
+						<label htmlFor="meta-panel-method" className="meta-label">
 							Research Method
 						</label>
 						<select
@@ -156,8 +119,8 @@ export function NoteMetadataPanel({
 								setForm((f) => ({ ...f, researchMethod: e.target.value }));
 								saveField("researchMethod", v);
 							}}
-							className="rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
-							style={{ ...inputStyle, appearance: "none" }}
+							className="meta-input rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
+							style={{ appearance: "none" }}
 						>
 							<option value="">Select method...</option>
 							<option value="interview">Interview</option>
@@ -170,7 +133,7 @@ export function NoteMetadataPanel({
 
 					{/* User Segment */}
 					<div>
-						<label htmlFor="meta-panel-segment" style={labelStyle}>
+						<label htmlFor="meta-panel-segment" className="meta-label">
 							User Segment
 						</label>
 						<input
@@ -182,14 +145,13 @@ export function NoteMetadataPanel({
 							maxLength={200}
 							onChange={(e) => setForm((f) => ({ ...f, userSegment: e.target.value }))}
 							onBlur={(e) => saveField("userSegment", e.target.value || null)}
-							className="rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
-							style={inputStyle}
+							className="meta-input rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
 						/>
 					</div>
 
 					{/* Emotional Tone */}
 					<div>
-						<label htmlFor="meta-panel-tone" style={labelStyle}>
+						<label htmlFor="meta-panel-tone" className="meta-label">
 							Emotional Tone
 						</label>
 						<select
@@ -201,8 +163,8 @@ export function NoteMetadataPanel({
 								setForm((f) => ({ ...f, emotionalTone: e.target.value }));
 								saveField("emotionalTone", v);
 							}}
-							className="rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
-							style={{ ...inputStyle, appearance: "none" }}
+							className="meta-input rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
+							style={{ appearance: "none" }}
 						>
 							<option value="">Select tone...</option>
 							<option value="frustrated">Frustrated</option>
@@ -217,8 +179,8 @@ export function NoteMetadataPanel({
 									style={{ background: TONE_COLORS[form.emotionalTone] }}
 								/>
 								<span
-									className="text-xs capitalize"
-									style={{ color: TONE_COLORS[form.emotionalTone], fontFamily: "var(--font-mono)" }}
+									className="font-mono text-xs capitalize"
+									style={{ color: TONE_COLORS[form.emotionalTone] }}
 								>
 									{form.emotionalTone}
 								</span>
@@ -228,7 +190,7 @@ export function NoteMetadataPanel({
 
 					{/* Assumptions Tested */}
 					<div>
-						<label htmlFor="meta-panel-assumptions" style={labelStyle}>
+						<label htmlFor="meta-panel-assumptions" className="meta-label">
 							Assumptions Tested
 						</label>
 						<textarea
@@ -240,14 +202,13 @@ export function NoteMetadataPanel({
 							maxLength={2000}
 							onChange={(e) => setForm((f) => ({ ...f, assumptionsTested: e.target.value }))}
 							onBlur={(e) => saveField("assumptionsTested", e.target.value || null)}
-							className="w-full resize-none rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
-							style={inputStyle}
+							className="meta-input w-full resize-none rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
 						/>
 					</div>
 
 					{/* Follow-up Needed */}
 					<div className="flex items-center justify-between">
-						<p style={labelStyle}>Follow-up Needed</p>
+						<p className="meta-label" style={{ marginBottom: 0 }}>Follow-up Needed</p>
 						<button
 							type="button"
 							role="switch"
@@ -276,7 +237,7 @@ export function NoteMetadataPanel({
 
 					{/* Session Recording */}
 					<div>
-						<label htmlFor="meta-panel-recording" style={labelStyle}>
+						<label htmlFor="meta-panel-recording" className="meta-label">
 							Session Recording
 						</label>
 						<input
@@ -287,16 +248,14 @@ export function NoteMetadataPanel({
 							placeholder="https://..."
 							onChange={(e) => setForm((f) => ({ ...f, sessionRecordingUrl: e.target.value }))}
 							onBlur={(e) => saveField("sessionRecordingUrl", e.target.value || null)}
-							className="rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
-							style={inputStyle}
+							className="meta-input rounded-lg px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
 						/>
 						{isValidUrl && (
 							<a
 								href={form.sessionRecordingUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="mt-1 inline-flex items-center gap-1 text-xs hover:opacity-75"
-								style={{ color: "var(--color-text-link)", fontFamily: "var(--font-mono)" }}
+								className="mt-1 inline-flex items-center gap-1 font-mono text-xs text-[--color-text-link] hover:opacity-75"
 							>
 								Open <ExternalLink size={10} strokeWidth={2} />
 							</a>
@@ -305,7 +264,7 @@ export function NoteMetadataPanel({
 
 					{/* Tags */}
 					<div>
-						<p style={{ ...labelStyle, marginBottom: "8px" }}>Tags</p>
+						<p className="meta-label">Tags</p>
 						<TagInput
 							tags={form.tags}
 							onChange={(newTags) => {
@@ -317,13 +276,13 @@ export function NoteMetadataPanel({
 					</div>
 
 					{/* Separator */}
-					<div style={{ height: "1px", background: "var(--color-border-subtle)" }} />
+					<div className="meta-divider" />
 
 					{/* Quotes section */}
-					<QuotesList quotes={note.quotes} {...(onQuoteClick ? { onQuoteClick } : {})} />
+					<QuotesList quotes={quotes} {...(onQuoteClick ? { onQuoteClick } : {})} />
 
 					{/* Separator */}
-					<div style={{ height: "1px", background: "var(--color-border-subtle)" }} />
+					<div className="meta-divider" />
 
 					{/* Linked insights section */}
 					<LinkedInsightsList

@@ -1,6 +1,7 @@
 "use client";
 
 import type { NoteQuote } from "@/lib/queries/vault";
+import { useCallback, useState } from "react";
 
 interface QuotesListProps {
 	quotes: NoteQuote[];
@@ -8,44 +9,30 @@ interface QuotesListProps {
 }
 
 export function QuotesList({ quotes, onQuoteClick }: QuotesListProps) {
-	const labelStyle: React.CSSProperties = {
-		fontFamily: "var(--font-mono)",
-		fontSize: "0.7rem",
-		color: "var(--color-text-muted)",
-		textTransform: "uppercase" as const,
-		letterSpacing: "0.08em",
-	};
+	const [flashingId, setFlashingId] = useState<string | null>(null);
+
+	const handleClick = useCallback(
+		(quote: NoteQuote) => {
+			onQuoteClick?.(quote.startOffset);
+			setFlashingId(quote.id);
+			setTimeout(() => setFlashingId(null), 500);
+		},
+		[onQuoteClick],
+	);
 
 	return (
 		<div className="flex flex-col gap-3">
 			<div className="flex items-center gap-2">
-				<p style={labelStyle}>Quotes</p>
+				<p className="meta-label" style={{ marginBottom: 0 }}>Quotes</p>
 				{quotes.length > 0 && (
-					<span
-						className="rounded-full px-1.5 py-0.5"
-						style={{
-							fontFamily: "var(--font-mono)",
-							fontSize: "0.65rem",
-							color: "var(--color-accent-gold)",
-							background: "var(--color-accent-gold-muted)",
-							border: "1px solid var(--color-accent-gold-border)",
-						}}
-					>
+					<span className="rounded-full border border-[--color-accent-gold-border] bg-[--color-accent-gold-muted] px-1.5 py-0.5 font-mono text-[0.65rem] text-[--color-accent-gold]">
 						{quotes.length}
 					</span>
 				)}
 			</div>
 
 			{quotes.length === 0 ? (
-				<p
-					style={{
-						fontFamily: "var(--font-body)",
-						fontSize: "0.75rem",
-						color: "var(--color-text-muted)",
-						fontStyle: "italic",
-						lineHeight: 1.5,
-					}}
-				>
+				<p className="font-body text-[0.75rem] italic leading-normal text-[--color-text-muted]">
 					No quotes extracted yet. Highlight text in the editor to extract quotes.
 				</p>
 			) : (
@@ -54,44 +41,25 @@ export function QuotesList({ quotes, onQuoteClick }: QuotesListProps) {
 						<li key={quote.id}>
 							<button
 								type="button"
-								onClick={() => onQuoteClick?.(quote.startOffset)}
-								className="w-full rounded-lg p-2.5 text-left transition-colors duration-100 hover:bg-white/5 focus:outline-none"
-								style={{ border: "1px solid var(--color-border-subtle)" }}
+								onClick={() => handleClick(quote)}
+								className="w-full rounded-lg p-2.5 text-left transition-all duration-150 hover:bg-white/5 focus:outline-none"
+								style={{
+									border: `1px solid ${quote.isStale ? "var(--color-status-warning)" : "var(--color-border-subtle)"}`,
+									opacity: flashingId === quote.id ? 0.35 : 1,
+								}}
 							>
-								<p
-									style={{
-										fontFamily: "var(--font-body)",
-										fontSize: "0.8rem",
-										color: "var(--color-text-secondary)",
-										fontStyle: "italic",
-										lineHeight: 1.5,
-									}}
-								>
+								<p className="font-body text-[0.8rem] italic leading-normal text-[--color-text-secondary]">
 									"{quote.text.length > 60 ? `${quote.text.slice(0, 60)}...` : quote.text}"
 								</p>
 								{quote.linkedInsightCount > 0 && (
-									<p
-										className="mt-1"
-										style={{
-											fontFamily: "var(--font-mono)",
-											fontSize: "0.65rem",
-											color: "var(--color-text-muted)",
-										}}
-									>
+									<p className="mt-1 font-mono text-[0.65rem] text-[--color-accent-blue]">
 										{quote.linkedInsightCount}{" "}
 										{quote.linkedInsightCount === 1 ? "insight" : "insights"}
 									</p>
 								)}
 								{quote.isStale && (
-									<p
-										className="mt-1"
-										style={{
-											fontFamily: "var(--font-mono)",
-											fontSize: "0.65rem",
-											color: "var(--color-status-warning)",
-										}}
-									>
-										Stale
+									<p className="mt-1 font-mono text-[0.65rem] text-[--color-status-warning]">
+										⚠ May be stale
 									</p>
 								)}
 							</button>

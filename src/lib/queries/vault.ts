@@ -7,7 +7,7 @@ import {
 	researchNotes,
 	tags,
 } from "@/lib/db/schema";
-import { count, eq } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 
 export interface LinkedInsight {
 	id: string;
@@ -71,7 +71,7 @@ export async function getNoteWithRelations(noteId: string): Promise<NoteWithRela
 
 	// Queries 2–4 in parallel
 	const [quotesWithCounts, tagRows, linkedInsightRows] = await Promise.all([
-		// Query 2: Quotes + linked insight counts
+		// Query 2: Quotes + linked insight counts (correlated subquery avoids ambiguous "id")
 		db
 			.select({
 				id: quotes.id,
@@ -79,12 +79,11 @@ export async function getNoteWithRelations(noteId: string): Promise<NoteWithRela
 				startOffset: quotes.startOffset,
 				endOffset: quotes.endOffset,
 				isStale: quotes.isStale,
-				linkedInsightCount: count(insightEvidence.id),
+				linkedInsightCount:
+					sql<number>`(SELECT count(*) FROM insight_evidence WHERE insight_evidence.quote_id = ${quotes.id})::int`,
 			})
 			.from(quotes)
-			.leftJoin(insightEvidence, eq(insightEvidence.quoteId, quotes.id))
-			.where(eq(quotes.noteId, noteId))
-			.groupBy(quotes.id, quotes.text, quotes.startOffset, quotes.endOffset, quotes.isStale),
+			.where(eq(quotes.noteId, noteId)),
 
 		// Query 3: Tags linked to this note
 		db
@@ -93,17 +92,24 @@ export async function getNoteWithRelations(noteId: string): Promise<NoteWithRela
 			.innerJoin(tags, eq(tags.id, noteTags.tagId))
 			.where(eq(noteTags.noteId, noteId)),
 
-		// Query 4: Distinct insight cards linked via quotes from this note
+		// Query 4: Insight cards linked via quotes (IN subquery avoids ambiguous "id")
 		db
-			.selectDistinct({
+			.select({
 				id: insightCards.id,
 				statement: insightCards.statement,
 				confidenceScore: insightCards.confidenceScore,
 			})
 			.from(insightCards)
-			.innerJoin(insightEvidence, eq(insightEvidence.insightId, insightCards.id))
-			.innerJoin(quotes, eq(quotes.id, insightEvidence.quoteId))
-			.where(eq(quotes.noteId, noteId)),
+			.where(
+				inArray(
+					insightCards.id,
+					db
+						.select({ id: insightEvidence.insightId })
+						.from(insightEvidence)
+						.innerJoin(quotes, eq(quotes.id, insightEvidence.quoteId))
+						.where(eq(quotes.noteId, noteId)),
+				),
+			),
 	]);
 
 	return {

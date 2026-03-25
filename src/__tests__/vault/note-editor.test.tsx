@@ -13,6 +13,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockEditor = {
 	isActive: vi.fn(() => false),
+	isDestroyed: false,
 	chain: vi.fn(() => ({
 		focus: vi.fn(() => ({ toggleBold: vi.fn(() => ({ run: vi.fn() })) })),
 	})),
@@ -22,6 +23,15 @@ const mockEditor = {
 	commands: {
 		setTextSelection: vi.fn(),
 		scrollIntoView: vi.fn(),
+	},
+	state: {
+		selection: { from: 0, to: 0, empty: true },
+		doc: { content: { size: 0 }, textBetween: vi.fn(() => "") },
+		schema: { marks: { highlight: null } },
+	},
+	view: {
+		dispatch: vi.fn(),
+		posAtCoords: vi.fn(() => null),
 	},
 };
 
@@ -43,6 +53,32 @@ vi.mock("@/components/vault/note-editor-toolbar", () => ({
 		editor ? <div data-testid="toolbar">Toolbar</div> : null,
 }));
 
+// Mock the quote-related hooks and components so tests don't need real editors
+vi.mock("@/components/vault/use-quote-extraction", () => ({
+	useQuoteExtraction: vi.fn(() => ({
+		showTooltip: false,
+		tooltipPosition: { x: 0, y: 0 },
+		selectedText: "",
+		selectedOffsets: { startOffset: 0, endOffset: 0 },
+		clearSelection: vi.fn(),
+	})),
+}));
+
+vi.mock("@/components/vault/use-quote-highlights", () => ({
+	useQuoteHighlights: vi.fn(() => ({
+		clickedQuote: null,
+		clearClickedQuote: vi.fn(),
+	})),
+}));
+
+vi.mock("@/components/vault/quote-extraction-tooltip", () => ({
+	QuoteExtractionTooltip: () => null,
+}));
+
+vi.mock("@/components/vault/quote-highlight-popover", () => ({
+	QuoteHighlightPopover: () => null,
+}));
+
 import { NoteEditor } from "@/components/vault/note-editor";
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
@@ -52,7 +88,12 @@ describe("NoteEditor", () => {
 		initialContent: "Hello, world!",
 		canEdit: true,
 		noteId: "note-1",
+		workspaceId: "ws-1",
+		projectId: "proj-1",
+		quotes: [],
 		onContentChange: vi.fn(),
+		onExtractQuote: vi.fn(),
+		onDeleteQuote: vi.fn(),
 	};
 
 	beforeEach(() => {
@@ -99,13 +140,22 @@ describe("parseContent (via NoteEditor initialContent)", () => {
 		vi.clearAllMocks();
 	});
 
+	const parseContentProps = {
+		workspaceId: "ws-1",
+		projectId: "proj-1",
+		quotes: [],
+		onContentChange: vi.fn(),
+		onExtractQuote: vi.fn(),
+		onDeleteQuote: vi.fn(),
+	};
+
 	it("plain text initialContent passes doc-wrapped content to useEditor", () => {
 		render(
 			<NoteEditor
+				{...parseContentProps}
 				initialContent="Plain text note"
 				canEdit={true}
 				noteId="n1"
-				onContentChange={vi.fn()}
 			/>,
 		);
 		// parseContent is private — verify indirectly: editor renders successfully,
@@ -119,12 +169,7 @@ describe("parseContent (via NoteEditor initialContent)", () => {
 			content: [{ type: "paragraph", content: [{ type: "text", text: "Rich text" }] }],
 		});
 		render(
-			<NoteEditor
-				initialContent={tiptapJson}
-				canEdit={true}
-				noteId="n2"
-				onContentChange={vi.fn()}
-			/>,
+			<NoteEditor {...parseContentProps} initialContent={tiptapJson} canEdit={true} noteId="n2" />,
 		);
 		expect(screen.getByTestId("editor-content")).toBeInTheDocument();
 	});
@@ -132,10 +177,10 @@ describe("parseContent (via NoteEditor initialContent)", () => {
 	it("invalid JSON falls back gracefully — editor still renders", () => {
 		render(
 			<NoteEditor
+				{...parseContentProps}
 				initialContent="not {valid} json"
 				canEdit={true}
 				noteId="n3"
-				onContentChange={vi.fn()}
 			/>,
 		);
 		expect(screen.getByTestId("editor-content")).toBeInTheDocument();

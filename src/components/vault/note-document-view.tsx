@@ -1,11 +1,13 @@
 "use client";
 
+import { createQuoteAction, deleteQuoteAction, markQuoteStaleAction } from "@/actions/quotes";
 import { updateNoteContentAction } from "@/actions/vault";
 import { useAutoSave } from "@/hooks/useAutoSave";
-import type { NoteWithRelations } from "@/lib/queries/vault";
+import type { NoteQuote, NoteWithRelations } from "@/lib/queries/vault";
+import { getPlainTextAtRange } from "@/lib/vault/quote-offsets";
 import type { Editor } from "@tiptap/react";
 import { motion, useReducedMotion } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { NoteEditor } from "./note-editor";
 import { NoteHeader } from "./note-header";
 import { NoteMetadataPanel } from "./note-metadata-panel";
@@ -22,6 +24,11 @@ const STORAGE_KEY = "discova-metadata-panel-open";
 export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: NoteDocumentViewProps) {
 	const prefersReducedMotion = useReducedMotion();
 	const editorRef = useRef<Editor | null>(null);
+	const quotesRef = useRef<NoteQuote[]>(note.quotes);
+
+	// Live quotes state — updated optimistically on create/delete
+	const [quotes, setQuotes] = useState<NoteQuote[]>(note.quotes);
+	quotesRef.current = quotes;
 
 	// Panel open/close state — persisted to localStorage
 	const [panelOpen, setPanelOpen] = useState<boolean>(() => {
@@ -30,21 +37,48 @@ export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: Note
 		return stored === null ? true : stored === "true";
 	});
 
-	// Auto-save for editor content
+	// ── Staleness Check ─────────────────────────────────────────────────────────
+	// Runs after each auto-save to detect quotes whose text no longer matches
+	// the content at their stored positions.
+	function checkQuoteStaleness() {
+		const editor = editorRef.current;
+		if (!editor) return;
+
+		const currentQuotes = quotesRef.current;
+		const newStaleIds: string[] = [];
+
+		for (const quote of currentQuotes) {
+			if (quote.isStale) continue;
+			const currentText = getPlainTextAtRange(editor, quote.startOffset, quote.endOffset);
+			if (currentText !== quote.text) {
+				newStaleIds.push(quote.id);
+			}
+		}
+
+		if (newStaleIds.length > 0) {
+			for (const quoteId of newStaleIds) {
+				markQuoteStaleAction({ workspaceId, projectId, quoteId }).catch(() => {});
+			}
+			setQuotes((prev) =>
+				prev.map((q) => (newStaleIds.includes(q.id) ? { ...q, isStale: true } : q)),
+			);
+		}
+	}
+
+	// ── Auto-save ───────────────────────────────────────────────────────────────
 	const handleSave = useCallback(
 		async (content: string) => {
-			await updateNoteContentAction({
-				workspaceId,
-				projectId,
-				noteId: note.id,
-				content,
-			});
+			await updateNoteContentAction({ workspaceId, projectId, noteId: note.id, content });
+			// Check staleness after each save (same debounce cadence)
+			checkQuoteStaleness();
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[workspaceId, projectId, note.id],
 	);
 
 	const { status: saveStatus, triggerSave } = useAutoSave({ delay: 2000, onSave: handleSave });
 
+	// ── Panel toggle ────────────────────────────────────────────────────────────
 	function togglePanel() {
 		setPanelOpen((prev) => {
 			const next = !prev;
@@ -57,15 +91,76 @@ export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: Note
 		editorRef.current = editor;
 	}
 
+	// ── Quote Click (from metadata panel) ───────────────────────────────────────
+	// Scrolls the editor to the quote position and briefly flashes it.
 	function handleQuoteClick(startOffset: number) {
 		const editor = editorRef.current;
 		if (!editor) return;
 		try {
 			editor.commands.setTextSelection(startOffset);
 			editor.commands.scrollIntoView();
+			// Flash the mark element
+			setTimeout(() => {
+				try {
+					const { node } = editor.view.domAtPos(startOffset);
+					const markEl =
+						node.nodeType === Node.TEXT_NODE
+							? (node as Text).parentElement?.closest("mark.quote-highlight")
+							: (node as Element).closest?.("mark.quote-highlight");
+					if (markEl) {
+						markEl.classList.add("flashing");
+						setTimeout(() => markEl.classList.remove("flashing"), 600);
+					}
+				} catch {
+					// ignore — mark may not exist at this position
+				}
+			}, 50);
 		} catch {
-			// Offset may be out of range if content has changed
+			// Offset out of range if content changed
 		}
+	}
+
+	// ── Quote Extract ────────────────────────────────────────────────────────────
+	async function handleExtractQuote(offsets: {
+		text: string;
+		startOffset: number;
+		endOffset: number;
+	}) {
+		const result = await createQuoteAction({
+			workspaceId,
+			projectId,
+			noteId: note.id,
+			text: offsets.text,
+			startOffset: offsets.startOffset,
+			endOffset: offsets.endOffset,
+		});
+
+		if ("success" in result && result.success) {
+			// Optimistically add the new quote to state
+			setQuotes((prev) => [
+				...prev,
+				{
+					id: result.quote.id,
+					text: result.quote.text,
+					startOffset: result.quote.startOffset,
+					endOffset: result.quote.endOffset,
+					isStale: result.quote.isStale,
+					linkedInsightCount: 0,
+				},
+			]);
+		}
+	}
+
+	// ── Quote Delete ─────────────────────────────────────────────────────────────
+	async function handleDeleteQuote(quoteId: string, force: boolean) {
+		const result = await deleteQuoteAction({ workspaceId, projectId, quoteId, force });
+
+		if ("success" in result && result.success) {
+			// Remove from local state
+			setQuotes((prev) => prev.filter((q) => q.id !== quoteId));
+		}
+		// If warning returned (edge case, shouldn't happen since UI handles confirmation),
+		// we silently ignore — the popover already asked for confirmation.
 	}
 
 	return (
@@ -88,8 +183,13 @@ export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: Note
 						initialContent={note.rawContent}
 						canEdit={canEdit}
 						noteId={note.id}
+						workspaceId={workspaceId}
+						projectId={projectId}
+						quotes={quotes}
 						onContentChange={triggerSave}
 						onEditorReady={handleEditorReady}
+						onExtractQuote={handleExtractQuote}
+						onDeleteQuote={handleDeleteQuote}
 					/>
 				</div>
 
@@ -118,6 +218,7 @@ export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: Note
 					>
 						<NoteMetadataPanel
 							note={note}
+							quotes={quotes}
 							canEdit={canEdit}
 							workspaceId={workspaceId}
 							projectId={projectId}
