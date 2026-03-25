@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { workspaceMembers, workspaces } from "@/lib/db/schema";
+import { users, workspaceMembers, workspaces } from "@/lib/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import type { Metadata } from "next";
@@ -15,6 +15,13 @@ export const metadata: Metadata = {
 export default async function OnboardingPage() {
 	const session = await auth();
 	if (!session?.user?.id) redirect("/login");
+
+	// Guard against stale JWT tokens referencing a deleted/reset user row.
+	const userExists = await db.query.users.findFirst({
+		where: eq(users.id, session.user.id),
+		columns: { id: true },
+	});
+	if (!userExists) redirect("/login");
 
 	let membership = await db.query.workspaceMembers.findFirst({
 		where: and(eq(workspaceMembers.userId, session.user.id), isNull(workspaceMembers.removedAt)),
