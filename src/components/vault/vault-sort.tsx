@@ -30,7 +30,6 @@ export function VaultSort({ value, onChange }: VaultSortProps) {
 		setOpen(false);
 	}
 
-	// Close on outside click
 	function handleBlur(e: React.FocusEvent) {
 		if (!containerRef.current?.contains(e.relatedTarget as Node)) {
 			setOpen(false);
@@ -42,47 +41,28 @@ export function VaultSort({ value, onChange }: VaultSortProps) {
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors duration-100 hover:bg-white/5 focus:outline-none"
-				style={{
-					fontFamily: "var(--font-body)",
-					fontSize: "0.75rem",
-					color: "var(--color-text-muted)",
-					border: "1px solid var(--color-border-subtle)",
-					background: "var(--color-bg-raised)",
-				}}
+				aria-expanded={open}
+				aria-haspopup="listbox"
 				aria-label="Sort notes"
+				className="filter-pill flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-body text-xs transition-colors duration-100 hover:bg-[--color-bg-item-hover] focus:outline-none"
 			>
 				<ArrowUpDown size={13} />
 				<span>{selectedLabel}</span>
 				<ChevronDown
 					size={12}
-					className="transition-transform duration-150"
-					style={{ transform: open ? "rotate(180deg)" : undefined }}
+					className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`}
 				/>
 			</button>
 
 			{open && (
-				<div
-					className="absolute right-0 top-full z-20 mt-1 min-w-[160px] overflow-hidden rounded-xl py-1"
-					style={{
-						background: "var(--color-bg-overlay)",
-						border: "1px solid var(--color-border-default)",
-						boxShadow: "var(--shadow-modal)",
-					}}
-				>
+				<div className="dropdown-panel absolute right-0 top-full z-20 mt-1 min-w-[160px] overflow-hidden rounded-xl py-1">
 					{SORT_OPTIONS.map((opt) => (
 						<button
 							key={opt.value}
 							type="button"
+							aria-pressed={value === opt.value}
 							onClick={() => handleSelect(opt.value)}
-							className="flex w-full items-center px-3 py-2 text-left transition-colors duration-75 hover:bg-white/5 focus:outline-none"
-							style={{
-								fontFamily: "var(--font-body)",
-								fontSize: "0.8125rem",
-								color:
-									value === opt.value ? "var(--color-accent-gold)" : "var(--color-text-secondary)",
-								fontWeight: value === opt.value ? 500 : 400,
-							}}
+							className={`flex w-full items-center px-3 py-2 text-left font-body text-[0.8125rem] transition-colors duration-75 hover:bg-[--color-bg-item-hover] focus:outline-none ${value === opt.value ? "font-medium text-[--color-accent-gold]" : "font-normal text-[--color-text-secondary]"}`}
 						>
 							{opt.label}
 						</button>

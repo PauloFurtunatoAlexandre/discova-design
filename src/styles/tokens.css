@@ -98,6 +98,10 @@
 	/* Focus rings */
 	--color-accent-gold-focus-ring: rgba(232, 197, 71, 0.08);
 
+	/* Interactive surfaces */
+	--color-bg-item-hover: rgba(255, 255, 255, 0.05);
+	--color-overlay-scrim: rgba(0, 0, 0, 0.6);
+
 	/* Gradients */
 	--gradient-gold: linear-gradient(135deg, #e8c547, #c4963a);
 	--gradient-page-glow: radial-gradient(
@@ -218,6 +222,10 @@
 
 	/* Focus rings */
 	--color-accent-gold-focus-ring: rgba(196, 150, 58, 0.1);
+
+	/* Interactive surfaces */
+	--color-bg-item-hover: rgba(0, 0, 0, 0.04);
+	--color-overlay-scrim: rgba(0, 0, 0, 0.4);
 
 	--gradient-gold: linear-gradient(135deg, #c4963a, #a67828);
 	--gradient-page-glow: radial-gradient(

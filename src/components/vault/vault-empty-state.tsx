@@ -55,29 +55,12 @@ export function VaultEmptyState({
 	if (noResults) {
 		return (
 			<div className="flex flex-col items-center justify-center py-20 text-center">
-				<div
-					className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl"
-					style={{
-						background: "var(--color-bg-raised)",
-						border: "1px solid var(--color-border-default)",
-					}}
-				>
-					<SearchX size={24} style={{ color: "var(--color-text-muted)" }} strokeWidth={1.5} />
+				<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[--color-border-default] bg-[--color-bg-raised]">
+					<SearchX size={24} className="text-[--color-text-muted]" strokeWidth={1.5} />
 				</div>
 
-				<h2
-					className="mb-2 text-lg font-semibold"
-					style={{
-						fontFamily: "var(--font-display)",
-						color: "var(--color-text-primary)",
-					}}
-				>
-					No notes match your filters
-				</h2>
-				<p
-					className="mb-6 max-w-xs text-sm leading-relaxed"
-					style={{ color: "var(--color-text-secondary)" }}
-				>
+				<h2 className="mb-2 text-lg font-semibold">No notes match your filters</h2>
+				<p className="mb-6 max-w-xs text-sm leading-relaxed text-[--color-text-secondary]">
 					Try adjusting your search or clearing some filters.
 				</p>
 
@@ -85,12 +68,7 @@ export function VaultEmptyState({
 					<button
 						type="button"
 						onClick={onClearFilters}
-						className="rounded-xl border px-5 py-2.5 text-sm font-medium transition-colors duration-150 hover:bg-white/5 focus:outline-none"
-						style={{
-							fontFamily: "var(--font-body)",
-							color: "var(--color-text-secondary)",
-							borderColor: "var(--color-border-default)",
-						}}
+						className="rounded-xl border border-[--color-border-default] px-5 py-2.5 font-body text-sm font-medium text-[--color-text-secondary] transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus:outline-none"
 					>
 						Clear all filters
 					</button>
@@ -103,30 +81,12 @@ export function VaultEmptyState({
 
 	return (
 		<div className="flex flex-col items-center justify-center py-20 text-center">
-			{/* Icon */}
-			<div
-				className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl"
-				style={{
-					background: "var(--color-accent-gold-muted)",
-					border: "1px solid var(--color-accent-gold-border)",
-				}}
-			>
-				<FileText size={28} style={{ color: "var(--color-accent-gold)" }} strokeWidth={1.5} />
+			<div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-[--color-accent-gold-border] bg-[--color-accent-gold-muted]">
+				<FileText size={28} className="text-[--color-accent-gold]" strokeWidth={1.5} />
 			</div>
 
-			<h2
-				className="mb-2 max-w-xs text-xl font-semibold"
-				style={{
-					fontFamily: "var(--font-display)",
-					color: "var(--color-text-primary)",
-				}}
-			>
-				{copy.headline}
-			</h2>
-			<p
-				className="mb-8 max-w-xs text-sm leading-relaxed"
-				style={{ color: "var(--color-text-secondary)" }}
-			>
+			<h2 className="mb-2 max-w-xs text-xl font-semibold">{copy.headline}</h2>
+			<p className="mb-8 max-w-xs text-sm leading-relaxed text-[--color-text-secondary]">
 				{copy.body}
 			</p>
 
@@ -134,11 +94,7 @@ export function VaultEmptyState({
 				<button
 					type="button"
 					onClick={() => router.push(`/${workspaceId}/${projectId}/vault/new`)}
-					className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-150 hover:brightness-110 active:scale-[0.98] focus:outline-none"
-					style={{
-						background: "var(--color-accent-gold)",
-						color: "var(--color-text-inverse)",
-					}}
+					className="inline-flex items-center gap-2 rounded-xl bg-[--color-accent-gold] px-5 py-2.5 text-sm font-semibold text-[--color-text-inverse] transition-all duration-150 hover:brightness-110 active:scale-[0.98] focus:outline-none"
 				>
 					{copy.cta}
 				</button>

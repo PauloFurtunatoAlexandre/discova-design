@@ -31,19 +31,6 @@ const EMOTIONAL_TONES = [
 	{ value: "mixed", label: "Mixed", color: "var(--color-status-warning)" },
 ];
 
-// Shared pill style for active filter controls
-const activePillStyle = {
-	background: "var(--color-accent-gold-muted)",
-	border: "1px solid var(--color-accent-gold-border)",
-	color: "var(--color-accent-gold)",
-};
-
-const defaultPillStyle = {
-	background: "var(--color-bg-raised)",
-	border: "1px solid var(--color-border-subtle)",
-	color: "var(--color-text-secondary)",
-};
-
 function activeFilterCount(filters: VaultListFilters): number {
 	let n = 0;
 	if (filters.researchMethod?.length) n++;
@@ -81,39 +68,31 @@ function MethodFilter({
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none"
-				style={isActive ? activePillStyle : defaultPillStyle}
+				aria-expanded={open}
+				aria-haspopup="listbox"
+				className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none ${isActive ? "filter-pill-active" : "filter-pill"}`}
 			>
-				<span style={{ fontFamily: "var(--font-body)" }}>Method</span>
+				<span className="font-body">Method</span>
 				{isActive && (
-					<span
-						className="flex h-4 w-4 items-center justify-center rounded-full text-[0.6rem] font-bold"
-						style={{ background: "var(--color-accent-gold)", color: "var(--color-text-inverse)" }}
-					>
+					<span className="flex h-4 w-4 items-center justify-center rounded-full bg-[--color-accent-gold] text-[0.6rem] font-bold text-[--color-text-inverse]">
 						{value.length}
 					</span>
 				)}
 				<ChevronDown
 					size={11}
-					style={{ transform: open ? "rotate(180deg)" : undefined, transition: "transform 150ms" }}
+					className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`}
 				/>
 			</button>
 
 			{open && (
-				<div
-					className="absolute left-0 top-full z-20 mt-1 min-w-[180px] overflow-hidden rounded-xl py-1"
-					style={{
-						background: "var(--color-bg-overlay)",
-						border: "1px solid var(--color-border-default)",
-						boxShadow: "var(--shadow-modal)",
-					}}
-				>
+				<div className="dropdown-panel absolute left-0 top-full z-20 mt-1 min-w-[180px] overflow-hidden rounded-xl py-1">
 					{RESEARCH_METHODS.map((m) => (
 						<button
 							key={m.value}
 							type="button"
+							aria-pressed={value.includes(m.value)}
 							onClick={() => toggle(m.value)}
-							className="flex w-full items-center gap-2 px-3 py-2 transition-colors duration-75 hover:bg-white/5 focus:outline-none"
+							className="flex w-full items-center gap-2 px-3 py-2 transition-colors duration-75 hover:bg-[--color-bg-item-hover] focus:outline-none"
 						>
 							<span
 								className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded"
@@ -134,13 +113,7 @@ function MethodFilter({
 									</svg>
 								)}
 							</span>
-							<span
-								style={{
-									fontFamily: "var(--font-body)",
-									fontSize: "0.8125rem",
-									color: "var(--color-text-secondary)",
-								}}
-							>
+							<span className="font-body text-[0.8125rem] text-[--color-text-secondary]">
 								{m.label}
 							</span>
 						</button>
@@ -174,28 +147,22 @@ function ToneFilter({
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none"
-				style={isActive ? activePillStyle : defaultPillStyle}
+				aria-expanded={open}
+				aria-haspopup="listbox"
+				className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none ${isActive ? "filter-pill-active" : "filter-pill"}`}
 			>
 				{selected && (
 					<span className="h-2 w-2 shrink-0 rounded-full" style={{ background: selected.color }} />
 				)}
-				<span style={{ fontFamily: "var(--font-body)" }}>{selected?.label ?? "Tone"}</span>
+				<span className="font-body">{selected?.label ?? "Tone"}</span>
 				<ChevronDown
 					size={11}
-					style={{ transform: open ? "rotate(180deg)" : undefined, transition: "transform 150ms" }}
+					className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`}
 				/>
 			</button>
 
 			{open && (
-				<div
-					className="absolute left-0 top-full z-20 mt-1 min-w-[160px] overflow-hidden rounded-xl py-1"
-					style={{
-						background: "var(--color-bg-overlay)",
-						border: "1px solid var(--color-border-default)",
-						boxShadow: "var(--shadow-modal)",
-					}}
-				>
+				<div className="dropdown-panel absolute left-0 top-full z-20 mt-1 min-w-[160px] overflow-hidden rounded-xl py-1">
 					{value && (
 						<button
 							type="button"
@@ -203,12 +170,7 @@ function ToneFilter({
 								onChange(undefined);
 								setOpen(false);
 							}}
-							className="flex w-full items-center gap-2 px-3 py-2 transition-colors duration-75 hover:bg-white/5 focus:outline-none"
-							style={{
-								fontFamily: "var(--font-body)",
-								fontSize: "0.8125rem",
-								color: "var(--color-text-muted)",
-							}}
+							className="flex w-full items-center gap-2 px-3 py-2 font-body text-[0.8125rem] text-[--color-text-muted] transition-colors duration-75 hover:bg-[--color-bg-item-hover] focus:outline-none"
 						>
 							Clear
 						</button>
@@ -217,21 +179,16 @@ function ToneFilter({
 						<button
 							key={t.value}
 							type="button"
+							aria-pressed={value === t.value}
 							onClick={() => {
 								onChange(t.value);
 								setOpen(false);
 							}}
-							className="flex w-full items-center gap-2 px-3 py-2 transition-colors duration-75 hover:bg-white/5 focus:outline-none"
+							className="flex w-full items-center gap-2 px-3 py-2 transition-colors duration-75 hover:bg-[--color-bg-item-hover] focus:outline-none"
 						>
 							<span className="h-2 w-2 shrink-0 rounded-full" style={{ background: t.color }} />
 							<span
-								style={{
-									fontFamily: "var(--font-body)",
-									fontSize: "0.8125rem",
-									color:
-										value === t.value ? "var(--color-accent-gold)" : "var(--color-text-secondary)",
-									fontWeight: value === t.value ? 500 : 400,
-								}}
+								className={`font-body text-[0.8125rem] ${value === t.value ? "font-medium text-[--color-accent-gold]" : "font-normal text-[--color-text-secondary]"}`}
 							>
 								{t.label}
 							</span>
@@ -274,37 +231,22 @@ function DateFilter({
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none"
-				style={isActive ? activePillStyle : defaultPillStyle}
+				aria-expanded={open}
+				aria-haspopup="dialog"
+				className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none ${isActive ? "filter-pill-active" : "filter-pill"}`}
 			>
 				<CalendarDays size={12} />
-				<span style={{ fontFamily: "var(--font-body)" }}>{label}</span>
+				<span className="font-body">{label}</span>
 				<ChevronDown
 					size={11}
-					style={{ transform: open ? "rotate(180deg)" : undefined, transition: "transform 150ms" }}
+					className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`}
 				/>
 			</button>
 
 			{open && (
-				<div
-					className="absolute left-0 top-full z-20 mt-1 min-w-[220px] rounded-xl p-3"
-					style={{
-						background: "var(--color-bg-overlay)",
-						border: "1px solid var(--color-border-default)",
-						boxShadow: "var(--shadow-modal)",
-					}}
-				>
+				<div className="dropdown-panel absolute left-0 top-full z-20 mt-1 min-w-[220px] rounded-xl p-3">
 					<div className="flex flex-col gap-2">
-						<label
-							htmlFor="vault-date-from"
-							style={{
-								fontFamily: "var(--font-mono)",
-								fontSize: "0.65rem",
-								color: "var(--color-text-muted)",
-								textTransform: "uppercase",
-								letterSpacing: "0.08em",
-							}}
-						>
+						<label htmlFor="vault-date-from" className="meta-label">
 							From
 						</label>
 						<input
@@ -312,25 +254,9 @@ function DateFilter({
 							type="date"
 							value={dateFrom ?? ""}
 							onChange={(e) => onChange(e.target.value || undefined, dateTo)}
-							className="rounded-lg px-2.5 py-1.5 focus:outline-none"
-							style={{
-								fontFamily: "var(--font-body)",
-								fontSize: "0.8125rem",
-								background: "var(--color-bg-sunken)",
-								border: "1px solid var(--color-border-default)",
-								color: "var(--color-text-primary)",
-							}}
+							className="meta-input rounded-lg px-2.5 py-1.5 font-body text-[0.8125rem] focus:outline-none"
 						/>
-						<label
-							htmlFor="vault-date-to"
-							style={{
-								fontFamily: "var(--font-mono)",
-								fontSize: "0.65rem",
-								color: "var(--color-text-muted)",
-								textTransform: "uppercase",
-								letterSpacing: "0.08em",
-							}}
-						>
+						<label htmlFor="vault-date-to" className="meta-label">
 							To
 						</label>
 						<input
@@ -338,14 +264,7 @@ function DateFilter({
 							type="date"
 							value={dateTo ?? ""}
 							onChange={(e) => onChange(dateFrom, e.target.value || undefined)}
-							className="rounded-lg px-2.5 py-1.5 focus:outline-none"
-							style={{
-								fontFamily: "var(--font-body)",
-								fontSize: "0.8125rem",
-								background: "var(--color-bg-sunken)",
-								border: "1px solid var(--color-border-default)",
-								color: "var(--color-text-primary)",
-							}}
+							className="meta-input rounded-lg px-2.5 py-1.5 font-body text-[0.8125rem] focus:outline-none"
 						/>
 						{isActive && (
 							<button
@@ -354,13 +273,7 @@ function DateFilter({
 									onChange(undefined, undefined);
 									setOpen(false);
 								}}
-								className="mt-1 text-left transition-opacity hover:opacity-70 focus:outline-none"
-								style={{
-									fontFamily: "var(--font-body)",
-									fontSize: "0.75rem",
-									color: "var(--color-text-muted)",
-									textDecoration: "underline",
-								}}
+								className="mt-1 text-left font-body text-xs text-[--color-text-muted] underline transition-opacity hover:opacity-70 focus:outline-none"
 							>
 								Clear dates
 							</button>
@@ -392,13 +305,18 @@ function TagsFilter({
 	useEffect(() => {
 		if (!open) return;
 		const ctrl = new AbortController();
-		fetch(`/api/vault/tags?projectId=${projectId}&q=${encodeURIComponent(query)}`, {
-			signal: ctrl.signal,
-		})
-			.then((r) => r.json())
-			.then((tags: string[]) => setSuggestions(tags))
-			.catch(() => {});
-		return () => ctrl.abort();
+		const timer = setTimeout(() => {
+			fetch(`/api/vault/tags?projectId=${projectId}&q=${encodeURIComponent(query)}`, {
+				signal: ctrl.signal,
+			})
+				.then((r) => r.json())
+				.then((tags: string[]) => setSuggestions(tags))
+				.catch(() => {});
+		}, 200);
+		return () => {
+			clearTimeout(timer);
+			ctrl.abort();
+		};
 	}, [open, query, projectId]);
 
 	function toggle(tag: string) {
@@ -415,59 +333,36 @@ function TagsFilter({
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none"
-				style={isActive ? activePillStyle : defaultPillStyle}
+				aria-expanded={open}
+				aria-haspopup="listbox"
+				className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none ${isActive ? "filter-pill-active" : "filter-pill"}`}
 			>
-				<span style={{ fontFamily: "var(--font-body)" }}>Tags</span>
+				<span className="font-body">Tags</span>
 				{isActive && (
-					<span
-						className="flex h-4 w-4 items-center justify-center rounded-full text-[0.6rem] font-bold"
-						style={{ background: "var(--color-accent-gold)", color: "var(--color-text-inverse)" }}
-					>
+					<span className="flex h-4 w-4 items-center justify-center rounded-full bg-[--color-accent-gold] text-[0.6rem] font-bold text-[--color-text-inverse]">
 						{value.length}
 					</span>
 				)}
 				<ChevronDown
 					size={11}
-					style={{ transform: open ? "rotate(180deg)" : undefined, transition: "transform 150ms" }}
+					className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`}
 				/>
 			</button>
 
 			{open && (
-				<div
-					className="absolute left-0 top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-xl"
-					style={{
-						background: "var(--color-bg-overlay)",
-						border: "1px solid var(--color-border-default)",
-						boxShadow: "var(--shadow-modal)",
-					}}
-				>
-					<div className="p-2" style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+				<div className="dropdown-panel absolute left-0 top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-xl">
+					<div className="border-b border-[--color-border-subtle] p-2">
 						<input
 							type="text"
 							value={query}
 							onChange={(e) => setQuery(e.target.value)}
 							placeholder="Search tags..."
-							className="w-full rounded-lg px-2.5 py-1.5 focus:outline-none"
-							style={{
-								fontFamily: "var(--font-body)",
-								fontSize: "0.8125rem",
-								background: "var(--color-bg-sunken)",
-								border: "1px solid var(--color-border-default)",
-								color: "var(--color-text-primary)",
-							}}
+							className="meta-input w-full rounded-lg px-2.5 py-1.5 font-body text-[0.8125rem] focus:outline-none"
 						/>
 					</div>
 					<div className="max-h-48 overflow-y-auto py-1">
 						{suggestions.length === 0 && (
-							<p
-								className="px-3 py-2"
-								style={{
-									fontFamily: "var(--font-body)",
-									fontSize: "0.8125rem",
-									color: "var(--color-text-muted)",
-								}}
-							>
+							<p className="px-3 py-2 font-body text-[0.8125rem] text-[--color-text-muted]">
 								{query ? "No matching tags" : "No tags yet"}
 							</p>
 						)}
@@ -475,8 +370,9 @@ function TagsFilter({
 							<button
 								key={tag}
 								type="button"
+								aria-pressed={value.includes(tag)}
 								onClick={() => toggle(tag)}
-								className="flex w-full items-center gap-2 px-3 py-1.5 transition-colors duration-75 hover:bg-white/5 focus:outline-none"
+								className="flex w-full items-center gap-2 px-3 py-1.5 transition-colors duration-75 hover:bg-[--color-bg-item-hover] focus:outline-none"
 							>
 								<span
 									className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded"
@@ -498,13 +394,7 @@ function TagsFilter({
 									)}
 								</span>
 								<span
-									style={{
-										fontFamily: "var(--font-mono)",
-										fontSize: "0.75rem",
-										color: value.includes(tag)
-											? "var(--color-accent-gold)"
-											: "var(--color-text-secondary)",
-									}}
+									className={`font-mono text-xs ${value.includes(tag) ? "text-[--color-accent-gold]" : "text-[--color-text-secondary]"}`}
 								>
 									{tag}
 								</span>
@@ -530,12 +420,12 @@ function FollowUpFilter({
 	return (
 		<button
 			type="button"
+			aria-pressed={isActive}
 			onClick={() => onChange(isActive ? undefined : true)}
-			className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none"
-			style={isActive ? activePillStyle : defaultPillStyle}
+			className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors duration-100 focus:outline-none ${isActive ? "filter-pill-active" : "filter-pill"}`}
 		>
 			<Flag size={12} />
-			<span style={{ fontFamily: "var(--font-body)" }}>Follow-up</span>
+			<span className="font-body">Follow-up</span>
 		</button>
 	);
 }
@@ -561,41 +451,40 @@ function MobileFiltersSheet({
 }) {
 	const filterCount = activeFilterCount(filters);
 
+	// Escape key closes the sheet
+	useEffect(() => {
+		function handleKeyDown(e: KeyboardEvent) {
+			if (e.key === "Escape") onClose();
+		}
+		document.addEventListener("keydown", handleKeyDown);
+		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, [onClose]);
+
 	return (
 		<dialog
 			open
 			className="fixed inset-0 z-50 m-0 flex max-w-none items-end border-0 bg-transparent p-0"
 		>
 			{/* Backdrop */}
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop is aria-hidden; Escape is handled on the dialog */}
-			<div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden={true} />
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop is aria-hidden; Escape is handled above */}
+			<div
+				className="absolute inset-0 bg-[--color-overlay-scrim]"
+				onClick={onClose}
+				aria-hidden={true}
+			/>
 
 			{/* Sheet */}
-			<div
-				className="relative w-full rounded-t-2xl px-4 pb-8 pt-4"
-				style={{ background: "var(--color-bg-overlay)", maxHeight: "85vh", overflowY: "auto" }}
-			>
+			<div className="relative max-h-[85vh] w-full overflow-y-auto rounded-t-2xl bg-[--color-bg-overlay] px-4 pb-8 pt-4">
 				{/* Handle */}
-				<div
-					className="mx-auto mb-4 h-1 w-10 rounded-full"
-					style={{ background: "var(--color-border-default)" }}
-				/>
+				<div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[--color-border-default]" />
 
 				<div className="mb-4 flex items-center justify-between">
-					<span
-						style={{
-							fontFamily: "var(--font-display)",
-							fontSize: "1rem",
-							color: "var(--color-text-primary)",
-						}}
-					>
-						Filters
-					</span>
+					<span className="font-display text-base text-[--color-text-primary]">Filters</span>
 					<button
 						type="button"
 						onClick={onClose}
-						className="focus:outline-none"
-						style={{ color: "var(--color-text-muted)" }}
+						aria-label="Close filters"
+						className="text-[--color-text-muted] focus:outline-none"
 					>
 						<X size={18} />
 					</button>
@@ -604,35 +493,13 @@ function MobileFiltersSheet({
 				<div className="flex flex-col gap-4">
 					{/* Sort */}
 					<div>
-						<p
-							className="mb-2"
-							style={{
-								fontFamily: "var(--font-mono)",
-								fontSize: "0.65rem",
-								color: "var(--color-text-muted)",
-								textTransform: "uppercase",
-								letterSpacing: "0.08em",
-							}}
-						>
-							Sort
-						</p>
+						<p className="meta-label">Sort</p>
 						<VaultSort value={sortValue} onChange={onSortChange} />
 					</div>
 
 					{/* Method */}
 					<div>
-						<p
-							className="mb-2"
-							style={{
-								fontFamily: "var(--font-mono)",
-								fontSize: "0.65rem",
-								color: "var(--color-text-muted)",
-								textTransform: "uppercase",
-								letterSpacing: "0.08em",
-							}}
-						>
-							Research Method
-						</p>
+						<p className="meta-label">Research Method</p>
 						<MethodFilter
 							value={filters.researchMethod ?? []}
 							onChange={(v) => onFiltersChange({ ...filters, researchMethod: v })}
@@ -641,18 +508,7 @@ function MobileFiltersSheet({
 
 					{/* Tone */}
 					<div>
-						<p
-							className="mb-2"
-							style={{
-								fontFamily: "var(--font-mono)",
-								fontSize: "0.65rem",
-								color: "var(--color-text-muted)",
-								textTransform: "uppercase",
-								letterSpacing: "0.08em",
-							}}
-						>
-							Emotional Tone
-						</p>
+						<p className="meta-label">Emotional Tone</p>
 						<ToneFilter
 							value={filters.emotionalTone}
 							onChange={(v) => onFiltersChange({ ...filters, emotionalTone: v })}
@@ -661,18 +517,7 @@ function MobileFiltersSheet({
 
 					{/* Date */}
 					<div>
-						<p
-							className="mb-2"
-							style={{
-								fontFamily: "var(--font-mono)",
-								fontSize: "0.65rem",
-								color: "var(--color-text-muted)",
-								textTransform: "uppercase",
-								letterSpacing: "0.08em",
-							}}
-						>
-							Date Range
-						</p>
+						<p className="meta-label">Date Range</p>
 						<DateFilter
 							dateFrom={filters.dateFrom}
 							dateTo={filters.dateTo}
@@ -682,18 +527,7 @@ function MobileFiltersSheet({
 
 					{/* Follow-up */}
 					<div>
-						<p
-							className="mb-2"
-							style={{
-								fontFamily: "var(--font-mono)",
-								fontSize: "0.65rem",
-								color: "var(--color-text-muted)",
-								textTransform: "uppercase",
-								letterSpacing: "0.08em",
-							}}
-						>
-							Flags
-						</p>
+						<p className="meta-label">Flags</p>
 						<FollowUpFilter
 							value={filters.followUpNeeded}
 							onChange={(v) => onFiltersChange({ ...filters, followUpNeeded: v })}
@@ -702,18 +536,7 @@ function MobileFiltersSheet({
 
 					{/* Tags */}
 					<div>
-						<p
-							className="mb-2"
-							style={{
-								fontFamily: "var(--font-mono)",
-								fontSize: "0.65rem",
-								color: "var(--color-text-muted)",
-								textTransform: "uppercase",
-								letterSpacing: "0.08em",
-							}}
-						>
-							Tags
-						</p>
+						<p className="meta-label">Tags</p>
 						<TagsFilter
 							value={filters.tags ?? []}
 							onChange={(v) => onFiltersChange({ ...filters, tags: v })}
@@ -730,13 +553,7 @@ function MobileFiltersSheet({
 								onClearAll();
 								onClose();
 							}}
-							className="flex-1 rounded-xl py-2.5 transition-colors duration-150 hover:bg-white/5 focus:outline-none"
-							style={{
-								fontFamily: "var(--font-body)",
-								fontSize: "0.875rem",
-								color: "var(--color-text-muted)",
-								border: "1px solid var(--color-border-default)",
-							}}
+							className="flex-1 rounded-xl border border-[--color-border-default] py-2.5 font-body text-sm text-[--color-text-muted] transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus:outline-none"
 						>
 							Clear all
 						</button>
@@ -744,13 +561,7 @@ function MobileFiltersSheet({
 					<button
 						type="button"
 						onClick={onClose}
-						className="flex-1 rounded-xl py-2.5 font-semibold transition-all duration-150 hover:brightness-110 focus:outline-none"
-						style={{
-							fontFamily: "var(--font-body)",
-							fontSize: "0.875rem",
-							background: "var(--color-accent-gold)",
-							color: "var(--color-text-inverse)",
-						}}
+						className="flex-1 rounded-xl bg-[--color-accent-gold] py-2.5 font-body text-sm font-semibold text-[--color-text-inverse] transition-all duration-150 hover:brightness-110 focus:outline-none"
 					>
 						Apply
 					</button>
@@ -779,10 +590,7 @@ export function VaultFilterBar({
 			{/* Desktop filter row */}
 			<div className="hidden items-center gap-2 md:flex">
 				<div className="flex flex-1 flex-wrap items-center gap-2">
-					<SlidersHorizontal
-						size={14}
-						style={{ color: "var(--color-text-muted)", flexShrink: 0 }}
-					/>
+					<SlidersHorizontal size={14} className="shrink-0 text-[--color-text-muted]" />
 
 					<MethodFilter
 						value={filters.researchMethod ?? []}
@@ -811,13 +619,7 @@ export function VaultFilterBar({
 						<button
 							type="button"
 							onClick={onClearAll}
-							className="transition-opacity duration-100 hover:opacity-70 focus:outline-none"
-							style={{
-								fontFamily: "var(--font-body)",
-								fontSize: "0.75rem",
-								color: "var(--color-text-muted)",
-								textDecoration: "underline",
-							}}
+							className="font-body text-xs text-[--color-text-muted] underline transition-opacity duration-100 hover:opacity-70 focus:outline-none"
 						>
 							Clear all
 						</button>
@@ -832,16 +634,14 @@ export function VaultFilterBar({
 				<button
 					type="button"
 					onClick={() => setMobileOpen(true)}
-					className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors duration-100 focus:outline-none"
-					style={hasActiveFilters ? activePillStyle : defaultPillStyle}
+					aria-expanded={mobileOpen}
+					aria-haspopup="dialog"
+					className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors duration-100 focus:outline-none ${hasActiveFilters ? "filter-pill-active" : "filter-pill"}`}
 				>
 					<Filter size={13} />
-					<span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem" }}>Filters</span>
+					<span className="font-body text-[0.8125rem]">Filters</span>
 					{filterCount > 0 && (
-						<span
-							className="flex h-4 min-w-[1rem] items-center justify-center rounded-full px-1 text-[0.6rem] font-bold"
-							style={{ background: "var(--color-accent-gold)", color: "var(--color-text-inverse)" }}
-						>
+						<span className="flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-[--color-accent-gold] px-1 text-[0.6rem] font-bold text-[--color-text-inverse]">
 							{filterCount}
 						</span>
 					)}
