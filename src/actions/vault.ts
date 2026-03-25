@@ -4,7 +4,12 @@ import { createAuditEntry } from "@/lib/auth/audit";
 import { db } from "@/lib/db";
 import { noteTags, researchNotes, tags } from "@/lib/db/schema";
 import { withPermission } from "@/lib/permissions";
-import { createNoteSchema } from "@/lib/validations/vault";
+import {
+	createNoteSchema,
+	updateNoteContentSchema,
+	updateNoteMetadataSchema,
+	updateNoteTagsSchema,
+} from "@/lib/validations/vault";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -157,6 +162,151 @@ export const deleteNoteAction = withPermission(
 		// 5. Revalidate
 		revalidatePath(`/${ctx.workspaceId}/${ctx.projectId}/vault`, "page");
 
+		return { success: true };
+	},
+);
+
+// ─── Update Note Content ───────────────────────────────────────────────────────
+
+export const updateNoteContentAction = withPermission(
+	{ phase: "vault", action: "write" },
+	async (
+		ctx,
+		args: { workspaceId: string; projectId: string; noteId: string; content: string },
+	): Promise<{ success: true } | { error: string }> => {
+		// 1. Validate
+		const parsed = updateNoteContentSchema.safeParse({ content: args.content });
+		if (!parsed.success) {
+			return { error: "Invalid content" };
+		}
+
+		// 2. Verify note belongs to this project (anti-IDOR)
+		const note = await db.query.researchNotes.findFirst({
+			where: and(eq(researchNotes.id, args.noteId), eq(researchNotes.projectId, ctx.projectId)),
+			columns: { id: true },
+		});
+		if (!note) return { error: "Note not found" };
+
+		// 3. Update content (skip audit — too noisy for auto-save)
+		await db
+			.update(researchNotes)
+			.set({ rawContent: parsed.data.content, updatedAt: new Date() })
+			.where(eq(researchNotes.id, note.id));
+
+		return { success: true };
+	},
+);
+
+// ─── Update Note Metadata Field ────────────────────────────────────────────────
+
+export const updateNoteMetadataAction = withPermission(
+	{ phase: "vault", action: "write" },
+	async (
+		ctx,
+		args: {
+			workspaceId: string;
+			projectId: string;
+			noteId: string;
+			field: string;
+			// biome-ignore lint/suspicious/noExplicitAny: discriminated union validated by Zod
+			value: any;
+		},
+	): Promise<{ success: true } | { error: string }> => {
+		// 1. Validate field + value pair
+		const parsed = updateNoteMetadataSchema.safeParse({
+			field: args.field,
+			value: args.value,
+		});
+		if (!parsed.success) {
+			return { error: `Invalid metadata: ${parsed.error.flatten().fieldErrors}` };
+		}
+
+		// 2. Anti-IDOR
+		const note = await db.query.researchNotes.findFirst({
+			where: and(eq(researchNotes.id, args.noteId), eq(researchNotes.projectId, ctx.projectId)),
+			columns: { id: true },
+		});
+		if (!note) return { error: "Note not found" };
+
+		// 3. Build update record from validated discriminated union
+		const { field, value } = parsed.data;
+		let updateRecord: Partial<typeof researchNotes.$inferInsert>;
+
+		if (field === "researchMethod") {
+			updateRecord = { researchMethod: value };
+		} else if (field === "userSegment") {
+			updateRecord = { userSegment: value };
+		} else if (field === "emotionalTone") {
+			updateRecord = { emotionalTone: value };
+		} else if (field === "assumptionsTested") {
+			updateRecord = { assumptionsTested: value };
+		} else if (field === "followUpNeeded") {
+			updateRecord = { followUpNeeded: value };
+		} else {
+			// sessionRecordingUrl
+			updateRecord = { sessionRecordingUrl: value };
+		}
+
+		await db
+			.update(researchNotes)
+			.set({ ...updateRecord, updatedAt: new Date() })
+			.where(eq(researchNotes.id, note.id));
+
+		// 4. Audit log
+		createAuditEntry({
+			workspaceId: ctx.workspaceId,
+			userId: ctx.userId,
+			action: "note.metadata_updated",
+			targetType: "research_note",
+			targetId: note.id,
+			metadata: { field },
+		}).catch(() => {});
+
+		revalidatePath(`/${ctx.workspaceId}/${ctx.projectId}/vault/${note.id}`, "page");
+		return { success: true };
+	},
+);
+
+// ─── Update Note Tags ──────────────────────────────────────────────────────────
+
+export const updateNoteTagsAction = withPermission(
+	{ phase: "vault", action: "write" },
+	async (
+		ctx,
+		args: { workspaceId: string; projectId: string; noteId: string; tags: string[] },
+	): Promise<{ success: true } | { error: string }> => {
+		// 1. Validate
+		const parsed = updateNoteTagsSchema.safeParse({ tags: args.tags });
+		if (!parsed.success) return { error: "Invalid tags" };
+
+		// 2. Anti-IDOR
+		const note = await db.query.researchNotes.findFirst({
+			where: and(eq(researchNotes.id, args.noteId), eq(researchNotes.projectId, ctx.projectId)),
+			columns: { id: true },
+		});
+		if (!note) return { error: "Note not found" };
+
+		// 3. Delete all existing note_tags for this note
+		await db.delete(noteTags).where(eq(noteTags.noteId, note.id));
+
+		// 4. Upsert each tag and re-link
+		for (const tagName of parsed.data.tags) {
+			await db
+				.insert(tags)
+				.values({ projectId: ctx.projectId, name: tagName })
+				.onConflictDoNothing();
+
+			const tag = await db.query.tags.findFirst({
+				where: and(eq(tags.projectId, ctx.projectId), eq(tags.name, tagName)),
+				columns: { id: true },
+			});
+
+			if (tag) {
+				await db.insert(noteTags).values({ noteId: note.id, tagId: tag.id }).onConflictDoNothing();
+			}
+		}
+
+		revalidatePath(`/${ctx.workspaceId}/${ctx.projectId}/vault/${note.id}`, "page");
 		return { success: true };
 	},
 );

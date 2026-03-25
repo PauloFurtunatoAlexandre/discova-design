@@ -146,6 +146,104 @@ h6 {
 	display: block;
 }
 
+/* ── Tiptap Note Editor ───────────────────────────────────── */
+.note-editor-content {
+	font-family: var(--font-body);
+	font-size: 0.9375rem;
+	line-height: 1.7;
+	color: var(--color-text-primary);
+	min-height: 400px;
+	padding: 24px;
+	outline: none;
+}
+
+.note-editor-content h1 {
+	font-family: var(--font-display);
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin: 24px 0 12px;
+	color: var(--color-text-primary);
+}
+
+.note-editor-content h2 {
+	font-family: var(--font-display);
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin: 20px 0 10px;
+	color: var(--color-text-primary);
+}
+
+.note-editor-content h3 {
+	font-family: var(--font-display);
+	font-size: 1.0625rem;
+	font-weight: 600;
+	margin: 16px 0 8px;
+	color: var(--color-text-primary);
+}
+
+.note-editor-content p {
+	margin: 0 0 12px;
+}
+
+.note-editor-content ul,
+.note-editor-content ol {
+	padding-left: 24px;
+	margin: 0 0 12px;
+}
+
+.note-editor-content blockquote {
+	border-left: 3px solid var(--color-accent-gold);
+	padding-left: 16px;
+	margin: 12px 0;
+	color: var(--color-text-secondary);
+	font-style: italic;
+}
+
+.note-editor-content hr {
+	border: none;
+	border-top: 1px solid var(--color-border-subtle);
+	margin: 20px 0;
+}
+
+.note-editor-content strong {
+	font-weight: 700;
+}
+
+.note-editor-content em {
+	font-style: italic;
+}
+
+/* Placeholder */
+.note-editor-content p.is-editor-empty:first-child::before {
+	content: attr(data-placeholder);
+	color: var(--color-text-disabled);
+	pointer-events: none;
+	float: left;
+	height: 0;
+}
+
+/* Quote highlights — gold background, set via Highlight extension */
+.note-editor-content .quote-highlight {
+	background-color: var(--color-accent-gold-muted);
+	border-bottom: 2px solid var(--color-accent-gold);
+	padding: 1px 2px;
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.note-editor-content .quote-highlight.stale {
+	border-bottom-style: dashed;
+	opacity: 0.7;
+}
+
+/* Links */
+.note-editor-content .note-link {
+	color: var(--color-text-link);
+	text-decoration: underline;
+	text-decoration-color: var(--color-text-link);
+	text-underline-offset: 2px;
+}
+
 /* ── Reduced motion ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
 	*,

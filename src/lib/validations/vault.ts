@@ -70,3 +70,57 @@ export const createNoteSchema = z.object({
 });
 
 export type CreateNoteInput = z.infer<typeof createNoteSchema>;
+
+// ─── Update Note Content ───────────────────────────────────────────────────────
+
+export const updateNoteContentSchema = z.object({
+	content: z.string().min(1, "Content cannot be empty"),
+});
+
+// ─── Update Note Metadata ──────────────────────────────────────────────────────
+
+export const updateNoteMetadataSchema = z.discriminatedUnion("field", [
+	z.object({
+		field: z.literal("researchMethod"),
+		value: z.enum(["interview", "survey", "usability_test", "observation", "other"]).nullable(),
+	}),
+	z.object({
+		field: z.literal("userSegment"),
+		value: z.string().max(200).nullable(),
+	}),
+	z.object({
+		field: z.literal("emotionalTone"),
+		value: z.enum(["frustrated", "delighted", "neutral", "mixed"]).nullable(),
+	}),
+	z.object({
+		field: z.literal("assumptionsTested"),
+		value: z.string().max(2000).nullable(),
+	}),
+	z.object({
+		field: z.literal("followUpNeeded"),
+		value: z.boolean(),
+	}),
+	z.object({
+		field: z.literal("sessionRecordingUrl"),
+		value: z
+			.union([
+				z
+					.string()
+					.min(1)
+					.url("Must be a valid URL")
+					.refine((v) => !v.toLowerCase().startsWith("javascript:"), "Invalid URL protocol"),
+				z.literal("").transform((): null => null),
+				z.null(),
+			])
+			.nullable()
+			.transform((v) => v ?? null),
+	}),
+]);
+
+export type UpdateNoteMetadataInput = z.infer<typeof updateNoteMetadataSchema>;
+
+// ─── Update Note Tags ──────────────────────────────────────────────────────────
+
+export const updateNoteTagsSchema = z.object({
+	tags: z.array(z.string().trim().min(1).max(50)).max(20, "Maximum 20 tags per note").default([]),
+});
