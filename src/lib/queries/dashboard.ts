@@ -1,15 +1,12 @@
 import { db } from "@/lib/db";
 import {
 	insightCards,
-	insightEvidence,
-	mapConnections,
 	mapNodes,
-	quotes,
 	researchNotes,
 	stackItems,
 	workspaceMembers,
 } from "@/lib/db/schema";
-import { and, count, countDistinct, eq, isNull, sql } from "drizzle-orm";
+import { and, count, eq, isNull, sql } from "drizzle-orm";
 
 export interface PhaseStats {
 	completed: number;
@@ -58,11 +55,16 @@ export async function getDashboardData(
 async function getVaultStats(projectId: string): Promise<PhaseStats> {
 	const [[totalResult], [completedResult]] = await Promise.all([
 		db.select({ count: count() }).from(researchNotes).where(eq(researchNotes.projectId, projectId)),
+		// Correlated subquery avoids ambiguous "id" across joined tables
 		db
-			.select({ count: countDistinct(quotes.noteId) })
-			.from(quotes)
-			.innerJoin(researchNotes, eq(quotes.noteId, researchNotes.id))
-			.where(eq(researchNotes.projectId, projectId)),
+			.select({ count: count() })
+			.from(researchNotes)
+			.where(
+				and(
+					eq(researchNotes.projectId, projectId),
+					sql`EXISTS (SELECT 1 FROM quotes WHERE quotes.note_id = ${researchNotes.id})`,
+				),
+			),
 	]);
 
 	const total = Number(totalResult?.count ?? 0);
@@ -76,12 +78,20 @@ async function getVaultStats(projectId: string): Promise<PhaseStats> {
 async function getEngineStats(projectId: string): Promise<PhaseStats> {
 	const [[totalResult], [completedResult]] = await Promise.all([
 		db.select({ count: count() }).from(researchNotes).where(eq(researchNotes.projectId, projectId)),
+		// Correlated EXISTS avoids triple-join with ambiguous "id" across all three tables
 		db
-			.select({ count: countDistinct(researchNotes.id) })
+			.select({ count: count() })
 			.from(researchNotes)
-			.innerJoin(quotes, eq(quotes.noteId, researchNotes.id))
-			.innerJoin(insightEvidence, eq(insightEvidence.quoteId, quotes.id))
-			.where(eq(researchNotes.projectId, projectId)),
+			.where(
+				and(
+					eq(researchNotes.projectId, projectId),
+					sql`EXISTS (
+						SELECT 1 FROM quotes q
+						JOIN insight_evidence ie ON ie.quote_id = q.id
+						WHERE q.note_id = ${researchNotes.id}
+					)`,
+				),
+			),
 	]);
 
 	const total = Number(totalResult?.count ?? 0);
@@ -95,15 +105,16 @@ async function getEngineStats(projectId: string): Promise<PhaseStats> {
 async function getMapStats(projectId: string): Promise<PhaseStats> {
 	const [[totalResult], [completedResult]] = await Promise.all([
 		db.select({ count: count() }).from(insightCards).where(eq(insightCards.projectId, projectId)),
+		// Correlated EXISTS avoids JOIN with ambiguous "id" between mapNodes and mapConnections
 		db
-			.select({ count: countDistinct(mapNodes.insightId) })
+			.select({ count: count() })
 			.from(mapNodes)
-			.innerJoin(mapConnections, eq(mapConnections.sourceNodeId, mapNodes.id))
 			.where(
 				and(
 					eq(mapNodes.projectId, projectId),
 					eq(mapNodes.type, "insight"),
 					sql`${mapNodes.insightId} IS NOT NULL`,
+					sql`EXISTS (SELECT 1 FROM map_connections WHERE map_connections.source_node_id = ${mapNodes.id})`,
 				),
 			),
 	]);
