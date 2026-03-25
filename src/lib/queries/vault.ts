@@ -79,8 +79,7 @@ export async function getNoteWithRelations(noteId: string): Promise<NoteWithRela
 				startOffset: quotes.startOffset,
 				endOffset: quotes.endOffset,
 				isStale: quotes.isStale,
-				linkedInsightCount:
-					sql<number>`(SELECT count(*) FROM insight_evidence WHERE insight_evidence.quote_id = ${quotes.id})::int`,
+				linkedInsightCount: sql<number>`(SELECT count(*) FROM insight_evidence WHERE insight_evidence.quote_id = ${quotes.id})::int`,
 			})
 			.from(quotes)
 			.where(eq(quotes.noteId, noteId)),
