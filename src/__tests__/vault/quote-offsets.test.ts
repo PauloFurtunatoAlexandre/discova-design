@@ -169,13 +169,15 @@ describe("getPlainTextAtRange", () => {
 		const offsets = selectionToOffsets(editorForSelect as any);
 		expect(offsets).not.toBeNull();
 
+		if (!offsets) throw new Error("Expected offsets to be non-null");
 		const editorForRange = makeMockEditorForRange(200, selectedText);
-		// biome-ignore lint/suspicious/noExplicitAny: mock editor
-		// biome-ignore lint/style/noNonNullAssertion: asserted non-null two lines above
+		const editorForRangeAny = editorForRange as unknown as Parameters<
+			typeof getPlainTextAtRange
+		>[0];
 		const retrieved = getPlainTextAtRange(
-			editorForRange as any,
-			offsets!.startOffset,
-			offsets!.endOffset,
+			editorForRangeAny,
+			offsets.startOffset,
+			offsets.endOffset,
 		);
 		expect(retrieved).toBe(selectedText);
 	});

@@ -148,19 +148,11 @@ export function SidebarProjectList({ workspaceId, projects, userTier }: SidebarP
 										</span>
 										<button
 											type="button"
-											className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+											className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[--color-accent-gold-muted] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 											style={{
 												color: "var(--color-accent-gold)",
 												border: "1px solid var(--color-accent-gold)",
 												backgroundColor: "transparent",
-											}}
-											onMouseEnter={(e) => {
-												(e.currentTarget as HTMLButtonElement).style.backgroundColor =
-													"color-mix(in srgb, var(--color-accent-gold) 10%, transparent)";
-											}}
-											onMouseLeave={(e) => {
-												(e.currentTarget as HTMLButtonElement).style.backgroundColor =
-													"transparent";
 											}}
 											onClick={() => setModalOpen(true)}
 										>
@@ -235,16 +227,8 @@ export function SidebarProjectList({ workspaceId, projects, userTier }: SidebarP
 									<li>
 										<button
 											type="button"
-											className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
+											className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:text-[--color-accent-gold] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 											style={{ color: "var(--color-text-muted)" }}
-											onMouseEnter={(e) => {
-												(e.currentTarget as HTMLButtonElement).style.color =
-													"var(--color-accent-gold)";
-											}}
-											onMouseLeave={(e) => {
-												(e.currentTarget as HTMLButtonElement).style.color =
-													"var(--color-text-muted)";
-											}}
 											onClick={() => setModalOpen(true)}
 										>
 											<Plus size={14} />

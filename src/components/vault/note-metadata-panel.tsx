@@ -103,7 +103,9 @@ export function NoteMetadataPanel({
 			{!isOpen ? null : (
 				<div className="flex flex-col gap-5 overflow-y-auto p-5 h-full">
 					{/* Section: DETAILS */}
-					<p className="meta-label" style={{ marginBottom: 0 }}>Details</p>
+					<p className="meta-label" style={{ marginBottom: 0 }}>
+						Details
+					</p>
 
 					{/* Research Method */}
 					<div>
@@ -208,7 +210,9 @@ export function NoteMetadataPanel({
 
 					{/* Follow-up Needed */}
 					<div className="flex items-center justify-between">
-						<p className="meta-label" style={{ marginBottom: 0 }}>Follow-up Needed</p>
+						<p className="meta-label" style={{ marginBottom: 0 }}>
+							Follow-up Needed
+						</p>
 						<button
 							type="button"
 							role="switch"

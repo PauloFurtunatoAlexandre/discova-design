@@ -23,7 +23,9 @@ export function QuotesList({ quotes, onQuoteClick }: QuotesListProps) {
 	return (
 		<div className="flex flex-col gap-3">
 			<div className="flex items-center gap-2">
-				<p className="meta-label" style={{ marginBottom: 0 }}>Quotes</p>
+				<p className="meta-label" style={{ marginBottom: 0 }}>
+					Quotes
+				</p>
 				{quotes.length > 0 && (
 					<span className="rounded-full border border-[--color-accent-gold-border] bg-[--color-accent-gold-muted] px-1.5 py-0.5 font-mono text-[0.65rem] text-[--color-accent-gold]">
 						{quotes.length}

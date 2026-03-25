@@ -1,10 +1,11 @@
 "use client";
 
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { HelpCircle, LogOut, Settings } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 
 interface UserMenuProps {
 	user: {
@@ -13,15 +14,23 @@ interface UserMenuProps {
 		email: string | null;
 		image: string | null;
 	};
-	isOpen: boolean;
-	onClose: () => void;
 	userTier?: string | undefined;
-	position?: "above" | "below";
+	/** Which side of the trigger the menu appears on */
+	side?: "top" | "bottom";
+	/** Required for the Settings link when the user is an admin */
+	workspaceId?: string;
+	/** The trigger element — rendered as the DropdownMenu trigger via asChild */
+	children: ReactNode;
 }
 
-export function UserMenu({ user, isOpen, onClose, userTier, position = "above" }: UserMenuProps) {
-	const ref = useRef<HTMLDivElement>(null);
-	const shouldReduceMotion = useReducedMotion();
+export function UserMenu({
+	user,
+	userTier,
+	side = "bottom",
+	workspaceId,
+	children,
+}: UserMenuProps) {
+	const router = useRouter();
 	const isAdmin = userTier === "admin";
 
 	const initials = user.name
@@ -33,78 +42,24 @@ export function UserMenu({ user, isOpen, onClose, userTier, position = "above" }
 				.toUpperCase()
 		: "U";
 
-	// Close on click outside
-	useEffect(() => {
-		function handleClickOutside(e: MouseEvent) {
-			if (ref.current && !ref.current.contains(e.target as Node)) {
-				onClose();
-			}
-		}
-		if (isOpen) {
-			document.addEventListener("mousedown", handleClickOutside);
-			return () => document.removeEventListener("mousedown", handleClickOutside);
-		}
-	}, [isOpen, onClose]);
-
-	// Close on Escape
-	useEffect(() => {
-		function handleKeyDown(e: KeyboardEvent) {
-			if (e.key === "Escape") onClose();
-		}
-		if (isOpen) {
-			document.addEventListener("keydown", handleKeyDown);
-			return () => document.removeEventListener("keydown", handleKeyDown);
-		}
-	}, [isOpen, onClose]);
-
-	const menuVariants = {
-		hidden: { opacity: 0, scale: 0.95 },
-		visible: {
-			opacity: 1,
-			scale: 1,
-			transition: {
-				type: "spring" as const,
-				stiffness: 400,
-				damping: 30,
-			},
-		},
-		exit: {
-			opacity: 0,
-			scale: 0.95,
-			transition: { duration: 0.12 },
-		},
-	};
-
 	return (
-		<AnimatePresence>
-			{isOpen && (
-				<motion.div
-					ref={ref}
-					{...(!shouldReduceMotion
-						? {
-								variants: menuVariants,
-								initial: "hidden" as const,
-								animate: "visible" as const,
-								exit: "exit" as const,
-							}
-						: {
-								initial: { opacity: 0 },
-								animate: { opacity: 1 },
-								exit: { opacity: 0 },
-							})}
-					className="absolute z-50 w-60"
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger asChild>{children}</DropdownMenu.Trigger>
+
+			<DropdownMenu.Portal>
+				<DropdownMenu.Content
+					side={side}
+					align="end"
+					sideOffset={8}
+					className="z-50 w-60 outline-none"
 					style={{
-						[position === "above" ? "bottom" : "top"]: "calc(100% + 8px)",
-						right: 0,
 						backgroundColor: "var(--color-bg-overlay)",
 						border: "1px solid var(--color-border-default)",
 						borderRadius: "var(--radius-lg)",
 						boxShadow: "var(--shadow-modal)",
 					}}
-					role="menu"
-					aria-label="User menu"
 				>
-					{/* User info header */}
+					{/* User info — display only, not interactive */}
 					<div
 						className="flex items-center gap-3 px-4 py-3"
 						style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
@@ -120,11 +75,11 @@ export function UserMenu({ user, isOpen, onClose, userTier, position = "above" }
 							{user.image ? (
 								<img
 									src={user.image}
-									alt={user.name ?? "User"}
+									alt={user.name ?? "User avatar"}
 									className="h-full w-full object-cover"
 								/>
 							) : (
-								initials
+								<span aria-hidden="true">{initials}</span>
 							)}
 						</div>
 						<div className="min-w-0">
@@ -144,10 +99,12 @@ export function UserMenu({ user, isOpen, onClose, userTier, position = "above" }
 						</div>
 					</div>
 
-					{/* Theme toggle */}
+					{/* Theme toggle — stop key propagation so arrow keys work on ThemeToggle buttons
+					     without also triggering DropdownMenu item navigation */}
 					<div
 						className="flex items-center justify-between px-4 py-2"
 						style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
+						onKeyDown={(e) => e.stopPropagation()}
 					>
 						<span className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
 							Theme
@@ -155,45 +112,43 @@ export function UserMenu({ user, isOpen, onClose, userTier, position = "above" }
 						<ThemeToggle />
 					</div>
 
-					{/* Menu items */}
-					<div className="py-1">
-						{isAdmin && (
-							<button
-								type="button"
-								className="flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors hover:opacity-80"
+					{/* Navigation items */}
+					<DropdownMenu.Group className="py-1">
+						{isAdmin && workspaceId && (
+							<DropdownMenu.Item
+								className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm outline-none transition-colors data-[highlighted]:bg-[--color-bg-raised] data-[highlighted]:text-[--color-text-primary]"
 								style={{ color: "var(--color-text-secondary)" }}
-								role="menuitem"
+								onSelect={() => router.push(`/${workspaceId}/settings`)}
 							>
-								<Settings size={14} style={{ flexShrink: 0 }} />
+								<Settings size={14} aria-hidden="true" style={{ flexShrink: 0 }} />
 								Settings
-							</button>
+							</DropdownMenu.Item>
 						)}
-						<button
-							type="button"
-							className="flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors hover:opacity-80"
+						<DropdownMenu.Item
+							className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm outline-none transition-colors data-[highlighted]:bg-[--color-bg-raised] data-[highlighted]:text-[--color-text-primary]"
 							style={{ color: "var(--color-text-secondary)" }}
-							role="menuitem"
 						>
-							<HelpCircle size={14} style={{ flexShrink: 0 }} />
+							<HelpCircle size={14} aria-hidden="true" style={{ flexShrink: 0 }} />
 							Help & Support
-						</button>
-					</div>
+						</DropdownMenu.Item>
+					</DropdownMenu.Group>
 
-					{/* Sign out */}
-					<div className="py-1" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
-						<button
-							type="button"
-							onClick={() => signOut({ callbackUrl: "/login" })}
-							className="flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors hover:opacity-80"
+					<DropdownMenu.Separator
+						style={{ borderTop: "1px solid var(--color-border-subtle)", margin: 0 }}
+					/>
+
+					<DropdownMenu.Group className="py-1">
+						<DropdownMenu.Item
+							className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm outline-none transition-colors data-[highlighted]:bg-[--color-bg-raised] data-[highlighted]:text-[--color-text-primary]"
 							style={{ color: "var(--color-text-secondary)" }}
-							role="menuitem"
+							onSelect={() => signOut({ callbackUrl: "/login" })}
 						>
-							<LogOut size={14} style={{ flexShrink: 0 }} />
+							<LogOut size={14} aria-hidden="true" style={{ flexShrink: 0 }} />
 							Sign out
-						</button>
-					</div>
-				</motion.div>
-			)}
-		</AnimatePresence>
+						</DropdownMenu.Item>
+					</DropdownMenu.Group>
+				</DropdownMenu.Content>
+			</DropdownMenu.Portal>
+		</DropdownMenu.Root>
 	);
 }

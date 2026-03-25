@@ -132,17 +132,15 @@ describe("createQuoteAction", () => {
 	it("returns the quote with correct offsets", async () => {
 		mockDb.insert.mockReturnValue({
 			values: vi.fn(() => ({
-				returning: vi
-					.fn()
-					.mockResolvedValue([
-						{
-							id: "q-2",
-							text: "flow was confusing",
-							startOffset: 24,
-							endOffset: 42,
-							isStale: false,
-						},
-					]),
+				returning: vi.fn().mockResolvedValue([
+					{
+						id: "q-2",
+						text: "flow was confusing",
+						startOffset: 24,
+						endOffset: 42,
+						isStale: false,
+					},
+				]),
 			})),
 		});
 

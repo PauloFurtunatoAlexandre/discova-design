@@ -66,13 +66,13 @@ export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: Note
 	}
 
 	// ── Auto-save ───────────────────────────────────────────────────────────────
+	// biome-ignore lint/correctness/useExhaustiveDependencies: checkQuoteStaleness intentionally excluded to avoid recreating handleSave on every staleness check
 	const handleSave = useCallback(
 		async (content: string) => {
 			await updateNoteContentAction({ workspaceId, projectId, noteId: note.id, content });
 			// Check staleness after each save (same debounce cadence)
 			checkQuoteStaleness();
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[workspaceId, projectId, note.id],
 	);
 

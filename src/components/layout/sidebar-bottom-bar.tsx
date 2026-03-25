@@ -2,8 +2,7 @@
 
 import { UserMenu } from "@/components/layout/user-menu";
 import { HelpCircle, Settings } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from "next/link";
 
 interface SidebarBottomBarProps {
 	user: {
@@ -17,8 +16,6 @@ interface SidebarBottomBarProps {
 }
 
 export function SidebarBottomBar({ user, userTier, workspaceId }: SidebarBottomBarProps) {
-	const router = useRouter();
-	const [menuOpen, setMenuOpen] = useState(false);
 	const isAdminTier = userTier === "admin";
 
 	const initials = user.name
@@ -31,84 +28,50 @@ export function SidebarBottomBar({ user, userTier, workspaceId }: SidebarBottomB
 		: "U";
 
 	return (
-		<div
-			className="relative flex items-center gap-2 px-4 py-3"
-			style={{ borderTop: "1px solid var(--color-border-subtle)" }}
-		>
-			{/* User avatar + name — opens user menu */}
-			<button
-				type="button"
-				className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1 transition-opacity hover:opacity-80"
-				onClick={() => setMenuOpen((prev) => !prev)}
-				aria-label="Open user menu"
-				aria-expanded={menuOpen}
-			>
-				<div
-					className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-semibold"
-					style={{
-						backgroundColor: "var(--color-bg-raised)",
-						color: "var(--color-text-primary)",
-						border: "1px solid var(--color-border-default)",
-					}}
-				>
-					{user.image ? (
-						<img
-							src={user.image}
-							alt={user.name ?? "User"}
-							className="h-full w-full object-cover"
-						/>
-					) : (
-						initials
-					)}
-				</div>
-				<span className="truncate text-sm" style={{ color: "var(--color-text-secondary)" }}>
-					{user.name ?? user.email ?? "User"}
-				</span>
-			</button>
-
-			{/* Settings icon — Admin only */}
-			{isAdminTier && (
+		<div className="flex items-center gap-2 border-t border-[--color-border-subtle] px-4 py-3">
+			{/* User avatar + name — Radix DropdownMenu trigger */}
+			<UserMenu user={user} userTier={userTier} side="top" workspaceId={workspaceId}>
 				<button
 					type="button"
-					className="rounded-md p-1.5 transition-colors"
-					style={{ color: "var(--color-text-muted)" }}
-					onMouseEnter={(e) => {
-						(e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-primary)";
-					}}
-					onMouseLeave={(e) => {
-						(e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)";
-					}}
-					onClick={() => router.push(`/${workspaceId}/settings`)}
+					className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1 transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
+					aria-label="Open user menu"
+				>
+					<div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-[--color-border-default] bg-[--color-bg-raised] text-xs font-semibold text-[--color-text-primary]">
+						{user.image ? (
+							<img
+								src={user.image}
+								alt={user.name ?? "User avatar"}
+								className="h-full w-full object-cover"
+							/>
+						) : (
+							<span aria-hidden="true">{initials}</span>
+						)}
+					</div>
+					<span className="truncate text-sm text-[--color-text-secondary]">
+						{user.name ?? user.email ?? "User"}
+					</span>
+				</button>
+			</UserMenu>
+
+			{/* Settings shortcut — Admin only */}
+			{isAdminTier && (
+				<Link
+					href={`/${workspaceId}/settings`}
+					className="rounded-md p-1.5 text-[--color-text-muted] transition-colors hover:text-[--color-text-primary] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 					aria-label="Workspace settings"
 				>
-					<Settings size={16} />
-				</button>
+					<Settings size={16} aria-hidden="true" />
+				</Link>
 			)}
 
-			{/* Help icon */}
+			{/* Help shortcut */}
 			<button
 				type="button"
-				className="rounded-md p-1.5 transition-colors"
-				style={{ color: "var(--color-text-muted)" }}
-				onMouseEnter={(e) => {
-					(e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-primary)";
-				}}
-				onMouseLeave={(e) => {
-					(e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)";
-				}}
+				className="rounded-md p-1.5 text-[--color-text-muted] transition-colors hover:text-[--color-text-primary] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 				aria-label="Help and support"
 			>
-				<HelpCircle size={16} />
+				<HelpCircle size={16} aria-hidden="true" />
 			</button>
-
-			{/* User menu dropdown — positioned above */}
-			<UserMenu
-				user={user}
-				isOpen={menuOpen}
-				onClose={() => setMenuOpen(false)}
-				userTier={userTier}
-				position="above"
-			/>
 		</div>
 	);
 }
