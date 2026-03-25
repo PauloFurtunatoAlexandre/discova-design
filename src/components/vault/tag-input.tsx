@@ -147,7 +147,7 @@ export function TagInput({ tags, onChange, projectId, maxTags = 20 }: TagInputPr
 									e.preventDefault();
 									addTag(name);
 								}}
-								className="w-full px-4 py-2 text-left transition-colors duration-100 hover:bg-white/5"
+								className="w-full px-4 py-2 text-left transition-colors duration-100 hover:bg-[--color-bg-item-hover]"
 								style={{
 									fontFamily: "var(--font-mono)",
 									fontSize: "0.75rem",

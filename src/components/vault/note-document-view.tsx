@@ -287,7 +287,7 @@ export function NoteDocumentView({ note, workspaceId, projectId, canEdit }: Note
 					<button
 						type="button"
 						onClick={togglePanel}
-						className="hidden h-full w-6 shrink-0 items-center justify-center transition-colors duration-150 hover:bg-white/5 focus:outline-none lg:flex"
+						className="hidden h-full w-6 shrink-0 items-center justify-center transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus] lg:flex"
 						style={{
 							background: "var(--color-bg-surface)",
 							borderLeft: "1px solid var(--color-border-subtle)",

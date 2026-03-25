@@ -64,7 +64,7 @@ function ProjectRenameInput({
 				defaultValue={initialName}
 				maxLength={200}
 				required
-				className="min-w-0 flex-1 rounded bg-transparent text-sm outline-none"
+				className="min-w-0 flex-1 rounded bg-transparent text-sm outline-none focus:shadow-[0_0_0_2px_var(--color-border-focus)]"
 				style={{
 					color: "var(--color-text-primary)",
 					borderBottom: "1px solid var(--color-accent-gold)",

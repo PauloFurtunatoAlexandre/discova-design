@@ -61,7 +61,7 @@ export function WizardStepContent({
 						"Paste your interview notes, observations, or findings here...\n\nYou'll be able to highlight key quotes and extract insights in the next step."
 					}
 					rows={10}
-					className="w-full resize-none rounded-lg px-4 py-3 text-sm transition-colors duration-150 focus:outline-none"
+					className="w-full resize-none rounded-lg px-4 py-3 text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 					style={{
 						background: "var(--color-bg-sunken)",
 						border: "1px solid var(--color-border-default)",
@@ -94,7 +94,7 @@ export function WizardStepContent({
 				<button
 					type="button"
 					onClick={onBack}
-					className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-150 hover:bg-white/5 focus:outline-none"
+					className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 					style={{ color: "var(--color-text-secondary)" }}
 				>
 					<ArrowLeft size={15} strokeWidth={2} />
@@ -107,7 +107,7 @@ export function WizardStepContent({
 						type="button"
 						onClick={onNextWithMetadata}
 						disabled={!canSubmit}
-						className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150 hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none"
+						className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150 hover:bg-[--color-bg-item-hover] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 						style={{
 							border: "1px solid var(--color-border-default)",
 							color: "var(--color-text-secondary)",
@@ -122,7 +122,7 @@ export function WizardStepContent({
 						type="button"
 						onClick={onSubmit}
 						disabled={!canSubmit}
-						className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none"
+						className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 						style={{
 							background: "var(--color-accent-gold)",
 							color: "var(--color-text-inverse)",

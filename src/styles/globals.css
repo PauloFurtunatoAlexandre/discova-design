@@ -283,6 +283,12 @@ h6 {
 	font-family: var(--font-body);
 }
 
+.meta-input:focus {
+	outline: none;
+	border-color: var(--color-border-focus);
+	box-shadow: 0 0 0 3px var(--color-accent-gold-focus-ring);
+}
+
 /* 1px section separator */
 .meta-divider {
 	height: 1px;
@@ -296,6 +302,12 @@ h6 {
 	background: var(--color-bg-raised);
 	border: 1px solid var(--color-border-subtle);
 	color: var(--color-text-secondary);
+}
+
+.filter-pill:focus-visible,
+.filter-pill-active:focus-visible {
+	outline: 2px solid var(--color-border-focus);
+	outline-offset: 2px;
 }
 
 /* Active (has value) filter pill */

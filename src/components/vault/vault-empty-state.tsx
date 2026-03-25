@@ -1,8 +1,8 @@
 "use client";
 
 import type { ResolvedPreset } from "@/lib/permissions/types";
-import { FileText, SearchX } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { SearchX } from "lucide-react";
 
 interface VaultEmptyStateProps {
 	preset: ResolvedPreset;
@@ -55,9 +55,11 @@ export function VaultEmptyState({
 	if (noResults) {
 		return (
 			<div className="flex flex-col items-center justify-center py-20 text-center">
-				<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-[--color-border-default] bg-[--color-bg-raised]">
-					<SearchX size={24} className="text-[--color-text-muted]" strokeWidth={1.5} />
-				</div>
+				<SearchX
+					size={20}
+					className="mb-4 text-[--color-text-muted]"
+					strokeWidth={1.5}
+				/>
 
 				<h2 className="mb-2 text-lg font-semibold">No notes match your filters</h2>
 				<p className="mb-6 max-w-xs text-sm leading-relaxed text-[--color-text-secondary]">
@@ -68,7 +70,7 @@ export function VaultEmptyState({
 					<button
 						type="button"
 						onClick={onClearFilters}
-						className="rounded-xl border border-[--color-border-default] px-5 py-2.5 font-body text-sm font-medium text-[--color-text-secondary] transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus:outline-none"
+						className="rounded-xl border border-[--color-border-default] px-5 py-2.5 font-body text-sm font-medium text-[--color-text-secondary] transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 					>
 						Clear all filters
 					</button>
@@ -81,11 +83,18 @@ export function VaultEmptyState({
 
 	return (
 		<div className="flex flex-col items-center justify-center py-20 text-center">
-			<div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-[--color-accent-gold-border] bg-[--color-accent-gold-muted]">
-				<FileText size={28} className="text-[--color-accent-gold]" strokeWidth={1.5} />
-			</div>
+			<div
+				className="mb-5 h-px w-8"
+				style={{ background: "var(--color-accent-gold)" }}
+				aria-hidden="true"
+			/>
 
-			<h2 className="mb-2 max-w-xs text-xl font-semibold">{copy.headline}</h2>
+			<h2
+				className="mb-3 max-w-xs text-xl font-semibold"
+				style={{ fontFamily: "var(--font-display)", color: "var(--color-text-primary)" }}
+			>
+				{copy.headline}
+			</h2>
 			<p className="mb-8 max-w-xs text-sm leading-relaxed text-[--color-text-secondary]">
 				{copy.body}
 			</p>
@@ -94,7 +103,7 @@ export function VaultEmptyState({
 				<button
 					type="button"
 					onClick={() => router.push(`/${workspaceId}/${projectId}/vault/new`)}
-					className="inline-flex items-center gap-2 rounded-xl bg-[--color-accent-gold] px-5 py-2.5 text-sm font-semibold text-[--color-text-inverse] transition-all duration-150 hover:brightness-110 active:scale-[0.98] focus:outline-none"
+					className="inline-flex items-center gap-2 rounded-xl bg-[--color-accent-gold] px-5 py-2.5 text-sm font-semibold text-[--color-text-inverse] transition-all duration-150 hover:brightness-110 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus] focus-visible:ring-offset-2 focus-visible:ring-offset-[--color-bg-base]"
 				>
 					{copy.cta}
 				</button>

@@ -109,7 +109,7 @@ export function LinkedInsightsList({ insights, workspaceId, projectId }: LinkedI
 							<button
 								type="button"
 								onClick={() => router.push(`/${workspaceId}/${projectId}/engine/${insight.id}`)}
-								className="flex w-full items-center gap-3 rounded-lg p-2.5 text-left transition-colors duration-100 hover:bg-white/5 focus:outline-none"
+								className="flex w-full items-center gap-3 rounded-lg p-2.5 text-left transition-colors duration-100 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 								style={{ border: "1px solid var(--color-border-subtle)" }}
 							>
 								<ConfidenceRing score={insight.confidenceScore} />

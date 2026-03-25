@@ -44,7 +44,7 @@ export function QuotesList({ quotes, onQuoteClick }: QuotesListProps) {
 							<button
 								type="button"
 								onClick={() => handleClick(quote)}
-								className="w-full rounded-lg p-2.5 text-left transition-all duration-150 hover:bg-white/5 focus:outline-none"
+								className="w-full rounded-lg p-2.5 text-left transition-all duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 								style={{
 									border: `1px solid ${quote.isStale ? "var(--color-status-warning)" : "var(--color-border-subtle)"}`,
 									opacity: flashingId === quote.id ? 0.35 : 1,

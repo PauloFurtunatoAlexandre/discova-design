@@ -57,7 +57,7 @@ export function CreateProjectModal({ workspaceId, isOpen, onClose }: CreateProje
 					{/* Backdrop */}
 					<motion.div
 						className="fixed inset-0"
-						style={{ backgroundColor: "rgba(0,0,0,0.6)", zIndex: 300 }}
+						style={{ backgroundColor: "var(--color-overlay-scrim)", zIndex: 300 }}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
@@ -207,7 +207,7 @@ export function CreateProjectModal({ workspaceId, isOpen, onClose }: CreateProje
 										value={description}
 										onChange={(e) => setDescription(e.target.value)}
 										placeholder="What product area does this project cover?"
-										className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-colors resize-none"
+										className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-colors resize-none focus:border-[--color-border-focus] focus:shadow-[0_0_0_3px_var(--color-accent-gold-focus-ring)]"
 										style={{
 											backgroundColor: "var(--color-bg-sunken)",
 											border: "1px solid var(--color-border-default)",

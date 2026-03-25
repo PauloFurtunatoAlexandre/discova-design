@@ -53,7 +53,7 @@ export function VaultSearch({ value, onChange, isSearching = false }: VaultSearc
 				<button
 					type="button"
 					onClick={() => onChange("")}
-					className="shrink-0 rounded text-[--color-text-muted] transition-opacity duration-100 hover:opacity-70 focus:outline-none"
+					className="shrink-0 rounded text-[--color-text-muted] transition-opacity duration-100 hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 					aria-label="Clear search"
 				>
 					<X size={15} />

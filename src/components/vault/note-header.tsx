@@ -4,7 +4,7 @@ import { deleteNoteAction } from "@/actions/vault";
 import type { SaveStatus } from "@/hooks/useAutoSave";
 import { ArrowLeft, MoreHorizontal, Sparkles, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { SaveIndicator } from "./save-indicator";
 
 interface NoteHeaderProps {
@@ -43,6 +43,17 @@ export function NoteHeader({
 	const [isPending, startTransition] = useTransition();
 	const menuRef = useRef<HTMLDivElement>(null);
 
+	useEffect(() => {
+		if (!showMenu) return;
+		function handleClickOutside(e: MouseEvent) {
+			if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+				setShowMenu(false);
+			}
+		}
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, [showMenu]);
+
 	function handleDelete() {
 		startTransition(async () => {
 			const result = await deleteNoteAction({
@@ -71,7 +82,7 @@ export function NoteHeader({
 					<button
 						type="button"
 						onClick={() => router.push(`/${workspaceId}/${projectId}/vault`)}
-						className="flex items-center gap-1.5 shrink-0 transition-colors duration-150 hover:opacity-75 focus:outline-none"
+						className="flex items-center gap-1.5 shrink-0 transition-colors duration-150 hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 						style={{
 							fontFamily: "var(--font-body)",
 							fontSize: "0.8125rem",
@@ -110,7 +121,7 @@ export function NoteHeader({
 							type="button"
 							onClick={onAnalyse}
 							disabled={isAnalysing}
-							className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors duration-150 hover:bg-[--color-accent-blue-muted] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+							className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors duration-150 hover:bg-[--color-accent-blue-muted] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus] disabled:cursor-not-allowed disabled:opacity-50"
 							style={{
 								fontFamily: "var(--font-body)",
 								fontSize: "0.8125rem",
@@ -127,7 +138,7 @@ export function NoteHeader({
 							<button
 								type="button"
 								onClick={() => setShowMenu((v) => !v)}
-								className="flex h-7 w-7 items-center justify-center rounded-md transition-colors duration-150 hover:bg-white/5 focus:outline-none"
+								className="flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 								style={{ color: "var(--color-text-muted)" }}
 							>
 								<MoreHorizontal size={16} strokeWidth={2} />
@@ -149,7 +160,7 @@ export function NoteHeader({
 											setShowMenu(false);
 											setShowConfirm(true);
 										}}
-										className="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors duration-100 hover:bg-white/5 focus:outline-none"
+										className="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors duration-100 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 										style={{ color: "var(--color-status-error)", fontFamily: "var(--font-body)" }}
 									>
 										<Trash2 size={14} strokeWidth={2} />
@@ -164,7 +175,7 @@ export function NoteHeader({
 
 			{/* Delete confirmation overlay */}
 			{showConfirm && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-[--color-overlay-scrim]">
 					<div
 						className="mx-4 w-full max-w-sm rounded-2xl p-6"
 						style={{
@@ -191,7 +202,7 @@ export function NoteHeader({
 								type="button"
 								onClick={() => setShowConfirm(false)}
 								disabled={isPending}
-								className="rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-150 hover:bg-white/5 focus:outline-none disabled:opacity-40"
+								className="rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus] disabled:opacity-40"
 								style={{ color: "var(--color-text-secondary)", fontFamily: "var(--font-body)" }}
 							>
 								Cancel
@@ -200,10 +211,10 @@ export function NoteHeader({
 								type="button"
 								onClick={handleDelete}
 								disabled={isPending}
-								className="rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-40 focus:outline-none"
+								className="rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 								style={{
 									background: "var(--color-status-error)",
-									color: "#fff",
+									color: "var(--color-text-inverse)",
 									fontFamily: "var(--font-body)",
 								}}
 							>

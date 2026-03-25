@@ -98,7 +98,7 @@ export function AnalysisView({
 							<button
 								type="button"
 								onClick={onRetry}
-								className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-150 hover:bg-white/5 focus:outline-none"
+								className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 								style={{
 									fontFamily: "var(--font-body)",
 									color: "var(--color-accent-blue)",

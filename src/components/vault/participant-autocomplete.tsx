@@ -102,7 +102,7 @@ export function ParticipantAutocomplete({
 									e.preventDefault(); // don't trigger blur before click
 									selectSuggestion(name);
 								}}
-								className="w-full px-4 py-2 text-left text-sm transition-colors duration-100 hover:bg-white/5"
+								className="w-full px-4 py-2 text-left text-sm transition-colors duration-100 hover:bg-[--color-bg-item-hover]"
 								style={{ color: "var(--color-text-primary)" }}
 							>
 								{name}

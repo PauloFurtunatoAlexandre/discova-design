@@ -111,8 +111,7 @@ export function SuggestionCardPreview({
 						className="mb-3"
 						style={{
 							background: "var(--color-bg-surface)",
-							border: "1px solid color-mix(in srgb, var(--color-accent-blue) 22%, transparent)",
-							borderLeft: "3px solid var(--color-accent-blue)",
+							border: "1px solid color-mix(in srgb, var(--color-accent-blue) 28%, transparent)",
 							borderRadius: "var(--radius-lg)",
 							padding: "16px 20px",
 						}}
@@ -204,11 +203,11 @@ export function SuggestionCardPreview({
 								<button
 									type="button"
 									onClick={() => onAccept?.(suggestion)}
-									className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-150 hover:brightness-110 active:scale-[0.97] focus:outline-none"
+									className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-150 hover:brightness-110 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 									style={{
 										fontFamily: "var(--font-body)",
 										background: "var(--color-status-success)",
-										color: "#fff",
+										color: "var(--color-text-inverse)",
 									}}
 								>
 									<CheckCircle size={12} strokeWidth={2.5} />
@@ -219,7 +218,7 @@ export function SuggestionCardPreview({
 								<button
 									type="button"
 									onClick={() => onEdit?.(suggestion)}
-									className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-colors duration-150 hover:bg-white/5 focus:outline-none"
+									className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 									style={{
 										fontFamily: "var(--font-body)",
 										color: "var(--color-text-muted)",
@@ -234,7 +233,7 @@ export function SuggestionCardPreview({
 								<button
 									type="button"
 									onClick={handleDismiss}
-									className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-colors duration-150 hover:bg-white/5 focus:outline-none"
+									className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 									style={{
 										fontFamily: "var(--font-body)",
 										color: "var(--color-text-muted)",
@@ -284,7 +283,7 @@ export function SuggestionCardPreview({
 						<button
 							type="button"
 							onClick={handleUndo}
-							className="rounded-md px-2.5 py-1 text-xs font-semibold transition-colors duration-150 hover:bg-white/10 focus:outline-none"
+							className="rounded-md px-2.5 py-1 text-xs font-semibold transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 							style={{
 								fontFamily: "var(--font-body)",
 								color: "var(--color-accent-blue)",

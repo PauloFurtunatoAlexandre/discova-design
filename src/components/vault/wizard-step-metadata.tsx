@@ -81,7 +81,7 @@ export function WizardStepMetadata({
 					type="button"
 					onClick={onSkip}
 					disabled={isSubmitting}
-					className="shrink-0 text-sm font-medium transition-colors duration-150 hover:opacity-75 focus:outline-none disabled:opacity-40"
+					className="shrink-0 text-sm font-medium transition-colors duration-150 hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus] disabled:opacity-40"
 					style={{ color: "var(--color-accent-gold)", fontFamily: "var(--font-body)" }}
 				>
 					{isSubmitting ? "Creating..." : "Skip & Create Note"}
@@ -99,7 +99,7 @@ export function WizardStepMetadata({
 						id="meta-method"
 						value={formData.researchMethod ?? ""}
 						onChange={(e) => onChange({ researchMethod: e.target.value || null })}
-						className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none"
+						className="w-full rounded-lg px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 						style={{ ...inputStyle, appearance: "none" }}
 					>
 						<option value="">Select method...</option>
@@ -123,7 +123,7 @@ export function WizardStepMetadata({
 						onChange={(e) => onChange({ userSegment: e.target.value || null })}
 						placeholder="e.g., Enterprise Admin, Free Tier User"
 						maxLength={200}
-						className="rounded-lg px-4 py-3 text-sm focus:outline-none"
+						className="rounded-lg px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 						style={inputStyle}
 					/>
 				</div>
@@ -137,7 +137,7 @@ export function WizardStepMetadata({
 						id="meta-tone"
 						value={formData.emotionalTone ?? ""}
 						onChange={(e) => onChange({ emotionalTone: e.target.value || null })}
-						className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none"
+						className="w-full rounded-lg px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 						style={{ ...inputStyle, appearance: "none" }}
 					>
 						<option value="">Select tone...</option>
@@ -175,7 +175,7 @@ export function WizardStepMetadata({
 						placeholder="What hypotheses were you validating?"
 						rows={2}
 						maxLength={2000}
-						className="w-full resize-none rounded-lg px-4 py-3 text-sm focus:outline-none"
+						className="w-full resize-none rounded-lg px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 						style={inputStyle}
 					/>
 				</div>
@@ -198,7 +198,7 @@ export function WizardStepMetadata({
 						role="switch"
 						aria-checked={formData.followUpNeeded}
 						onClick={() => onChange({ followUpNeeded: !formData.followUpNeeded })}
-						className="relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+						className="relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus] focus-visible:ring-2 focus-visible:ring-offset-2"
 						style={{
 							background: formData.followUpNeeded
 								? "var(--color-accent-gold)"
@@ -225,7 +225,7 @@ export function WizardStepMetadata({
 						value={formData.sessionRecordingUrl ?? ""}
 						onChange={(e) => onChange({ sessionRecordingUrl: e.target.value || null })}
 						placeholder="https://..."
-						className="rounded-lg px-4 py-3 text-sm focus:outline-none"
+						className="rounded-lg px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 						style={inputStyle}
 					/>
 				</div>
@@ -246,7 +246,7 @@ export function WizardStepMetadata({
 				<button
 					type="button"
 					onClick={onBack}
-					className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-150 hover:bg-white/5 focus:outline-none"
+					className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 					style={{ color: "var(--color-text-secondary)" }}
 				>
 					<ArrowLeft size={15} strokeWidth={2} />
@@ -257,7 +257,7 @@ export function WizardStepMetadata({
 					type="button"
 					onClick={onSubmit}
 					disabled={isSubmitting}
-					className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none"
+					className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus]"
 					style={{
 						background: "var(--color-accent-gold)",
 						color: "var(--color-text-inverse)",

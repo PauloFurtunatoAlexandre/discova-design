@@ -68,7 +68,7 @@ export function MobileSidebar({
 						exit={{ opacity: 0 }}
 						transition={{ duration: 0.2 }}
 						className="fixed inset-0 z-40 md:hidden"
-						style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+						style={{ backgroundColor: "var(--color-overlay-scrim)" }}
 						onClick={close}
 						aria-hidden="true"
 					/>

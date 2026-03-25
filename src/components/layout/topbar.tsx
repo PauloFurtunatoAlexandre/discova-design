@@ -87,7 +87,7 @@ export function Topbar({ workspace, projects, user, userTier }: TopbarProps) {
 					<UserMenu user={user} userTier={userTier} side="bottom" workspaceId={workspace.id}>
 						<button
 							type="button"
-							className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-[--color-border-default] bg-[--color-bg-raised] text-[11px] font-semibold text-[--color-text-primary] transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus] focus-visible:ring-offset-1 focus-visible:ring-offset-[--color-bg-surface]"
+							className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[--color-border-default] bg-[--color-bg-raised] text-[11px] font-semibold text-[--color-text-primary] transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus] focus-visible:ring-offset-1 focus-visible:ring-offset-[--color-bg-surface]"
 							aria-label="Open user menu"
 						>
 							{user.image ? (

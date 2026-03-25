@@ -57,7 +57,7 @@ export function VaultList({
 					type="button"
 					onClick={onLoadMore}
 					disabled={isLoading}
-					className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 transition-colors duration-150 hover:bg-white/5 focus:outline-none disabled:opacity-50"
+					className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 transition-colors duration-150 hover:bg-[--color-bg-item-hover] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-border-focus] disabled:opacity-50"
 					style={{
 						fontFamily: "var(--font-body)",
 						fontSize: "0.875rem",
