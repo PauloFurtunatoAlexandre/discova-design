@@ -1,8 +1,12 @@
+import { EngineListPage } from "@/components/engine/engine-list-page";
 import { auth } from "@/lib/auth/config";
 import { checkPermission } from "@/lib/permissions";
-import { getProjectInsights } from "@/lib/queries/engine";
+import {
+	getEngineList,
+	getProjectInsightAuthors,
+	getProjectThemeTags,
+} from "@/lib/queries/engine-list";
 import { redirect } from "next/navigation";
-import { EnginePageClient } from "./page-client";
 
 interface EnginePageProps {
 	params: Promise<{ workspaceId: string; projectId: string }>;
@@ -42,14 +46,21 @@ export default async function EnginePage({ params }: EnginePageProps) {
 		action: "write",
 	});
 
-	const insights = await getProjectInsights(projectId);
+	// Fetch initial data + filter options in parallel
+	const [initialData, themeTags, authors] = await Promise.all([
+		getEngineList(projectId, { sortBy: "confidence_desc", limit: 20 }),
+		getProjectThemeTags(projectId),
+		getProjectInsightAuthors(projectId),
+	]);
 
 	return (
-		<EnginePageClient
-			insights={insights}
+		<EngineListPage
+			initialData={initialData}
 			workspaceId={workspaceId}
 			projectId={projectId}
 			canEdit={writePerm.allowed}
+			themeTags={themeTags}
+			authors={authors}
 		/>
 	);
 }

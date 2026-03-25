@@ -1,5 +1,6 @@
 "use server";
 
+import { recalculateConfidence } from "@/actions/confidence";
 import { createAuditEntry } from "@/lib/auth/audit";
 import { db } from "@/lib/db";
 import {
@@ -156,7 +157,10 @@ export const acceptInsightAction = withPermission(
 			linkedQuoteIds.add(quoteId);
 		}
 
-		// 7. If problemNodeId: create insight map node + connection
+		// 7. Recalculate confidence score from linked evidence
+		await recalculateConfidence(newInsight.id);
+
+		// 8. If problemNodeId: create insight map node + connection
 		if (data.problemNodeId) {
 			const insightNodeId = await ensureInsightMapNode(
 				ctx.projectId,
@@ -175,7 +179,7 @@ export const acceptInsightAction = withPermission(
 				.onConflictDoNothing();
 		}
 
-		// 8. Audit log
+		// 9. Audit log
 		createAuditEntry({
 			workspaceId: ctx.workspaceId,
 			userId: ctx.userId,
@@ -188,7 +192,7 @@ export const acceptInsightAction = withPermission(
 			},
 		}).catch(() => {});
 
-		// 9. Revalidate
+		// 10. Revalidate
 		revalidatePath(`/${ctx.workspaceId}/${ctx.projectId}/engine`, "page");
 		revalidatePath(`/${ctx.workspaceId}/${ctx.projectId}/vault`, "page");
 
@@ -459,7 +463,10 @@ export const createManualInsightAction = withPermission(
 				.onConflictDoNothing();
 		}
 
-		// 6. If problemNodeId: create insight map node + connection
+		// 6. Recalculate confidence score from linked evidence
+		await recalculateConfidence(newInsight.id);
+
+		// 7. If problemNodeId: create insight map node + connection
 		if (data.problemNodeId) {
 			const insightNodeId = await ensureInsightMapNode(
 				ctx.projectId,
@@ -478,7 +485,7 @@ export const createManualInsightAction = withPermission(
 				.onConflictDoNothing();
 		}
 
-		// 7. Audit log
+		// 8. Audit log
 		createAuditEntry({
 			workspaceId: ctx.workspaceId,
 			userId: ctx.userId,
@@ -488,7 +495,7 @@ export const createManualInsightAction = withPermission(
 			metadata: { statement: data.statement.slice(0, 100), isAiGenerated: false },
 		}).catch(() => {});
 
-		// 8. Revalidate
+		// 9. Revalidate
 		revalidatePath(`/${ctx.workspaceId}/${ctx.projectId}/engine`, "page");
 		revalidatePath(`/${ctx.workspaceId}/${ctx.projectId}/vault`, "page");
 

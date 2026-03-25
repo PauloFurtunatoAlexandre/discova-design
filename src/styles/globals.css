@@ -342,3 +342,47 @@ h6 {
 		transition-duration: 200ms !important;
 	}
 }
+
+/* ── Confidence range slider handles ─────────────────────────────────────────── */
+
+.confidence-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	pointer-events: all;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: var(--color-accent-blue);
+	border: 2px solid var(--color-bg-surface);
+	cursor: pointer;
+	box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+	transition: transform 0.12s ease;
+}
+
+.confidence-slider::-webkit-slider-thumb:hover {
+	transform: scale(1.2);
+}
+
+.confidence-slider::-moz-range-thumb {
+	pointer-events: all;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: var(--color-accent-blue);
+	border: 2px solid var(--color-bg-surface);
+	cursor: pointer;
+	box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+	transition: transform 0.12s ease;
+}
+
+.confidence-slider::-moz-range-thumb:hover {
+	transform: scale(1.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.confidence-slider::-webkit-slider-thumb {
+		transition: none;
+	}
+	.confidence-slider::-moz-range-thumb {
+		transition: none;
+	}
+}

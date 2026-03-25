@@ -1,5 +1,6 @@
 "use server";
 
+import { batchRecalculateForNote } from "@/actions/confidence";
 import { createAuditEntry } from "@/lib/auth/audit";
 import { db } from "@/lib/db";
 import { noteTags, researchNotes, tags } from "@/lib/db/schema";
@@ -252,7 +253,12 @@ export const updateNoteMetadataAction = withPermission(
 			.set({ ...updateRecord, updatedAt: new Date() })
 			.where(eq(researchNotes.id, note.id));
 
-		// 4. Audit log
+		// 4. If emotionalTone changed, recalculate confidence for linked insights
+		if (field === "emotionalTone") {
+			await batchRecalculateForNote(args.noteId);
+		}
+
+		// 5. Audit log
 		createAuditEntry({
 			workspaceId: ctx.workspaceId,
 			userId: ctx.userId,

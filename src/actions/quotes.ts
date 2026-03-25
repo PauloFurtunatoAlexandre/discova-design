@@ -1,5 +1,6 @@
 "use server";
 
+import { recalculateConfidence } from "@/actions/confidence";
 import { createAuditEntry } from "@/lib/auth/audit";
 import { db } from "@/lib/db";
 import { insightEvidence, quotes, researchNotes } from "@/lib/db/schema";
@@ -143,10 +144,21 @@ export const deleteQuoteAction = withPermission(
 			};
 		}
 
-		// 5. Delete (CASCADE in schema handles insight_evidence automatically)
+		// 5. Find affected insights BEFORE deleting (CASCADE removes evidence links)
+		const affectedInsights = await db
+			.select({ insightId: insightEvidence.insightId })
+			.from(insightEvidence)
+			.where(eq(insightEvidence.quoteId, parsed.data.quoteId));
+
+		// 6. Delete (CASCADE in schema handles insight_evidence automatically)
 		await db.delete(quotes).where(eq(quotes.id, parsed.data.quoteId));
 
-		// 6. Audit log
+		// 7. Recalculate confidence for affected insights
+		for (const { insightId } of affectedInsights) {
+			await recalculateConfidence(insightId);
+		}
+
+		// 8. Audit log
 		createAuditEntry({
 			workspaceId: ctx.workspaceId,
 			userId: ctx.userId,
