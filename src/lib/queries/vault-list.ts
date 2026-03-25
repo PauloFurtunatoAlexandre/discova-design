@@ -185,7 +185,7 @@ export async function getVaultList(
 				Number,
 			),
 		insightCount:
-			sql<number>`(SELECT COUNT(DISTINCT ie.insight_id) FROM quotes q JOIN insight_evidence ie ON ie.quote_id = q.id WHERE q.note_id = ${researchNotes.id})`.mapWith(
+			sql<number>`(SELECT COUNT(DISTINCT insight_id) FROM insight_evidence WHERE quote_id IN (SELECT quotes.id FROM quotes WHERE quotes.note_id = ${researchNotes.id}))`.mapWith(
 				Number,
 			),
 	};

@@ -86,9 +86,10 @@ async function getEngineStats(projectId: string): Promise<PhaseStats> {
 				and(
 					eq(researchNotes.projectId, projectId),
 					sql`EXISTS (
-						SELECT 1 FROM quotes q
-						JOIN insight_evidence ie ON ie.quote_id = q.id
-						WHERE q.note_id = ${researchNotes.id}
+						SELECT 1 FROM insight_evidence
+						WHERE insight_evidence.quote_id IN (
+							SELECT quotes.id FROM quotes WHERE quotes.note_id = ${researchNotes.id}
+						)
 					)`,
 				),
 			),
