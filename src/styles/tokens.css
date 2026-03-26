@@ -6,81 +6,81 @@
 /* ── DARK THEME (default) ─────────────────────────────────── */
 [data-theme="dark"],
 :root {
-	/* Backgrounds */
-	--color-bg-base: #0c0c0f;
-	--color-bg-surface: #111115;
-	--color-bg-raised: #16161e;
-	--color-bg-overlay: #1c1c26;
-	--color-bg-sunken: #08080b;
-	--color-bg-canvas: #0a0a0d;
+	/* Backgrounds — very dark base per marketing site (#0f0f11) */
+	--color-bg-base: #0f0f11;
+	--color-bg-surface: #141416;
+	--color-bg-raised: #1a1a1d;
+	--color-bg-overlay: #1e1e22;
+	--color-bg-sunken: #0a0a0c;
+	--color-bg-canvas: #0c0c0e;
 
-	/* Borders */
-	--color-border-subtle: #1a1a22;
-	--color-border-default: #2e2e3a;
-	--color-border-strong: #3e3e50;
+	/* Borders — neutral tones, no purple tint */
+	--color-border-subtle: #1e1e22;
+	--color-border-default: #2a2a2e;
+	--color-border-strong: #3a3a40;
 	--color-border-focus: #5b8af0;
 
 	/* Text */
 	--color-text-primary: #f0ece2;
-	--color-text-secondary: #9a9aa8;
-	--color-text-muted: #5a5a68;
-	--color-text-disabled: #3a3a48;
-	--color-text-inverse: #0c0c0f;
+	--color-text-secondary: #8e8e9a;
+	--color-text-muted: #56565f;
+	--color-text-disabled: #38383f;
+	--color-text-inverse: #0f0f11;
 	--color-text-link: #5b8af0;
 
-	/* Brand Accents */
-	--color-accent-gold: #e8c547;
-	--color-accent-gold-muted: rgba(232, 197, 71, 0.12);
-	--color-accent-gold-border: rgba(232, 197, 71, 0.25);
+	/* Brand Accents — warmer, more muted gold matching marketing CTA */
+	--color-accent-gold: #d4a843;
+	--color-accent-gold-muted: rgba(212, 168, 67, 0.12);
+	--color-accent-gold-border: rgba(212, 168, 67, 0.25);
 	--color-accent-blue: #5b8af0;
 	--color-accent-blue-muted: rgba(91, 138, 240, 0.1);
-	--color-accent-coral: #e87d5b;
-	--color-accent-coral-muted: rgba(232, 125, 91, 0.1);
-	--color-accent-green: #7ebf8e;
-	--color-accent-green-muted: rgba(126, 191, 142, 0.1);
-	--color-accent-purple: #c47db8;
-	--color-accent-purple-muted: rgba(196, 125, 184, 0.1);
+	--color-accent-coral: #e07356;
+	--color-accent-coral-muted: rgba(224, 115, 86, 0.1);
+	--color-accent-green: #6db87e;
+	--color-accent-green-muted: rgba(109, 184, 126, 0.1);
+	--color-accent-purple: #b874ad;
+	--color-accent-purple-muted: rgba(184, 116, 173, 0.1);
 
 	/* Semantic — Status */
-	--color-status-success: #7ebf8e;
-	--color-status-success-bg: rgba(126, 191, 142, 0.08);
-	--color-status-warning: #e8c547;
-	--color-status-warning-bg: rgba(232, 197, 71, 0.08);
-	--color-status-error: #e87d5b;
-	--color-status-error-bg: rgba(232, 125, 91, 0.08);
+	--color-status-success: #6db87e;
+	--color-status-success-bg: rgba(109, 184, 126, 0.08);
+	--color-status-warning: #d4a843;
+	--color-status-warning-bg: rgba(212, 168, 67, 0.08);
+	--color-status-error: #e07356;
+	--color-status-error-bg: rgba(224, 115, 86, 0.08);
 	--color-status-info: #5b8af0;
 	--color-status-info-bg: rgba(91, 138, 240, 0.08);
 
 	/* Semantic — Discova Data Types */
-	--color-research: #e8c547;
-	--color-research-bg: rgba(232, 197, 71, 0.06);
+	--color-research: #d4a843;
+	--color-research-bg: rgba(212, 168, 67, 0.06);
 	--color-insight: #5b8af0;
 	--color-insight-bg: rgba(91, 138, 240, 0.06);
-	--color-problem: #e87d5b;
-	--color-problem-bg: rgba(232, 125, 91, 0.06);
-	--color-solution: #7ebf8e;
-	--color-solution-bg: rgba(126, 191, 142, 0.06);
-	--color-theme-cluster: #c47db8;
-	--color-theme-cluster-bg: rgba(196, 125, 184, 0.06);
-	--color-priority-now: #e87d5b;
-	--color-priority-next: #e8c547;
+	--color-problem: #e07356;
+	--color-problem-bg: rgba(224, 115, 86, 0.06);
+	--color-solution: #6db87e;
+	--color-solution-bg: rgba(109, 184, 126, 0.06);
+	--color-theme-cluster: #b874ad;
+	--color-theme-cluster-bg: rgba(184, 116, 173, 0.06);
+	--color-priority-now: #e07356;
+	--color-priority-next: #d4a843;
 	--color-priority-later: #5b8af0;
-	--color-priority-someday: #5a5a68;
+	--color-priority-someday: #56565f;
 
 	/* Collaboration */
-	--color-presence-online: #7ebf8e;
-	--color-presence-away: #e8c547;
-	--color-presence-offline: #3a3a48;
-	--color-unread: #e87d5b;
-	--color-mention: rgba(232, 197, 71, 0.15);
+	--color-presence-online: #6db87e;
+	--color-presence-away: #d4a843;
+	--color-presence-offline: #38383f;
+	--color-unread: #e07356;
+	--color-mention: rgba(212, 168, 67, 0.15);
 
 	/* Canvas */
-	--color-canvas-dot: #16161c;
-	--color-canvas-grid: #11111a;
-	--color-connection-default: #2e2e3a;
-	--color-connection-active: #e8c547;
-	--color-connection-weak: #1e1e28;
-	--color-connection-broken: #e87d5b;
+	--color-canvas-dot: #1a1a1d;
+	--color-canvas-grid: #141416;
+	--color-connection-default: #2a2a2e;
+	--color-connection-active: #d4a843;
+	--color-connection-weak: #1e1e22;
+	--color-connection-broken: #e07356;
 
 	/* Shadows */
 	--shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -88,30 +88,30 @@
 	--shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
 	--shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
 	--shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
-	--shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 32px rgba(0, 0, 0, 0.4);
+	--shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 32px rgba(0, 0, 0, 0.45);
 	--shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.7);
-	--shadow-glow-gold: 0 0 40px rgba(232, 197, 71, 0.15);
+	--shadow-glow-gold: 0 0 40px rgba(212, 168, 67, 0.15);
 	--shadow-glow-blue: 0 0 40px rgba(91, 138, 240, 0.15);
-	--shadow-glow-coral: 0 0 40px rgba(232, 125, 91, 0.15);
-	--shadow-fab-gold: 0 4px 16px rgba(232, 197, 71, 0.35);
+	--shadow-glow-coral: 0 0 40px rgba(224, 115, 86, 0.15);
+	--shadow-fab-gold: 0 4px 16px rgba(212, 168, 67, 0.3);
 
 	/* Focus rings */
-	--color-accent-gold-focus-ring: rgba(232, 197, 71, 0.08);
+	--color-accent-gold-focus-ring: rgba(212, 168, 67, 0.08);
 
 	/* Interactive surfaces */
-	--color-bg-item-hover: rgba(255, 255, 255, 0.05);
-	--color-overlay-scrim: rgba(0, 0, 0, 0.6);
+	--color-bg-item-hover: rgba(255, 255, 255, 0.04);
+	--color-overlay-scrim: rgba(0, 0, 0, 0.65);
 
-	/* Gradients */
-	--gradient-gold: linear-gradient(135deg, #e8c547, #c4963a);
+	/* Gradients — warm gold gradient for CTA buttons */
+	--gradient-gold: linear-gradient(135deg, #d4a843, #b8872e);
 	--gradient-page-glow: radial-gradient(
 		ellipse 80% 60% at 50% -10%,
-		rgba(232, 197, 71, 0.1) 0%,
+		rgba(212, 168, 67, 0.08) 0%,
 		transparent 70%
 	);
 	--gradient-canvas-glow: radial-gradient(
 		ellipse 60% 40% at 70% 50%,
-		rgba(91, 138, 240, 0.06) 0%,
+		rgba(91, 138, 240, 0.05) 0%,
 		transparent 60%
 	);
 	--gradient-fade-bottom: linear-gradient(to bottom, transparent, var(--color-bg-base));
@@ -133,113 +133,124 @@
 		);
 
 	/* Scrollbar */
-	--scrollbar-track: #111115;
-	--scrollbar-thumb: #2e2e3a;
-	--scrollbar-hover: #3e3e50;
+	--scrollbar-track: #141416;
+	--scrollbar-thumb: #2a2a2e;
+	--scrollbar-hover: #3a3a40;
 }
 
 /* ── LIGHT THEME ──────────────────────────────────────────── */
 [data-theme="light"] {
-	--color-bg-base: #f5f2ea;
-	--color-bg-surface: #fdfaf4;
+	/* Backgrounds — warm cream/ivory palette */
+	--color-bg-base: #f6f3ec;
+	--color-bg-surface: #faf8f3;
 	--color-bg-raised: #ffffff;
 	--color-bg-overlay: #ffffff;
-	--color-bg-sunken: #ede9df;
-	--color-bg-canvas: #eee9df;
+	--color-bg-sunken: #edeade;
+	--color-bg-canvas: #f0ece3;
 
-	--color-border-subtle: #e4dfd4;
-	--color-border-default: #d0c9bb;
-	--color-border-strong: #b8afa0;
+	/* Borders — warm neutral */
+	--color-border-subtle: #e6e1d6;
+	--color-border-default: #d2ccbf;
+	--color-border-strong: #b8b0a2;
 	--color-border-focus: #2a3f8f;
 
-	--color-text-primary: #1a1714;
-	--color-text-secondary: #4a4540;
+	/* Text */
+	--color-text-primary: #18160f;
+	--color-text-secondary: #4d4840;
 	--color-text-muted: #8a8278;
-	--color-text-disabled: #b8afa0;
-	--color-text-inverse: #f5f2ea;
+	--color-text-disabled: #b8b0a2;
+	--color-text-inverse: #f6f3ec;
 	--color-text-link: #2a3f8f;
 
-	--color-accent-gold: #c4963a;
-	--color-accent-gold-muted: rgba(196, 150, 58, 0.1);
-	--color-accent-gold-border: rgba(196, 150, 58, 0.3);
+	/* Brand Accents — deeper tones for light bg contrast */
+	--color-accent-gold: #b8882e;
+	--color-accent-gold-muted: rgba(184, 136, 46, 0.1);
+	--color-accent-gold-border: rgba(184, 136, 46, 0.3);
 	--color-accent-blue: #2a3f8f;
 	--color-accent-blue-muted: rgba(42, 63, 143, 0.08);
-	--color-accent-coral: #c4512a;
-	--color-accent-coral-muted: rgba(196, 81, 42, 0.08);
-	--color-accent-green: #2e7d4f;
-	--color-accent-green-muted: rgba(46, 125, 79, 0.08);
-	--color-accent-purple: #8b4f9e;
-	--color-accent-purple-muted: rgba(139, 79, 158, 0.08);
+	--color-accent-coral: #c04a2a;
+	--color-accent-coral-muted: rgba(192, 74, 42, 0.08);
+	--color-accent-green: #2a7248;
+	--color-accent-green-muted: rgba(42, 114, 72, 0.08);
+	--color-accent-purple: #7e4590;
+	--color-accent-purple-muted: rgba(126, 69, 144, 0.08);
 
-	--color-status-success: #2e7d4f;
-	--color-status-success-bg: rgba(46, 125, 79, 0.08);
-	--color-status-warning: #c4963a;
-	--color-status-warning-bg: rgba(196, 150, 58, 0.1);
-	--color-status-error: #c4512a;
-	--color-status-error-bg: rgba(196, 81, 42, 0.08);
+	/* Semantic — Status */
+	--color-status-success: #2a7248;
+	--color-status-success-bg: rgba(42, 114, 72, 0.08);
+	--color-status-warning: #b8882e;
+	--color-status-warning-bg: rgba(184, 136, 46, 0.1);
+	--color-status-error: #c04a2a;
+	--color-status-error-bg: rgba(192, 74, 42, 0.08);
 	--color-status-info: #2a3f8f;
 	--color-status-info-bg: rgba(42, 63, 143, 0.08);
 
-	--color-research: #c4963a;
-	--color-research-bg: rgba(196, 150, 58, 0.08);
+	/* Semantic — Discova Data Types */
+	--color-research: #b8882e;
+	--color-research-bg: rgba(184, 136, 46, 0.08);
 	--color-insight: #2a3f8f;
 	--color-insight-bg: rgba(42, 63, 143, 0.07);
-	--color-problem: #c4512a;
-	--color-problem-bg: rgba(196, 81, 42, 0.07);
-	--color-solution: #2e7d4f;
-	--color-solution-bg: rgba(46, 125, 79, 0.07);
-	--color-theme-cluster: #8b4f9e;
-	--color-theme-cluster-bg: rgba(139, 79, 158, 0.07);
-	--color-priority-now: #c4512a;
-	--color-priority-next: #c4963a;
+	--color-problem: #c04a2a;
+	--color-problem-bg: rgba(192, 74, 42, 0.07);
+	--color-solution: #2a7248;
+	--color-solution-bg: rgba(42, 114, 72, 0.07);
+	--color-theme-cluster: #7e4590;
+	--color-theme-cluster-bg: rgba(126, 69, 144, 0.07);
+	--color-priority-now: #c04a2a;
+	--color-priority-next: #b8882e;
 	--color-priority-later: #2a3f8f;
 	--color-priority-someday: #8a8278;
 
-	--color-presence-online: #2e7d4f;
-	--color-presence-away: #c4963a;
-	--color-presence-offline: #b8afa0;
-	--color-unread: #c4512a;
-	--color-mention: rgba(196, 150, 58, 0.18);
+	/* Collaboration */
+	--color-presence-online: #2a7248;
+	--color-presence-away: #b8882e;
+	--color-presence-offline: #b8b0a2;
+	--color-unread: #c04a2a;
+	--color-mention: rgba(184, 136, 46, 0.18);
 
-	--color-canvas-dot: #ddd8ce;
-	--color-canvas-grid: #e4dfd4;
-	--color-connection-default: #d0c9bb;
-	--color-connection-active: #c4963a;
-	--color-connection-weak: #e4dfd4;
-	--color-connection-broken: #c4512a;
+	/* Canvas */
+	--color-canvas-dot: #ddd8cc;
+	--color-canvas-grid: #e6e1d6;
+	--color-connection-default: #d2ccbf;
+	--color-connection-active: #b8882e;
+	--color-connection-weak: #e6e1d6;
+	--color-connection-broken: #c04a2a;
 
-	--shadow-xs: 0 1px 2px rgba(26, 23, 20, 0.06);
-	--shadow-sm: 0 2px 8px rgba(26, 23, 20, 0.08);
-	--shadow-md: 0 4px 16px rgba(26, 23, 20, 0.1);
-	--shadow-lg: 0 8px 32px rgba(26, 23, 20, 0.12);
-	--shadow-xl: 0 16px 48px rgba(26, 23, 20, 0.14);
-	--shadow-card: 0 1px 0 rgba(255, 255, 255, 0.8), 0 2px 12px rgba(26, 23, 20, 0.08);
-	--shadow-modal: 0 24px 64px rgba(26, 23, 20, 0.2);
-	--shadow-glow-gold: 0 0 40px rgba(196, 150, 58, 0.12);
+	/* Shadows */
+	--shadow-xs: 0 1px 2px rgba(24, 22, 15, 0.06);
+	--shadow-sm: 0 2px 8px rgba(24, 22, 15, 0.08);
+	--shadow-md: 0 4px 16px rgba(24, 22, 15, 0.1);
+	--shadow-lg: 0 8px 32px rgba(24, 22, 15, 0.12);
+	--shadow-xl: 0 16px 48px rgba(24, 22, 15, 0.14);
+	--shadow-card: 0 1px 0 rgba(255, 255, 255, 0.8), 0 2px 12px rgba(24, 22, 15, 0.07);
+	--shadow-modal: 0 24px 64px rgba(24, 22, 15, 0.2);
+	--shadow-glow-gold: 0 0 40px rgba(184, 136, 46, 0.1);
 	--shadow-glow-blue: 0 0 40px rgba(42, 63, 143, 0.1);
-	--shadow-glow-coral: 0 0 40px rgba(196, 81, 42, 0.1);
-	--shadow-fab-gold: 0 4px 16px rgba(196, 150, 58, 0.2);
+	--shadow-glow-coral: 0 0 40px rgba(192, 74, 42, 0.1);
+	--shadow-fab-gold: 0 4px 16px rgba(184, 136, 46, 0.2);
 
 	/* Focus rings */
-	--color-accent-gold-focus-ring: rgba(196, 150, 58, 0.1);
+	--color-accent-gold-focus-ring: rgba(184, 136, 46, 0.1);
 
 	/* Interactive surfaces */
 	--color-bg-item-hover: rgba(0, 0, 0, 0.04);
 	--color-overlay-scrim: rgba(0, 0, 0, 0.4);
 
-	--gradient-gold: linear-gradient(135deg, #c4963a, #a67828);
+	/* Gradients */
+	--gradient-gold: linear-gradient(135deg, #b8882e, #9a6e1e);
 	--gradient-page-glow: radial-gradient(
 		ellipse 80% 60% at 50% -10%,
-		rgba(196, 150, 58, 0.08) 0%,
+		rgba(184, 136, 46, 0.07) 0%,
 		transparent 70%
 	);
 	--gradient-canvas-glow: radial-gradient(
 		ellipse 60% 40% at 70% 50%,
-		rgba(42, 63, 143, 0.05) 0%,
+		rgba(42, 63, 143, 0.04) 0%,
 		transparent 60%
 	);
 	--gradient-fade-bottom: linear-gradient(to bottom, transparent, var(--color-bg-base));
 
+	/* Canvas Patterns */
 	--pattern-dots: radial-gradient(circle, var(--color-canvas-dot) 1px, transparent 1px);
 	--pattern-grid: repeating-linear-gradient(
 			var(--color-canvas-grid) 0px,
@@ -255,9 +266,10 @@
 			var(--color-canvas-grid) 40px
 		);
 
-	--scrollbar-track: #ede9df;
-	--scrollbar-thumb: #d0c9bb;
-	--scrollbar-hover: #b8afa0;
+	/* Scrollbar */
+	--scrollbar-track: #edeade;
+	--scrollbar-thumb: #d2ccbf;
+	--scrollbar-hover: #b8b0a2;
 }
 
 /* ── TYPOGRAPHY ───────────────────────────────────────────── */

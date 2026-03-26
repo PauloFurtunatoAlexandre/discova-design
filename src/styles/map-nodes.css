@@ -1,7 +1,7 @@
 /* ============================================================
    DISCOVA MAP NODE STATE TOKENS
    5 states × 3 node types. Imported after tokens.css.
-   Phase colours: Insight=#5B8AF0, Problem=#E87D5B, Solution=#7EBF8E
+   Phase colours: Insight=#5B8AF0, Problem=#E07356, Solution=#6DB87E
    ============================================================ */
 
 :root {
@@ -34,16 +34,16 @@
 }
 
 [data-theme="dark"] {
-	--node-orphan-bg: rgba(232, 197, 71, 0.08);
-	--node-orphan-border: #e8c547;
-	--node-orphan-icon: #e8c547;
+	--node-orphan-bg: rgba(212, 168, 67, 0.08);
+	--node-orphan-border: #d4a843;
+	--node-orphan-icon: #d4a843;
 	--node-selected-glow-opacity: 0.25;
 }
 
 [data-theme="light"] {
-	--node-orphan-bg: rgba(232, 197, 71, 0.06);
-	--node-orphan-border: #c4963a;
-	--node-orphan-icon: #c4963a;
+	--node-orphan-bg: rgba(184, 136, 46, 0.06);
+	--node-orphan-border: #b8882e;
+	--node-orphan-icon: #b8882e;
 	--node-selected-glow-opacity: 0.2;
 }
 
