@@ -1,7 +1,11 @@
 import { logger } from "@/lib/logger";
 import { Resend } from "resend";
 
-export const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient(): Resend | null {
+	const key = process.env.RESEND_API_KEY;
+	if (!key) return null;
+	return new Resend(key);
+}
 
 export async function sendEmail({
 	to,
@@ -12,6 +16,12 @@ export async function sendEmail({
 	subject: string;
 	react: React.ReactElement;
 }) {
+	const resend = getResendClient();
+	if (!resend) {
+		logger.warn({ to, subject }, "RESEND_API_KEY not set — skipping email");
+		return { success: false, error: "Email not configured" };
+	}
+
 	try {
 		const { data, error } = await resend.emails.send({
 			from: "Discova <noreply@discova.app>",
