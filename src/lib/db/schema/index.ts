@@ -15,6 +15,7 @@ export * from "./map-connections";
 export * from "./stack-items";
 export * from "./stack-snapshots";
 export * from "./comments";
+export * from "./presence";
 export * from "./notifications";
 export * from "./integrations";
 export * from "./audit-log";

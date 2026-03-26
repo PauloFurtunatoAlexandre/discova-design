@@ -9,6 +9,7 @@ import { mapConnections } from "./map-connections";
 import { mapNodes } from "./map-nodes";
 import { noteTags } from "./note-tags";
 import { notifications } from "./notifications";
+import { presence } from "./presence";
 import { projectMembers } from "./project-members";
 import { projects } from "./projects";
 import { quotes } from "./quotes";
@@ -209,6 +210,11 @@ export const integrationsRelations = relations(integrations, ({ one }) => ({
 		references: [workspaces.id],
 	}),
 	connectedBy: one(users, { fields: [integrations.connectedBy], references: [users.id] }),
+}));
+
+export const presenceRelations = relations(presence, ({ one }) => ({
+	project: one(projects, { fields: [presence.projectId], references: [projects.id] }),
+	user: one(users, { fields: [presence.userId], references: [users.id] }),
 }));
 
 export const auditLogRelations = relations(auditLog, ({ one }) => ({
