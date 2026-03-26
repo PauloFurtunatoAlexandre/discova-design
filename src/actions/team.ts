@@ -92,7 +92,7 @@ export async function inviteMemberAction(args: {
 		sendEmail({
 			to: parsed.data.email,
 			subject: "You've been invited back to a Discova workspace",
-			react: InviteMemberEmail(),
+			react: InviteMemberEmail({}),
 		}).catch(() => {});
 
 		createAuditEntry({
@@ -128,7 +128,7 @@ export async function inviteMemberAction(args: {
 	sendEmail({
 		to: parsed.data.email,
 		subject: "You've been invited to a Discova workspace",
-		react: InviteMemberEmail(),
+		react: InviteMemberEmail({}),
 	}).catch(() => {});
 
 	createAuditEntry({
