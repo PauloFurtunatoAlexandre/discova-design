@@ -394,7 +394,7 @@ export function SuggestionCard({
 													style={{
 														fontFamily: "var(--font-body)",
 														background: "var(--color-status-success)",
-														color: "#fff",
+														color: "var(--color-text-inverse)",
 													}}
 												>
 													<CheckCircle size={12} strokeWidth={2.5} />
@@ -428,7 +428,7 @@ export function SuggestionCard({
 													style={{
 														fontFamily: "var(--font-body)",
 														background: "var(--color-status-success)",
-														color: "#fff",
+														color: "var(--color-text-inverse)",
 														height: "32px",
 													}}
 												>

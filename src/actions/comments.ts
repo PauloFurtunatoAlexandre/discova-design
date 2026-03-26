@@ -3,14 +3,27 @@
 import { createAuditEntry } from "@/lib/auth/audit";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { comments } from "@/lib/db/schema";
+import { comments, workspaceMembers } from "@/lib/db/schema";
 import {
 	createCommentSchema,
 	deleteCommentSchema,
 	updateCommentSchema,
 } from "@/lib/validations/comments";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+
+/** Verify user belongs to the workspace (not removed). */
+async function verifyMembership(userId: string, workspaceId: string): Promise<boolean> {
+	const membership = await db.query.workspaceMembers.findFirst({
+		where: and(
+			eq(workspaceMembers.workspaceId, workspaceId),
+			eq(workspaceMembers.userId, userId),
+			isNull(workspaceMembers.removedAt),
+		),
+		columns: { id: true },
+	});
+	return !!membership;
+}
 
 // ── Create Comment ──────────────────────────────────────────────────────────
 
@@ -24,6 +37,10 @@ export async function createCommentAction(args: {
 }): Promise<{ success: true; commentId: string } | { error: string }> {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Authentication required" };
+
+	if (!(await verifyMembership(session.user.id, args.workspaceId))) {
+		return { error: "Forbidden" };
+	}
 
 	const parsed = createCommentSchema.safeParse({
 		projectId: args.projectId,
@@ -94,6 +111,10 @@ export async function updateCommentAction(args: {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Authentication required" };
 
+	if (!(await verifyMembership(session.user.id, args.workspaceId))) {
+		return { error: "Forbidden" };
+	}
+
 	const parsed = updateCommentSchema.safeParse({
 		commentId: args.commentId,
 		content: args.content,
@@ -139,6 +160,10 @@ export async function deleteCommentAction(args: {
 }): Promise<{ success: true } | { error: string }> {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Authentication required" };
+
+	if (!(await verifyMembership(session.user.id, args.workspaceId))) {
+		return { error: "Forbidden" };
+	}
 
 	const parsed = deleteCommentSchema.safeParse({
 		commentId: args.commentId,

@@ -65,7 +65,7 @@ export function InsightCardExpanded({
 				exit={{ opacity: 0 }}
 				transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
 				className="fixed inset-0 z-40"
-				style={{ background: "rgba(0,0,0,0.4)" }}
+				style={{ background: "var(--color-overlay-scrim)" }}
 				onClick={onClose}
 				aria-hidden="true"
 			/>

@@ -201,7 +201,7 @@ export function EngineListPage({
 						style={{
 							fontFamily: "var(--font-body)",
 							background: "var(--color-accent-blue)",
-							color: "#fff",
+							color: "var(--color-text-inverse)",
 						}}
 					>
 						<Plus size={14} />
@@ -424,7 +424,7 @@ function EngineEmptyState({
 								style={{
 									fontFamily: "var(--font-body)",
 									background: "var(--color-accent-blue)",
-									color: "#fff",
+									color: "var(--color-text-inverse)",
 								}}
 							>
 								Analyse a note →
@@ -466,7 +466,7 @@ function EngineEmptyState({
 						style={{
 							fontFamily: "var(--font-body)",
 							background: "var(--color-accent-gold)",
-							color: "#fff",
+							color: "var(--color-text-inverse)",
 						}}
 					>
 						Go to Vault →

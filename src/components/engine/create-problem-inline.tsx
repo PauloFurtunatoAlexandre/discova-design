@@ -135,7 +135,7 @@ export function CreateProblemInline({
 					style={{
 						fontFamily: "var(--font-body)",
 						background: "var(--color-accent-coral)",
-						color: "#fff",
+						color: "var(--color-text-inverse)",
 					}}
 				>
 					{isSubmitting ? "Creating…" : "Create & Link"}

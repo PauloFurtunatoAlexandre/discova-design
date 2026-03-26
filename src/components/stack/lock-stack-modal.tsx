@@ -48,7 +48,7 @@ export function LockStackModal({ workspaceId, projectId, onClose, onLocked }: Lo
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",
-				background: "rgba(0, 0, 0, 0.6)",
+				background: "var(--color-overlay-scrim)",
 			}}
 			onClick={(e) => e.target === e.currentTarget && onClose()}
 			onKeyDown={() => {}}
@@ -284,7 +284,7 @@ export function ShareLinkPanel({ shareToken, onClose }: ShareLinkPanelProps) {
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",
-				background: "rgba(0, 0, 0, 0.6)",
+				background: "var(--color-overlay-scrim)",
 			}}
 			onClick={(e) => e.target === e.currentTarget && onClose()}
 			onKeyDown={() => {}}

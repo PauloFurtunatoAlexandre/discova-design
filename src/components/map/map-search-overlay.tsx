@@ -64,7 +64,7 @@ export function MapSearchOverlay({ nodes, onSelectNode, onClose }: MapSearchOver
 			<button
 				type="button"
 				className="fixed inset-0 z-[-1]"
-				style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+				style={{ backgroundColor: "var(--color-overlay-scrim)" }}
 				onClick={onClose}
 				aria-label="Close search"
 			/>

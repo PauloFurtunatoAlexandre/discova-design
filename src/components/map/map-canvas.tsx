@@ -269,7 +269,7 @@ export function MapCanvas({
 						style={{
 							fontFamily: "var(--font-body)",
 							background: "var(--color-accent-blue)",
-							color: "#fff",
+							color: "var(--color-text-inverse)",
 						}}
 					>
 						Go to Engine →

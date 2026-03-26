@@ -192,7 +192,7 @@ function IntegrationCard({
 								onClick={handleConnect}
 								className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-80"
 								style={{
-									color: "#fff",
+									color: "var(--color-text-inverse)",
 									backgroundColor: def.color,
 								}}
 							>

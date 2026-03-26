@@ -21,7 +21,7 @@ export function MapFab({ onCreateProblem, onCreateSolution }: MapFabProps) {
 				className="flex h-12 w-12 items-center justify-center rounded-full transition-all duration-150 hover:brightness-110 active:scale-95"
 				style={{
 					backgroundColor: "var(--color-accent-coral)",
-					color: "#fff",
+					color: "var(--color-text-inverse)",
 					boxShadow: "var(--shadow-lg)",
 				}}
 			>

@@ -199,7 +199,7 @@ export function CreateInsightForm({
 				exit={{ opacity: 0 }}
 				transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
 				className="fixed inset-0 z-40"
-				style={{ background: "rgba(0,0,0,0.4)" }}
+				style={{ background: "var(--color-overlay-scrim)" }}
 				onClick={onClose}
 				aria-hidden="true"
 			/>
@@ -435,7 +435,7 @@ export function CreateInsightForm({
 							style={{
 								fontFamily: "var(--font-body)",
 								background: "var(--color-accent-blue)",
-								color: "#fff",
+								color: "var(--color-text-inverse)",
 							}}
 						>
 							{isSubmitting ? "Creating…" : "Create Insight"}

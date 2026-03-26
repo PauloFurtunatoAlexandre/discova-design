@@ -80,7 +80,7 @@ export function NotificationBell() {
 							height: 16,
 							padding: "0 4px",
 							backgroundColor: "var(--color-status-error)",
-							color: "#fff",
+							color: "var(--color-text-inverse)",
 						}}
 					>
 						{unreadCount > 99 ? "99+" : unreadCount}

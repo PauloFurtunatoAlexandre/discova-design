@@ -390,7 +390,7 @@ function FullCard({ insight, canEdit, onDelete, workspaceId, projectId }: Insigh
 						style={{
 							fontFamily: "var(--font-body)",
 							background: "var(--color-accent-blue)",
-							color: "#fff",
+							color: "var(--color-text-inverse)",
 						}}
 					>
 						{isSaving ? "Saving…" : "Save"}
@@ -446,7 +446,7 @@ function FullCard({ insight, canEdit, onDelete, workspaceId, projectId }: Insigh
 							style={{
 								fontFamily: "var(--font-body)",
 								background: "var(--color-status-error)",
-								color: "#fff",
+								color: "var(--color-text-inverse)",
 							}}
 						>
 							{isDeleting ? "Deleting…" : "Delete"}

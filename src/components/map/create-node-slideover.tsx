@@ -84,7 +84,7 @@ export function CreateNodeSlideover({
 			<button
 				type="button"
 				className="fixed inset-0 z-[-1]"
-				style={{ backgroundColor: "rgba(0,0,0,0.3)" }}
+				style={{ backgroundColor: "var(--color-overlay-scrim)" }}
 				onClick={onClose}
 				aria-label="Close panel"
 			/>
@@ -257,7 +257,7 @@ export function CreateNodeSlideover({
 								fontFamily: "var(--font-body)",
 								fontSize: "var(--text-sm)",
 								fontWeight: 600,
-								color: "#fff",
+								color: "var(--color-text-inverse)",
 								backgroundColor: config.accent,
 							}}
 						>
