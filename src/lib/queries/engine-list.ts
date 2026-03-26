@@ -133,6 +133,13 @@ export async function getEngineList(
 		}
 	}
 
+	// Use raw table-qualified refs inside correlated subqueries in SELECT fields.
+	// Drizzle doesn't qualify column refs in SELECT (only in WHERE), so
+	// ${insightCards.id} generates bare "id" — ambiguous inside JOINed subqueries.
+	const icId = sql.raw('"insight_cards"."id"');
+	const icCreatedBy = sql.raw('"insight_cards"."created_by"');
+	const icAcceptedBy = sql.raw('"insight_cards"."accepted_by"');
+
 	const selectFields = {
 		id: insightCards.id,
 		statement: insightCards.statement,
@@ -143,19 +150,17 @@ export async function getEngineList(
 		acceptedById: insightCards.acceptedBy,
 		createdAt: insightCards.createdAt,
 		updatedAt: insightCards.updatedAt,
-		creatorName: sql<string>`(SELECT name FROM users WHERE users.id = ${insightCards.createdBy})`,
-		acceptorName: sql<
-			string | null
-		>`(SELECT name FROM users WHERE users.id = ${insightCards.acceptedBy})`,
+		creatorName: sql<string>`(SELECT name FROM users WHERE users.id = ${icCreatedBy})`,
+		acceptorName: sql<string | null>`(SELECT name FROM users WHERE users.id = ${icAcceptedBy})`,
 		evidenceCount:
-			sql<number>`(SELECT count(*)::int FROM insight_evidence WHERE insight_id = ${insightCards.id})`.mapWith(
+			sql<number>`(SELECT count(*)::int FROM insight_evidence WHERE insight_id = ${icId})`.mapWith(
 				Number,
 			),
 		linkedProblemNodeId: sql<string | null>`(
 			SELECT mn2.id FROM map_nodes mn
 			INNER JOIN map_connections mc ON mc.source_node_id = mn.id
 			INNER JOIN map_nodes mn2 ON mn2.id = mc.target_node_id
-			WHERE mn.insight_id = ${insightCards.id}
+			WHERE mn.insight_id = ${icId}
 			  AND mn.type = 'insight'
 			  AND mn2.type = 'problem'
 			LIMIT 1
@@ -164,7 +169,7 @@ export async function getEngineList(
 			SELECT mn2.label FROM map_nodes mn
 			INNER JOIN map_connections mc ON mc.source_node_id = mn.id
 			INNER JOIN map_nodes mn2 ON mn2.id = mc.target_node_id
-			WHERE mn.insight_id = ${insightCards.id}
+			WHERE mn.insight_id = ${icId}
 			  AND mn.type = 'insight'
 			  AND mn2.type = 'problem'
 			LIMIT 1

@@ -170,6 +170,11 @@ export async function getVaultList(
 		}
 	}
 
+	// Use raw table-qualified refs inside correlated subqueries in SELECT fields.
+	// Drizzle doesn't qualify column refs in SELECT (only in WHERE), so
+	// ${researchNotes.id} generates bare "id" — wrong scope in subqueries.
+	const rnId = sql.raw('"research_notes"."id"');
+
 	// Shared SELECT fields with correlated subquery counts
 	const selectFields = {
 		id: researchNotes.id,
@@ -180,12 +185,9 @@ export async function getVaultList(
 		emotionalTone: researchNotes.emotionalTone,
 		followUpNeeded: researchNotes.followUpNeeded,
 		createdAt: researchNotes.createdAt,
-		quoteCount:
-			sql<number>`(SELECT COUNT(*) FROM quotes WHERE note_id = ${researchNotes.id})`.mapWith(
-				Number,
-			),
+		quoteCount: sql<number>`(SELECT COUNT(*) FROM quotes WHERE note_id = ${rnId})`.mapWith(Number),
 		insightCount:
-			sql<number>`(SELECT COUNT(DISTINCT insight_id) FROM insight_evidence WHERE quote_id IN (SELECT quotes.id FROM quotes WHERE quotes.note_id = ${researchNotes.id}))`.mapWith(
+			sql<number>`(SELECT COUNT(DISTINCT insight_id) FROM insight_evidence WHERE quote_id IN (SELECT quotes.id FROM quotes WHERE quotes.note_id = ${rnId}))`.mapWith(
 				Number,
 			),
 	};
@@ -220,7 +222,7 @@ export async function getVaultList(
 				case "quote_count":
 					return base
 						.orderBy(
-							desc(sql`(SELECT COUNT(*) FROM quotes WHERE note_id = ${researchNotes.id})`),
+							desc(sql`(SELECT COUNT(*) FROM quotes WHERE note_id = ${rnId})`),
 							desc(researchNotes.createdAt),
 						)
 						.limit(fetchLimit);
