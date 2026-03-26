@@ -1,27 +1,45 @@
 "use client";
 
+import { createConnectionAction } from "@/actions/map";
 import { DOT_GRID_SIZE } from "@/lib/map/constants";
 import { getContentBounds } from "@/lib/map/layout";
 import type { MapData, MapNodeData } from "@/lib/map/types";
+import type { UnplacedInsight } from "@/lib/queries/map";
 import { Lightbulb } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { CreateNodeSlideover } from "./create-node-slideover";
 import { MapConnectionLine } from "./map-connection-line";
+import { MapFab } from "./map-fab";
 import { MapNode } from "./map-node";
 import { MapToolbar } from "./map-toolbar";
+import { NodeContextMenu } from "./node-context-menu";
+import { UnplacedInsightsPanel } from "./unplaced-insights-panel";
 import { useCanvas } from "./use-canvas";
+import { useDragConnect } from "./use-drag-connect";
 
 interface MapCanvasProps {
 	mapData: MapData;
 	canEdit: boolean;
 	workspaceId: string;
 	projectId: string;
+	unplacedInsights?: UnplacedInsight[];
 }
 
-export function MapCanvas({ mapData, canEdit, workspaceId, projectId }: MapCanvasProps) {
+export function MapCanvas({
+	mapData,
+	canEdit,
+	workspaceId,
+	projectId,
+	unplacedInsights = [],
+}: MapCanvasProps) {
 	const router = useRouter();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+	const [slideoverType, setSlideoverType] = useState<"problem" | "solution" | null>(null);
+	const [showInsightsPanel, setShowInsightsPanel] = useState(false);
+	const [contextMenuNodeId, setContextMenuNodeId] = useState<string | null>(null);
+	const [, startTransition] = useTransition();
 
 	const {
 		pan,
@@ -37,6 +55,23 @@ export function MapCanvas({ mapData, canEdit, workspaceId, projectId }: MapCanva
 		resetView,
 	} = useCanvas();
 
+	const handleConnect = useCallback(
+		(sourceNodeId: string, targetNodeId: string) => {
+			startTransition(async () => {
+				await createConnectionAction({
+					workspaceId,
+					projectId,
+					sourceNodeId,
+					targetNodeId,
+				});
+			});
+		},
+		[workspaceId, projectId],
+	);
+
+	const { dragState, handleDragMouseDown, handleDragMouseMove, handleDragMouseUp, cancelDrag } =
+		useDragConnect(mapData.nodes, pan, zoom, handleConnect);
+
 	// Build a node lookup for connection rendering
 	const nodeMap = new Map<string, MapNodeData>();
 	for (const node of mapData.nodes) {
@@ -46,21 +81,48 @@ export function MapCanvas({ mapData, canEdit, workspaceId, projectId }: MapCanva
 	// Deselect on Escape
 	useEffect(() => {
 		function handleKey(e: KeyboardEvent) {
-			if (e.key === "Escape") setSelectedNodeId(null);
+			if (e.key === "Escape") {
+				setSelectedNodeId(null);
+				setContextMenuNodeId(null);
+				cancelDrag();
+			}
 		}
 		document.addEventListener("keydown", handleKey);
 		return () => document.removeEventListener("keydown", handleKey);
-	}, []);
+	}, [cancelDrag]);
 
 	// Click canvas background → deselect
 	const handleCanvasClick = useCallback(
 		(e: React.MouseEvent) => {
 			if ((e.target as HTMLElement).dataset.canvasBackground !== undefined) {
 				setSelectedNodeId(null);
+				setContextMenuNodeId(null);
 			}
 			handleMouseDown(e);
 		},
 		[handleMouseDown],
+	);
+
+	const handleCanvasMouseMove = useCallback(
+		(e: React.MouseEvent) => {
+			if (dragState.isDragging) {
+				handleDragMouseMove(e);
+			} else {
+				handleMouseMove(e);
+			}
+		},
+		[dragState.isDragging, handleDragMouseMove, handleMouseMove],
+	);
+
+	const handleCanvasMouseUp = useCallback(
+		(e: React.MouseEvent) => {
+			if (dragState.isDragging) {
+				handleDragMouseUp(e);
+			} else {
+				handleMouseUp();
+			}
+		},
+		[dragState.isDragging, handleDragMouseUp, handleMouseUp],
 	);
 
 	const handleFitToView = useCallback(() => {
@@ -70,7 +132,20 @@ export function MapCanvas({ mapData, canEdit, workspaceId, projectId }: MapCanva
 		fitToView(bounds, clientWidth, clientHeight);
 	}, [mapData.nodes, fitToView]);
 
+	// Right-click context menu on nodes
+	const handleNodeContextMenu = useCallback(
+		(e: React.MouseEvent, nodeId: string) => {
+			if (!canEdit) return;
+			e.preventDefault();
+			setContextMenuNodeId(nodeId);
+			setSelectedNodeId(nodeId);
+		},
+		[canEdit],
+	);
+
 	const dotSize = DOT_GRID_SIZE * zoom;
+	const selectedNode = selectedNodeId ? nodeMap.get(selectedNodeId) : null;
+	const contextMenuNode = contextMenuNodeId ? nodeMap.get(contextMenuNodeId) : null;
 
 	// Empty state
 	if (mapData.nodes.length === 0) {
@@ -132,6 +207,34 @@ export function MapCanvas({ mapData, canEdit, workspaceId, projectId }: MapCanva
 						Go to Engine →
 					</button>
 				</div>
+
+				{/* FAB even on empty state for creating problems/solutions */}
+				{canEdit && (
+					<>
+						<MapFab
+							onCreateProblem={() => setSlideoverType("problem")}
+							onCreateSolution={() => setSlideoverType("solution")}
+						/>
+						<CreateNodeSlideover
+							isOpen={slideoverType !== null}
+							onClose={() => setSlideoverType(null)}
+							nodeType={slideoverType ?? "problem"}
+							workspaceId={workspaceId}
+							projectId={projectId}
+						/>
+					</>
+				)}
+
+				{/* Unplaced insights */}
+				{canEdit && unplacedInsights.length > 0 && (
+					<UnplacedInsightsPanel
+						insights={unplacedInsights}
+						isOpen={showInsightsPanel}
+						onToggle={() => setShowInsightsPanel((p) => !p)}
+						workspaceId={workspaceId}
+						projectId={projectId}
+					/>
+				)}
 			</div>
 		);
 	}
@@ -146,15 +249,21 @@ export function MapCanvas({ mapData, canEdit, workspaceId, projectId }: MapCanva
 					"radial-gradient(circle, var(--color-canvas-dot) 1.5px, transparent 1.5px)",
 				backgroundSize: `${dotSize}px ${dotSize}px`,
 				backgroundPosition: `${pan.x % dotSize}px ${pan.y % dotSize}px`,
-				cursor: isPanning ? "grabbing" : "default",
+				cursor: dragState.isDragging ? "crosshair" : isPanning ? "grabbing" : "default",
 			}}
 			data-canvas-background
 			data-testid="map-canvas"
 			onWheel={handleWheel}
-			onMouseDown={handleCanvasClick}
-			onMouseMove={handleMouseMove}
-			onMouseUp={handleMouseUp}
-			onMouseLeave={handleMouseUp}
+			onMouseDown={(e) => {
+				handleDragMouseDown(e);
+				if (!dragState.isDragging) handleCanvasClick(e);
+			}}
+			onMouseMove={handleCanvasMouseMove}
+			onMouseUp={handleCanvasMouseUp}
+			onMouseLeave={() => {
+				handleMouseUp();
+				cancelDrag();
+			}}
 		>
 			{/* Transform layer */}
 			<div
@@ -205,9 +314,52 @@ export function MapCanvas({ mapData, canEdit, workspaceId, projectId }: MapCanva
 						onSelect={setSelectedNodeId}
 						onDeselect={() => setSelectedNodeId(null)}
 						canEdit={canEdit}
+						onContextMenu={(e) => handleNodeContextMenu(e, node.id)}
 					/>
 				))}
 			</div>
+
+			{/* Drag-to-connect preview line */}
+			{dragState.isDragging && (
+				<svg
+					className="pointer-events-none fixed inset-0 z-50"
+					style={{ width: "100%", height: "100%", overflow: "visible" }}
+					aria-hidden="true"
+				>
+					<title>Connection preview</title>
+					<line
+						x1={dragState.sourceX}
+						y1={dragState.sourceY}
+						x2={dragState.cursorX}
+						y2={dragState.cursorY}
+						stroke="var(--color-accent-gold)"
+						strokeWidth={2}
+						strokeDasharray="6 4"
+						opacity={0.7}
+					/>
+				</svg>
+			)}
+
+			{/* Context menu */}
+			{contextMenuNode && canEdit && (
+				<div
+					className="absolute z-30"
+					style={{
+						left: contextMenuNode.positionX * zoom + pan.x,
+						top: contextMenuNode.positionY * zoom + pan.y - 48,
+					}}
+				>
+					<NodeContextMenu
+						node={contextMenuNode}
+						workspaceId={workspaceId}
+						projectId={projectId}
+						onClose={() => {
+							setContextMenuNodeId(null);
+							setSelectedNodeId(null);
+						}}
+					/>
+				</div>
+			)}
 
 			{/* Toolbar */}
 			<MapToolbar
@@ -217,6 +369,34 @@ export function MapCanvas({ mapData, canEdit, workspaceId, projectId }: MapCanva
 				onFitToView={handleFitToView}
 				onResetView={resetView}
 			/>
+
+			{/* Unplaced insights panel */}
+			{canEdit && unplacedInsights.length > 0 && (
+				<UnplacedInsightsPanel
+					insights={unplacedInsights}
+					isOpen={showInsightsPanel}
+					onToggle={() => setShowInsightsPanel((p) => !p)}
+					workspaceId={workspaceId}
+					projectId={projectId}
+				/>
+			)}
+
+			{/* FAB for creating nodes */}
+			{canEdit && (
+				<>
+					<MapFab
+						onCreateProblem={() => setSlideoverType("problem")}
+						onCreateSolution={() => setSlideoverType("solution")}
+					/>
+					<CreateNodeSlideover
+						isOpen={slideoverType !== null}
+						onClose={() => setSlideoverType(null)}
+						nodeType={slideoverType ?? "problem"}
+						workspaceId={workspaceId}
+						projectId={projectId}
+					/>
+				</>
+			)}
 		</div>
 	);
 }

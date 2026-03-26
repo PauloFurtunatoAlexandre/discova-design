@@ -18,6 +18,14 @@ vi.mock("next/navigation", () => ({
 	}),
 }));
 
+// Mock server actions (they import server-only modules)
+vi.mock("@/actions/map", () => ({
+	createConnectionAction: vi.fn(),
+	createMapNodeAction: vi.fn(),
+	deleteMapNodeAction: vi.fn(),
+	placeInsightOnMapAction: vi.fn(),
+}));
+
 function makeNode(
 	overrides: Partial<MapNodeData> & { id: string; type: MapNodeData["type"] },
 ): MapNodeData {

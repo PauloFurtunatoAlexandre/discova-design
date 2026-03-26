@@ -12,6 +12,7 @@ interface MapNodeProps {
 	onSelect: (nodeId: string) => void;
 	onDeselect: () => void;
 	canEdit: boolean;
+	onContextMenu?: (e: React.MouseEvent) => void;
 }
 
 const ACCENT_RGB: Record<NodeType, string> = {
@@ -86,7 +87,14 @@ function getNodeStyles(type: NodeType, baseState: BaseState, overlay: OverlaySta
 	return styles;
 }
 
-export function MapNode({ node, isSelected, onSelect, onDeselect, canEdit }: MapNodeProps) {
+export function MapNode({
+	node,
+	isSelected,
+	onSelect,
+	onDeselect,
+	canEdit,
+	onContextMenu,
+}: MapNodeProps) {
 	const [isHovered, setIsHovered] = useState(false);
 
 	const overlay: OverlayState = isSelected ? "selected" : isHovered ? "hover" : "none";
@@ -119,6 +127,7 @@ export function MapNode({ node, isSelected, onSelect, onDeselect, canEdit }: Map
 				textAlign: "left",
 			}}
 			onClick={handleClick}
+			onContextMenu={onContextMenu}
 			onKeyDown={(e) => {
 				if (e.key === "Escape") onDeselect();
 			}}

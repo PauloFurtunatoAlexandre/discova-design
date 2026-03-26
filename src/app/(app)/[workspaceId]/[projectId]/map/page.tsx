@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth/config";
 import { calculateLayout } from "@/lib/map/layout";
 import { checkPermission } from "@/lib/permissions";
-import { getMapData } from "@/lib/queries/map";
+import { getMapData, getUnplacedInsights } from "@/lib/queries/map";
 import { redirect } from "next/navigation";
 
 import { MapCanvas } from "@/components/map/map-canvas";
@@ -33,7 +33,11 @@ export default async function MapPage({
 		action: "write",
 	});
 
-	const rawData = await getMapData(projectId);
+	const [rawData, unplacedInsights] = await Promise.all([
+		getMapData(projectId),
+		writePermission.allowed ? getUnplacedInsights(projectId) : Promise.resolve([]),
+	]);
+
 	const layoutNodes = calculateLayout(rawData.nodes);
 
 	return (
@@ -42,6 +46,7 @@ export default async function MapPage({
 			canEdit={writePermission.allowed}
 			workspaceId={workspaceId}
 			projectId={projectId}
+			unplacedInsights={unplacedInsights}
 		/>
 	);
 }

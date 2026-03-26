@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
-import { mapConnections, mapNodes } from "@/lib/db/schema";
+import { insightCards, mapConnections, mapNodes } from "@/lib/db/schema";
 import type { BaseState, MapConnectionData, MapData, MapNodeData } from "@/lib/map/types";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull, notInArray } from "drizzle-orm";
 
 export async function getMapData(projectId: string): Promise<MapData> {
 	const nodeRows = await db
@@ -56,6 +56,39 @@ export async function getMapData(projectId: string): Promise<MapData> {
 	}));
 
 	return { nodes: nodesWithState, connections };
+}
+
+/** Insight cards that are NOT yet placed on the map */
+export interface UnplacedInsight {
+	id: string;
+	statement: string;
+	confidenceScore: number;
+	themeTag: string | null;
+}
+
+export async function getUnplacedInsights(projectId: string): Promise<UnplacedInsight[]> {
+	// Get insight IDs already on the map
+	const placedRows = await db
+		.select({ insightId: mapNodes.insightId })
+		.from(mapNodes)
+		.where(and(eq(mapNodes.projectId, projectId), eq(mapNodes.type, "insight")));
+
+	const placedIds = placedRows.map((r) => r.insightId).filter((id): id is string => id !== null);
+
+	const conditions = [eq(insightCards.projectId, projectId)];
+	if (placedIds.length > 0) {
+		conditions.push(notInArray(insightCards.id, placedIds));
+	}
+
+	return db
+		.select({
+			id: insightCards.id,
+			statement: insightCards.statement,
+			confidenceScore: insightCards.confidenceScore,
+			themeTag: insightCards.themeTag,
+		})
+		.from(insightCards)
+		.where(and(...conditions));
 }
 
 /**
