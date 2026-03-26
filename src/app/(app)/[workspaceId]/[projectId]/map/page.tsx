@@ -1,8 +1,47 @@
-export default function MapPage() {
+import { auth } from "@/lib/auth/config";
+import { calculateLayout } from "@/lib/map/layout";
+import { checkPermission } from "@/lib/permissions";
+import { getMapData } from "@/lib/queries/map";
+import { redirect } from "next/navigation";
+
+import { MapCanvas } from "@/components/map/map-canvas";
+
+export default async function MapPage({
+	params,
+}: {
+	params: Promise<{ workspaceId: string; projectId: string }>;
+}) {
+	const session = await auth();
+	if (!session?.user?.id) redirect("/login");
+
+	const { workspaceId, projectId } = await params;
+
+	const permission = await checkPermission({
+		userId: session.user.id,
+		workspaceId,
+		projectId,
+		phase: "map",
+		action: "read",
+	});
+	if (!permission.allowed) redirect(`/${workspaceId}`);
+
+	const writePermission = await checkPermission({
+		userId: session.user.id,
+		workspaceId,
+		projectId,
+		phase: "map",
+		action: "write",
+	});
+
+	const rawData = await getMapData(projectId);
+	const layoutNodes = calculateLayout(rawData.nodes);
+
 	return (
-		<div className="p-8">
-			<h1 className="text-2xl font-semibold">Map</h1>
-			<p className="text-gray-500 mt-2">Phase 03 — Opportunity Map. Coming in Prompt 19.</p>
-		</div>
+		<MapCanvas
+			mapData={{ nodes: layoutNodes, connections: rawData.connections }}
+			canEdit={writePermission.allowed}
+			workspaceId={workspaceId}
+			projectId={projectId}
+		/>
 	);
 }
