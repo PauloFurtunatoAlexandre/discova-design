@@ -115,7 +115,7 @@ export async function getEngineList(
 		if (cursorValue && cursorId) {
 			if (sortBy === "confidence_desc") {
 				paginatedConditions.push(
-					sql`(${insightCards.confidenceScore}, ${insightCards.createdAt}, ${insightCards.id}::text) < (${Number(cursorValue)}, (SELECT created_at FROM insight_cards WHERE id = ${cursorId}::uuid), ${cursorId})`,
+					sql`(${insightCards.confidenceScore}, ${insightCards.createdAt}, ${insightCards.id}::text) < (${Number(cursorValue)}, (SELECT created_at FROM insight_cards WHERE insight_cards.id = ${cursorId}::uuid), ${cursorId})`,
 				);
 			} else if (sortBy === "newest" || sortBy === "recently_modified") {
 				paginatedConditions.push(
@@ -127,7 +127,7 @@ export async function getEngineList(
 				);
 			} else if (sortBy === "confidence_asc") {
 				paginatedConditions.push(
-					sql`(${insightCards.confidenceScore}, ${insightCards.createdAt}, ${insightCards.id}::text) > (${Number(cursorValue)}, (SELECT created_at FROM insight_cards WHERE id = ${cursorId}::uuid), ${cursorId})`,
+					sql`(${insightCards.confidenceScore}, ${insightCards.createdAt}, ${insightCards.id}::text) > (${Number(cursorValue)}, (SELECT created_at FROM insight_cards WHERE insight_cards.id = ${cursorId}::uuid), ${cursorId})`,
 				);
 			}
 		}
@@ -143,10 +143,10 @@ export async function getEngineList(
 		acceptedById: insightCards.acceptedBy,
 		createdAt: insightCards.createdAt,
 		updatedAt: insightCards.updatedAt,
-		creatorName: sql<string>`(SELECT name FROM users WHERE id = ${insightCards.createdBy})`,
+		creatorName: sql<string>`(SELECT name FROM users WHERE users.id = ${insightCards.createdBy})`,
 		acceptorName: sql<
 			string | null
-		>`(SELECT name FROM users WHERE id = ${insightCards.acceptedBy})`,
+		>`(SELECT name FROM users WHERE users.id = ${insightCards.acceptedBy})`,
 		evidenceCount:
 			sql<number>`(SELECT count(*)::int FROM insight_evidence WHERE insight_id = ${insightCards.id})`.mapWith(
 				Number,

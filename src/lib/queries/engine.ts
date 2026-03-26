@@ -52,10 +52,10 @@ export async function getInsightWithRelations(
 			acceptedById: insightCards.acceptedBy,
 			createdAt: insightCards.createdAt,
 			updatedAt: insightCards.updatedAt,
-			creatorName: sql<string>`(SELECT name FROM users WHERE id = ${insightCards.createdBy})`,
+			creatorName: sql<string>`(SELECT name FROM users WHERE users.id = ${insightCards.createdBy})`,
 			acceptorName: sql<
 				string | null
-			>`(SELECT name FROM users WHERE id = ${insightCards.acceptedBy})`,
+			>`(SELECT name FROM users WHERE users.id = ${insightCards.acceptedBy})`,
 		})
 		.from(insightCards)
 		.where(eq(insightCards.id, insightId))
@@ -139,10 +139,10 @@ export async function getProjectInsights(projectId: string): Promise<InsightWith
 			acceptedById: insightCards.acceptedBy,
 			createdAt: insightCards.createdAt,
 			updatedAt: insightCards.updatedAt,
-			creatorName: sql<string>`(SELECT name FROM users WHERE id = ${insightCards.createdBy})`,
+			creatorName: sql<string>`(SELECT name FROM users WHERE users.id = ${insightCards.createdBy})`,
 			acceptorName: sql<
 				string | null
-			>`(SELECT name FROM users WHERE id = ${insightCards.acceptedBy})`,
+			>`(SELECT name FROM users WHERE users.id = ${insightCards.acceptedBy})`,
 			// Evidence count via correlated subquery
 			evidenceCount: sql<number>`(SELECT count(*)::int FROM insight_evidence WHERE insight_id = ${insightCards.id})`,
 			// Linked problem (first connection via map graph)
