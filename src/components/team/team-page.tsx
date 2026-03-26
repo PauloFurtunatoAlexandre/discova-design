@@ -1,8 +1,9 @@
 "use client";
 
+import { IntegrationCards } from "@/components/integrations/integration-cards";
 import type { WorkspaceMember } from "@/lib/queries/team";
 import { AnimatePresence } from "framer-motion";
-import { Clock, Crown, UserPlus, Users } from "lucide-react";
+import { Clock, Crown, Plug, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 import { InviteModal } from "./invite-modal";
 import { MemberTable } from "./member-table";
@@ -102,6 +103,26 @@ export function TeamPageClient({
 					isAdmin={isAdmin}
 				/>
 			)}
+
+			{/* Integrations */}
+			<div className="mt-12">
+				<div className="flex items-center gap-2 mb-4">
+					<Plug size={18} style={{ color: "var(--color-text-muted)" }} />
+					<h2
+						className="text-lg font-semibold"
+						style={{
+							fontFamily: "var(--font-display)",
+							color: "var(--color-text-primary)",
+						}}
+					>
+						Integrations
+					</h2>
+				</div>
+				<p className="text-sm mb-5" style={{ color: "var(--color-text-muted)" }}>
+					Connect your workspace to external tools.
+				</p>
+				<IntegrationCards workspaceId={workspaceId} isAdmin={isAdmin} />
+			</div>
 
 			{/* Invite Modal */}
 			<AnimatePresence>
