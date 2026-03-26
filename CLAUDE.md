@@ -1,305 +1,208 @@
-# Discova — Claude Code Context
+# DISCOVA — Claude Code Development Guide
 
-## What This Product Is
-
-Discova is a product discovery platform that creates a verifiable chain from
-user research to shipped features. It replaces the 4–6 disconnected tools
-product teams use for research, synthesis, mapping, and prioritisation.
-
-**Core value proposition:** "The missing layer between what your users say
-and what your team decides to build."
+> **Put this file at `CLAUDE.md` in your project root.**
+> Claude Code reads this automatically on every session.
 
 ---
 
-## The Five Phases (Core Product Model)
+## PROJECT OVERVIEW
 
-Every feature you touch belongs to one of these phases. Always know which
-phase you're in before writing code.
+Discova is a product discovery platform: Workspace → Project → Phase (Vault, Engine, Map, Stack, Team). You are building the MVP following a 36-prompt sequential implementation plan.
 
-| # | Name   | Action     | Accent Colour | What it does |
-|---|--------|------------|---------------|--------------|
-| 1 | Vault  | Store      | Gold #E8C547  | Capture raw research notes + quotes |
-| 2 | Engine | Synthesise | Blue #5B8AF0  | AI-assisted insight card creation |
-| 3 | Map    | Connect    | Coral #E87D5B | Visual insight→problem→solution graph |
-| 4 | Stack  | Decide     | Green #7EBF8E | RICE-scored priority ranking |
-| 5 | Team   | Align      | Purple #C47DB8 | Roles, sharing, stakeholder output |
+## STACK (LOCKED — do not deviate)
 
-**User flow:** Hybrid — entry points differ by role, everyone converges on
-the Stack. The aha moments are Engine (researchers) and Stack (PMs).
+- Next.js 15 App Router, React 19, TypeScript strict
+- Tailwind CSS 4 (CSS-based config with @theme, NOT tailwind.config.ts)
+- shadcn/ui (New York variant), Framer Motion, Lucide icons
+- Tiptap (rich text editor in Vault)
+- PostgreSQL + Drizzle ORM (database sessions, NOT JWT)
+- Auth.js v5 (NextAuth) with database sessions
+- Zod validation at every boundary
+- React Query (@tanstack/react-query) for client data
+- Pino (structured logging), Sentry (error monitoring), Resend (email)
+- Vitest (unit/integration), Playwright (E2E)
+- Biome (lint + format), pnpm
 
----
+## ARCHITECTURE RULES
 
-## Tech Stack
+### Server vs Client Components
+- Pages are Server Components (fetch data, check permissions)
+- Interactive UI is Client Components ("use client")
+- Push "use client" to leaf components — never at layout level
+- Pass server data as props to client components
 
-```
-Framework:     Next.js 15 (App Router, Server Components by default)
-Language:      TypeScript — strict mode, no `any`, ever
-Styling:       Tailwind CSS 4 with @theme tokens
-Components:    shadcn/ui primitives (Nova style)
-Animation:     Framer Motion
-ORM:           Drizzle ORM
-Database:      PostgreSQL (Supabase for early stage)
-Auth:          Auth.js (NextAuth v5) — database sessions, NOT JWT
-Cache/Queue:   Redis (Upstash) + BullMQ
-AI:            Anthropic SDK (claude-sonnet-4-20250514)
-Validation:    Zod at every API boundary
-Package mgr:   pnpm
-Linting:       Biome (replaces ESLint + Prettier)
-Deployment:    Vercel
-```
+### Server Actions
+- Every mutation goes through a Server Action (in src/actions/)
+- Every Server Action is wrapped in `withPermission` guard (src/lib/permissions/guard.ts)
+- Every Server Action validates input with Zod
+- Every write operation creates an audit log entry
+- Return `{ success, error, fieldErrors }` — never throw to client
 
----
+### Permissions
+- Two systems: Tier (Admin/Member/Viewer) + Preset (Researcher/PM/Member)
+- Preset resolution: project_preset → workspace_preset → global_preset → NO_ACCESS
+- Null preset = blocked UI, not silent read-only
+- Admin bypasses all preset checks
+- Viewer = read-only everything
+- Client-side permission checks (usePermissions hook) are for UI only — server always re-verifies
 
-## Project Structure
+### Database
+- Drizzle ORM — never raw SQL strings
+- UUID primary keys (defaultRandom)
+- All timestamps use `timestamptz`
+- Enums as check constraints, NOT PostgreSQL ENUM type
+- Relations with `relationName` when a table has multiple FKs to the same target table
+- Soft delete where specified (removedAt, archivedAt)
 
-```
-src/
-├── app/
-│   ├── (auth)/          # Public auth routes — no sidebar
-│   │   ├── login/
-│   │   ├── signup/
-│   │   └── onboarding/  # 4-step wizard (workspace → project → invite)
-│   ├── (app)/                              # Protected app routes — with sidebar
-│   │   ├── dashboard/                      # Home — activity, phase progress, quick actions
-│   │   ├── [workspaceId]/
-│   │   │   ├── [projectId]/
-│   │   │   │   ├── vault/                  # Phase 01 — research notes
-│   │   │   │   ├── engine/                 # Phase 02 — insight cards
-│   │   │   │   ├── map/                    # Phase 03 — opportunity map canvas
-│   │   │   │   ├── stack/                  # Phase 04 — priority stack
-│   │   │   │   └── team/                   # Phase 05 — team management
-│   │   │   └── settings/                   # Workspace + user settings
-│   ├── api/
-│   │   ├── auth/        # Auth.js endpoints
-│   │   └── webhooks/    # Jira, Linear, Slack inbound webhooks
-│   └── share/           # Public stakeholder share view (no auth required)
-│
-├── actions/             # Server Actions — one file per domain
-│   ├── vault.ts
-│   ├── engine.ts
-│   ├── map.ts
-│   ├── stack.ts
-│   └── team.ts
-│
-├── components/
-│   ├── ui/              # shadcn/ui re-exports (do not edit directly)
-│   ├── layouts/         # AppLayout, AuthLayout, ShareLayout
-│   ├── shared/          # Cross-phase: Sidebar, Header, CommandPalette, etc.
-│   ├── vault/           # NoteCard, NoteWizard, QuoteExtractor, etc.
-│   ├── engine/          # InsightCard, AISuggestionCard, ConfidenceRing, etc.
-│   ├── map/             # MapCanvas, InsightNode, ProblemNode, SolutionNode, etc.
-│   ├── stack/           # PriorityRow, RiceScore, StackHeader, LockBanner, etc.
-│   └── team/            # MemberList, InviteModal, ShareModal, etc.
-│
-├── lib/
-│   ├── db/
-│   │   ├── index.ts     # Drizzle client singleton
-│   │   ├── schema/      # One file per table group
-│   │   ├── migrations/  # Drizzle migration files (auto-generated)
-│   │   └── queries/     # Reusable typed query functions
-│   ├── auth/
-│   │   ├── config.ts    # Auth.js configuration
-│   │   └── permissions.ts # resolvePreset() + can() helper
-│   ├── ai/
-│   │   ├── client.ts    # Anthropic SDK singleton
-│   │   └── prompts/     # Prompt templates per AI feature
-│   ├── integrations/
-│   │   ├── jira/
-│   │   ├── linear/
-│   │   ├── slack/
-│   │   └── figma/
-│   ├── validations/     # Zod schemas — one file per domain
-│   └── utils/           # Pure utility functions
-│
-├── hooks/               # Custom React hooks (client-side only)
-├── types/               # Shared TypeScript types + Drizzle inferred types
-└── styles/
-    ├── globals.css      # Tailwind base + @theme tokens
-    └── map-nodes.css    # Map node visual state tokens (see BLOCKERS.md)
-```
+### Design System
+- ALL colors via CSS variables from src/styles/tokens.css
+- ZERO hardcoded hex values in components
+- Dark theme is primary, light is full-quality alternative
+- Fonts: Lora (display), DM Sans (body), JetBrains Mono (labels/code)
+- Phase colors: Vault=gold, Engine=blue, Map=coral, Stack=green, Team=purple
 
----
+### Motion
+- Framer Motion spring physics — no linear easing
+- Entrance/exit asymmetry: exits are 80% of entrance duration
+- One thing moves at a time
+- prefers-reduced-motion: replace transforms with opacity-only, keep color changes
 
-## Permissions System
+### Focus & Accessibility
+- 2px solid outline with 2px offset on all interactive elements
+- Focus color: var(--color-border-focus)
+- Non-negotiable on dark backgrounds
 
-**Two separate concepts — never conflate them:**
+## KEY REFERENCE FILES
 
-### Permission Tier (what you can DO)
-Stored on `workspace_members.tier`:
-- `admin` — full access including billing, invites, workspace deletion
-- `member` — create/edit own content, cannot manage workspace
-- `viewer` — read-only everywhere, no comments
+- `docs/discova-phase1-implementation-prompts-v2.md` — Master plan with all 36 prompt specs
+- `docs/discova-prd.docx` — Full PRD
+- `docs/discova-prebuild-blockers.docx` — Permission model + Map node visual states
+- `docs/discova-design-system-theming-prompt.md` — Complete token values
+- `src/styles/tokens.css` — Design tokens (dark + light)
+- `src/styles/map-nodes.css` — Map node state tokens
+- `src/lib/permissions/` — Permission engine (types, resolution, guard)
+- `src/lib/constants/phases.ts` — Phase configuration
 
-### Functional Preset (which phases you can EDIT)
-Stored on `users.global_preset`, overridden by `workspace_members.workspace_preset`,
-further overridden by `project_members.project_preset`.
+## HOW TO IMPLEMENT A NEW PROMPT
 
-Preset resolution order (project > workspace > global):
+When I say "implement Prompt N", follow this process:
+
+1. **Read the spec** in `docs/discova-phase1-implementation-prompts-v2.md` for that prompt number
+2. **Read existing code** — check what files already exist in the relevant directories
+3. **Implement in chunks** — break the prompt into 2-4 smaller tasks:
+   - Chunk A: Data layer (schema changes, queries, Server Actions)
+   - Chunk B: Core UI component(s)
+   - Chunk C: Wiring (page, routing, integration with existing components)
+   - Chunk D: Tests
+4. **After each chunk**: verify with `pnpm typecheck` — fix before moving on
+5. **Never rewrite files that are working** — only add to or modify specific sections
+
+## COMMON PATTERNS
+
+### Server Action pattern
 ```typescript
-// Always use this function — never resolve preset inline
-import { resolvePreset } from "@/lib/auth/permissions"
-const preset = await resolvePreset(userId, projectId, workspaceId)
-// returns: "researcher" | "pm" | "member" | "no_access"
+export const myAction = withPermission(
+  { phase: "vault", action: "write" },
+  async (ctx, args: { workspaceId: string; projectId: string; /* ... */ }) => {
+    // 1. Validate with Zod
+    // 2. Verify ownership (anti-IDOR)
+    // 3. Database operation
+    // 4. Audit log
+    // 5. revalidatePath
+    // 6. Return { success: true, data }
+  }
+);
 ```
 
-**Phase access by preset:**
-| Preset     | Vault | Engine | Map | Stack | Team |
-|------------|-------|--------|-----|-------|------|
-| researcher | R/W   | R/W    | R/W | Read  | Read |
-| pm         | Read  | Read   | R/W | R/W   | R/W  |
-| member     | R/W   | R/W    | R/W | R/W   | R/W  |
-| no_access  | —     | —      | —   | —     | —    |
-
-**Null preset = NO_ACCESS. Never silently default to member.**
-
----
-
-## Database Schema (Drizzle)
-
-Key tables and their relationships:
-
-```
-users
-  └── workspace_members (tier + workspace_preset)
-        └── workspaces
-              └── projects
-                    └── project_members (project_preset overrides)
-                    └── research_notes → quote_objects
-                    └── insight_cards → insight_evidence_links
-                    └── map_problems → map_solutions
-                    └── stack_items (RICE scores, lock snapshots)
-```
-
-Full schema in `src/lib/db/schema/`. Import types via:
+### Page pattern
 ```typescript
-import type { User, Workspace, ResearchNote } from "@/types/db"
-```
-
----
-
-## Map Node Visual States
-
-The Map canvas has 5 node states. These are defined as CSS tokens in
-`src/styles/map-nodes.css`. Never hardcode node colours inline.
-
-```
-connected      → solid border, full phase-colour opacity
-unconnected    → dashed border, 40% phase-colour opacity, 70% node opacity
-orphan-warning → dashed amber border (Solution nodes only)
-selected       → 2px solid border, glow ring, connection handles visible
-hover          → scale(1.02), 120ms ease-out, border brightened
-```
-
-See `docs/map-node-tokens.md` for full token reference.
-
----
-
-## AI Integration
-
-- Model: `claude-sonnet-4-20250514` (always use this — never hardcode a different model)
-- AI is an **accelerator**, not the core differentiator. Structure is the moat.
-- All AI calls go through `src/lib/ai/client.ts` — never instantiate Anthropic SDK directly in components
-- Heavy AI jobs (batch synthesis, export generation) go in BullMQ workers, not Server Actions
-- Rate limit AI endpoints with Upstash ratelimit
-
-```typescript
-// Always use the singleton
-import { anthropic } from "@/lib/ai/client"
-```
-
----
-
-## Server Actions Rules
-
-Every Server Action must follow this pattern:
-
-```typescript
-"use server"
-import { z } from "zod"
-import { auth } from "@/lib/auth/config"
-import { resolvePreset, can } from "@/lib/auth/permissions"
-
-export async function createNote(input: unknown) {
-  // 1. Auth check first
-  const session = await auth()
-  if (!session?.user) return { error: "Unauthorized" }
-
-  // 2. Input validation
-  const parsed = CreateNoteSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.flatten() }
-
-  // 3. Permission check
-  const preset = await resolvePreset(session.user.id, parsed.data.projectId, workspaceId)
-  if (!can(preset, "vault", "write")) return { error: "Forbidden" }
-
-  // 4. Business logic + DB
-  // ...
-
-  // 5. Revalidate
-  revalidatePath(`/vault`)
-  return { data: result }
+// Server Component
+export default async function MyPage({ params }) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  const { workspaceId, projectId } = await params;
+  
+  const permission = await checkPermission({ ... });
+  if (!permission.allowed) redirect(`/${workspaceId}`);
+  
+  const data = await fetchData(projectId);
+  return <ClientComponent data={data} canEdit={writePermission.allowed} />;
 }
 ```
 
----
-
-## Key Design Decisions (Reference the PRD for full context)
-
-- **Route structure** — `(app)/[workspaceId]/[projectId]/vault/` (dynamic segments). Workspace and project are always in the URL — every view is bookmarkable and shareable. Context is never resolved from session alone.
-- **Notes are scoped to one project** — no cross-project research in MVP
-- **Orphan solutions** are soft-warned, not hard-blocked
-- **Stack scores are live** — lock is triggered by Share action, not manually
-- **Stakeholder share links** are passcode-protected, no login required
-- **Demo workspace** ships pre-loaded; real workspace lives alongside it
-- **Titles are not required** on research notes — fallback to first 80 chars of raw notes
-
----
-
-## Environment Variables
-
-See `.env.example` for the full list. Required to run locally:
+### Component visual spec pattern
 ```
-DATABASE_URL
-NEXTAUTH_SECRET
-NEXTAUTH_URL
-ANTHROPIC_API_KEY
-UPSTASH_REDIS_REST_URL
-UPSTASH_REDIS_REST_TOKEN
+Background: var(--color-bg-surface)
+Border: 1px solid var(--color-border-subtle)
+Border-radius: var(--radius-lg)
+Text: font-family var(--font-body), color var(--color-text-primary)
+Labels: font-family var(--font-mono), var(--text-xs), var(--color-text-muted), uppercase, tracking-wide
 ```
 
----
+## CURRENT STATUS
 
-## Commands
+Prompts 01–19 implemented. Layers 0–3 (Foundation, Shell, Vault, Engine) built.
+Next: Layer 4 (Map) — Prompts 20–23.
 
-```bash
-pnpm dev              # Start dev server
-pnpm build            # Production build
-pnpm lint             # Biome lint + format check
-pnpm lint:fix         # Auto-fix lint issues
-pnpm typecheck        # tsc --noEmit
-pnpm db:generate      # Generate Drizzle migrations
-pnpm db:migrate       # Run pending migrations
-pnpm db:studio        # Open Drizzle Studio
-pnpm test             # Run Vitest
-```
+## CHUNKING STRATEGY FOR REMAINING PROMPTS
 
----
+When I ask you to implement a prompt, break it down as follows:
 
-## What NOT to Do
+### Prompt 20 (Map Canvas) — 3 chunks:
+- A: Data layer (types, constants, layout engine, queries)
+- B: Canvas + node component (pan/zoom, 5 visual states)
+- C: Connection lines + toolbar + page wiring
 
-- Never add `"use client"` to layout or page files — push it to leaf components
-- Never use `SELECT *` — always specify columns in Drizzle queries
-- Never put secrets in `NEXT_PUBLIC_*` env vars
-- Never resolve permissions inline — always use `resolvePreset()` + `can()`
-- Never call Anthropic SDK directly in components — use `src/lib/ai/client.ts`
-- Never use `console.log` — use `pino` logger
-- Never default null preset to member access — null = NO_ACCESS
+### Prompt 21 (Node Creation + Connections) — 3 chunks:
+- A: Server Actions (create node, create connection, delete)
+- B: UI (slide-over forms, unplaced insights sidebar)
+- C: Drag-to-connect interaction + connection validation
 
----
+### Prompt 22 (Canvas Interactions) — 4 chunks:
+- A: Node dragging + position persistence
+- B: Search overlay (⌘K)
+- C: Collapse/expand groups
+- D: Mini-map
 
-## Docs
+### Prompt 23 (Map QA) — 1 chunk (E2E tests + audit)
 
-- `docs/prd.md` — Full product requirements document
-- `docs/permissions-schema.md` — Complete permissions data model
-- `docs/map-node-tokens.md` — Map node visual state token reference
-- `docs/integrations.md` — Jira, Linear, Slack, Figma integration specs
+### Prompt 24 (RICE Scoring + Stack Table) — 3 chunks:
+- A: RICE calculation engine (pure function + Server Actions)
+- B: Stack table view with editable cells
+- C: Tier assignment + sorting
+
+### Prompt 25 (Lock + Snapshot) — 2 chunks:
+- A: Lock mechanism + snapshot creation
+- B: Locked view styling + unlock flow
+
+### Prompt 26 (Stakeholder Share) — 3 chunks:
+- A: Passcode gate + share token generation
+- B: Stakeholder view (working + presentation modes)
+- C: PDF export
+
+### Prompt 27 (Stack QA) — 1 chunk
+
+### Prompt 28 (Invites + Members) — 3 chunks:
+- A: Invite Server Actions + email
+- B: Invite modal + member table
+- C: Anonymization on removal
+
+### Prompt 29 (Comments + Presence) — 2 chunks:
+- A: Comments system (CRUD + threading)
+- B: Presence indicators (polling)
+
+### Prompt 30 (Email Notifications) — 2 chunks:
+- A: Email templates (React Email)
+- B: Notification triggers + delivery
+
+### Prompts 31–34 (Integrations) — 1 chunk each:
+- 31: Jira
+- 32: Linear
+- 33: Slack
+- 34: Figma
+
+### Prompt 35 (Onboarding + Demo) — 2 chunks:
+- A: 4-step onboarding wizard
+- B: Demo workspace seeding + empty states
+
+### Prompt 36 (Final QA) — 1 chunk
