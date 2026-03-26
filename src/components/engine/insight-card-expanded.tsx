@@ -87,6 +87,13 @@ export function InsightCardExpanded({
 					background: "var(--color-bg-surface)",
 					borderLeft: "1px solid var(--color-border-subtle)",
 					boxShadow: "var(--shadow-lg)",
+					margin: 0,
+					padding: 0,
+					maxWidth: "none",
+					maxHeight: "none",
+					inset: "auto",
+					right: 0,
+					top: 0,
 				}}
 			>
 				{/* Header */}
