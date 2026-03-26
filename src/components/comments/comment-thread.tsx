@@ -302,7 +302,7 @@ function CommentBubble({
 	const [editing, setEditing] = useState(false);
 	const [editText, setEditText] = useState(content);
 	const [isPending, startTransition] = useTransition();
-	const wasEdited = updatedAt.getTime() - createdAt.getTime() > 1000;
+	const wasEdited = new Date(updatedAt).getTime() - new Date(createdAt).getTime() > 1000;
 
 	function handleSaveEdit() {
 		if (!editText.trim()) return;
@@ -458,9 +458,10 @@ function CommentBubble({
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(date: Date | string): string {
 	const now = Date.now();
-	const diff = now - date.getTime();
+	const d = typeof date === "string" ? new Date(date) : date;
+	const diff = now - d.getTime();
 	const minutes = Math.floor(diff / 60000);
 	if (minutes < 1) return "just now";
 	if (minutes < 60) return `${minutes}m ago`;
@@ -468,5 +469,5 @@ function formatRelativeTime(date: Date): string {
 	if (hours < 24) return `${hours}h ago`;
 	const days = Math.floor(hours / 24);
 	if (days < 7) return `${days}d ago`;
-	return date.toLocaleDateString();
+	return d.toLocaleDateString();
 }

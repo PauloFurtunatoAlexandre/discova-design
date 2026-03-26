@@ -75,9 +75,9 @@ export function StackPageClient({
 			case "label_desc":
 				return b.solutionLabel.localeCompare(a.solutionLabel);
 			case "newest":
-				return b.createdAt.getTime() - a.createdAt.getTime();
+				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 			case "oldest":
-				return a.createdAt.getTime() - b.createdAt.getTime();
+				return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
 			default:
 				return 0;
 		}
