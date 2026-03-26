@@ -13,6 +13,10 @@ interface MapNodeProps {
 	onDeselect: () => void;
 	canEdit: boolean;
 	onContextMenu?: (e: React.MouseEvent) => void;
+	onDragStart?: (e: React.MouseEvent, nodeId: string, x: number, y: number) => void;
+	/** Override position from drag (optimistic) */
+	dragPosition?: { x: number; y: number } | undefined;
+	isCollapsed?: boolean;
 }
 
 const ACCENT_RGB: Record<NodeType, string> = {
@@ -94,6 +98,9 @@ export function MapNode({
 	onDeselect,
 	canEdit,
 	onContextMenu,
+	onDragStart,
+	dragPosition,
+	isCollapsed: isCollapsedProp,
 }: MapNodeProps) {
 	const [isHovered, setIsHovered] = useState(false);
 
@@ -102,6 +109,10 @@ export function MapNode({
 	const styles = getNodeStyles(node.type, node.baseState, overlay);
 	const colors = NODE_COLORS[node.type];
 
+	const displayX = dragPosition?.x ?? node.positionX;
+	const displayY = dragPosition?.y ?? node.positionY;
+	const collapsed = isCollapsedProp ?? node.isCollapsed;
+
 	function handleClick(e: React.MouseEvent) {
 		e.stopPropagation();
 		if (isSelected) {
@@ -109,6 +120,15 @@ export function MapNode({
 		} else {
 			onSelect(node.id);
 		}
+	}
+
+	function handleMouseDown(e: React.MouseEvent) {
+		// Only drag on left button + canEdit + not on a handle
+		if (e.button !== 0 || !canEdit || !onDragStart) return;
+		const target = e.target as HTMLElement;
+		if (target.closest("[data-handle]")) return;
+
+		onDragStart(e, node.id, displayX, displayY);
 	}
 
 	return (
@@ -122,11 +142,12 @@ export function MapNode({
 			aria-selected={isSelected}
 			style={{
 				...styles,
-				left: node.positionX,
-				top: node.positionY,
+				left: displayX,
+				top: displayY,
 				textAlign: "left",
 			}}
 			onClick={handleClick}
+			onMouseDown={handleMouseDown}
 			onContextMenu={onContextMenu}
 			onKeyDown={(e) => {
 				if (e.key === "Escape") onDeselect();
@@ -161,8 +182,8 @@ export function MapNode({
 				</span>
 			</div>
 
-			{/* Description preview */}
-			{node.description && (
+			{/* Description preview (hidden when collapsed) */}
+			{!collapsed && node.description && (
 				<p
 					className="mt-1 pl-4"
 					style={{
@@ -181,7 +202,7 @@ export function MapNode({
 			)}
 
 			{/* Unlinked micro-label */}
-			{node.baseState === "unconnected" && (
+			{!collapsed && node.baseState === "unconnected" && (
 				<span
 					className="mt-2 block"
 					style={{

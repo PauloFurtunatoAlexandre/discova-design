@@ -11,12 +11,15 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { CreateNodeSlideover } from "./create-node-slideover";
 import { MapConnectionLine } from "./map-connection-line";
 import { MapFab } from "./map-fab";
+import { MapMinimap } from "./map-minimap";
 import { MapNode } from "./map-node";
+import { MapSearchOverlay } from "./map-search-overlay";
 import { MapToolbar } from "./map-toolbar";
 import { NodeContextMenu } from "./node-context-menu";
 import { UnplacedInsightsPanel } from "./unplaced-insights-panel";
 import { useCanvas } from "./use-canvas";
 import { useDragConnect } from "./use-drag-connect";
+import { useNodeDrag } from "./use-node-drag";
 
 interface MapCanvasProps {
 	mapData: MapData;
@@ -39,6 +42,8 @@ export function MapCanvas({
 	const [slideoverType, setSlideoverType] = useState<"problem" | "solution" | null>(null);
 	const [showInsightsPanel, setShowInsightsPanel] = useState(false);
 	const [contextMenuNodeId, setContextMenuNodeId] = useState<string | null>(null);
+	const [showSearch, setShowSearch] = useState(false);
+	const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
 	const [, startTransition] = useTransition();
 
 	const {
@@ -55,6 +60,7 @@ export function MapCanvas({
 		resetView,
 	} = useCanvas();
 
+	// ── Connection drag ────────────────────────────────────────────────
 	const handleConnect = useCallback(
 		(sourceNodeId: string, targetNodeId: string) => {
 			startTransition(async () => {
@@ -72,26 +78,45 @@ export function MapCanvas({
 	const { dragState, handleDragMouseDown, handleDragMouseMove, handleDragMouseUp, cancelDrag } =
 		useDragConnect(mapData.nodes, pan, zoom, handleConnect);
 
+	// ── Node drag ──────────────────────────────────────────────────────
+	const {
+		nodeDragState,
+		dragPositions,
+		startNodeDrag,
+		handleNodeDragMove,
+		endNodeDrag,
+		cancelNodeDrag,
+	} = useNodeDrag(zoom, pan, workspaceId, projectId);
+
 	// Build a node lookup for connection rendering
 	const nodeMap = new Map<string, MapNodeData>();
 	for (const node of mapData.nodes) {
 		nodeMap.set(node.id, node);
 	}
 
-	// Deselect on Escape
+	// ── Keyboard shortcuts ─────────────────────────────────────────────
 	useEffect(() => {
 		function handleKey(e: KeyboardEvent) {
+			// Escape: deselect / close overlays
 			if (e.key === "Escape") {
 				setSelectedNodeId(null);
 				setContextMenuNodeId(null);
+				setShowSearch(false);
 				cancelDrag();
+				cancelNodeDrag();
+			}
+
+			// ⌘K / Ctrl+K: search
+			if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+				e.preventDefault();
+				setShowSearch((prev) => !prev);
 			}
 		}
 		document.addEventListener("keydown", handleKey);
 		return () => document.removeEventListener("keydown", handleKey);
-	}, [cancelDrag]);
+	}, [cancelDrag, cancelNodeDrag]);
 
-	// Click canvas background → deselect
+	// ── Canvas mouse handlers ──────────────────────────────────────────
 	const handleCanvasClick = useCallback(
 		(e: React.MouseEvent) => {
 			if ((e.target as HTMLElement).dataset.canvasBackground !== undefined) {
@@ -105,24 +130,34 @@ export function MapCanvas({
 
 	const handleCanvasMouseMove = useCallback(
 		(e: React.MouseEvent) => {
-			if (dragState.isDragging) {
+			if (nodeDragState.isDragging) {
+				handleNodeDragMove(e);
+			} else if (dragState.isDragging) {
 				handleDragMouseMove(e);
 			} else {
 				handleMouseMove(e);
 			}
 		},
-		[dragState.isDragging, handleDragMouseMove, handleMouseMove],
+		[
+			nodeDragState.isDragging,
+			dragState.isDragging,
+			handleNodeDragMove,
+			handleDragMouseMove,
+			handleMouseMove,
+		],
 	);
 
 	const handleCanvasMouseUp = useCallback(
 		(e: React.MouseEvent) => {
-			if (dragState.isDragging) {
+			if (nodeDragState.isDragging) {
+				endNodeDrag();
+			} else if (dragState.isDragging) {
 				handleDragMouseUp(e);
 			} else {
 				handleMouseUp();
 			}
 		},
-		[dragState.isDragging, handleDragMouseUp, handleMouseUp],
+		[nodeDragState.isDragging, dragState.isDragging, endNodeDrag, handleDragMouseUp, handleMouseUp],
 	);
 
 	const handleFitToView = useCallback(() => {
@@ -132,7 +167,7 @@ export function MapCanvas({
 		fitToView(bounds, clientWidth, clientHeight);
 	}, [mapData.nodes, fitToView]);
 
-	// Right-click context menu on nodes
+	// ── Context menu ──────────────────────────────────────────────────
 	const handleNodeContextMenu = useCallback(
 		(e: React.MouseEvent, nodeId: string) => {
 			if (!canEdit) return;
@@ -143,9 +178,42 @@ export function MapCanvas({
 		[canEdit],
 	);
 
+	// ── Collapse toggle ───────────────────────────────────────────────
+	const toggleCollapse = useCallback((nodeId: string) => {
+		setCollapsedNodes((prev) => {
+			const next = new Set(prev);
+			if (next.has(nodeId)) {
+				next.delete(nodeId);
+			} else {
+				next.add(nodeId);
+			}
+			return next;
+		});
+	}, []);
+
+	// ── Search → select + center ──────────────────────────────────────
+	const handleSearchSelect = useCallback(
+		(nodeId: string) => {
+			setSelectedNodeId(nodeId);
+			const node = nodeMap.get(nodeId);
+			if (node && containerRef.current) {
+				const { clientWidth, clientHeight } = containerRef.current;
+				// TODO: pan to center the node in view (nice-to-have)
+			}
+		},
+		[nodeMap],
+	);
+
 	const dotSize = DOT_GRID_SIZE * zoom;
-	const selectedNode = selectedNodeId ? nodeMap.get(selectedNodeId) : null;
 	const contextMenuNode = contextMenuNodeId ? nodeMap.get(contextMenuNodeId) : null;
+	const containerWidth = containerRef.current?.clientWidth ?? 0;
+	const containerHeight = containerRef.current?.clientHeight ?? 0;
+
+	// ── Cursor logic ──────────────────────────────────────────────────
+	let cursor = "default";
+	if (nodeDragState.isDragging) cursor = "grabbing";
+	else if (dragState.isDragging) cursor = "crosshair";
+	else if (isPanning) cursor = "grabbing";
 
 	// Empty state
 	if (mapData.nodes.length === 0) {
@@ -208,7 +276,6 @@ export function MapCanvas({
 					</button>
 				</div>
 
-				{/* FAB even on empty state for creating problems/solutions */}
 				{canEdit && (
 					<>
 						<MapFab
@@ -225,7 +292,6 @@ export function MapCanvas({
 					</>
 				)}
 
-				{/* Unplaced insights */}
 				{canEdit && unplacedInsights.length > 0 && (
 					<UnplacedInsightsPanel
 						insights={unplacedInsights}
@@ -249,20 +315,21 @@ export function MapCanvas({
 					"radial-gradient(circle, var(--color-canvas-dot) 1.5px, transparent 1.5px)",
 				backgroundSize: `${dotSize}px ${dotSize}px`,
 				backgroundPosition: `${pan.x % dotSize}px ${pan.y % dotSize}px`,
-				cursor: dragState.isDragging ? "crosshair" : isPanning ? "grabbing" : "default",
+				cursor,
 			}}
 			data-canvas-background
 			data-testid="map-canvas"
 			onWheel={handleWheel}
 			onMouseDown={(e) => {
 				handleDragMouseDown(e);
-				if (!dragState.isDragging) handleCanvasClick(e);
+				if (!dragState.isDragging && !nodeDragState.isDragging) handleCanvasClick(e);
 			}}
 			onMouseMove={handleCanvasMouseMove}
 			onMouseUp={handleCanvasMouseUp}
 			onMouseLeave={() => {
 				handleMouseUp();
 				cancelDrag();
+				endNodeDrag();
 			}}
 		>
 			{/* Transform layer */}
@@ -291,14 +358,24 @@ export function MapCanvas({
 						const targetNode = nodeMap.get(conn.targetNodeId);
 						if (!sourceNode || !targetNode) return null;
 
+						// Apply drag position overrides for connection rendering
+						const srcDrag = dragPositions[conn.sourceNodeId];
+						const tgtDrag = dragPositions[conn.targetNodeId];
+						const adjustedSource = srcDrag
+							? { ...sourceNode, positionX: srcDrag.x, positionY: srcDrag.y }
+							: sourceNode;
+						const adjustedTarget = tgtDrag
+							? { ...targetNode, positionX: tgtDrag.x, positionY: tgtDrag.y }
+							: targetNode;
+
 						const isActive =
 							selectedNodeId === conn.sourceNodeId || selectedNodeId === conn.targetNodeId;
 
 						return (
 							<MapConnectionLine
 								key={conn.id}
-								sourceNode={sourceNode}
-								targetNode={targetNode}
+								sourceNode={adjustedSource}
+								targetNode={adjustedTarget}
 								isActive={isActive}
 							/>
 						);
@@ -315,6 +392,9 @@ export function MapCanvas({
 						onDeselect={() => setSelectedNodeId(null)}
 						canEdit={canEdit}
 						onContextMenu={(e) => handleNodeContextMenu(e, node.id)}
+						onDragStart={startNodeDrag}
+						dragPosition={dragPositions[node.id]}
+						isCollapsed={collapsedNodes.has(node.id)}
 					/>
 				))}
 			</div>
@@ -370,6 +450,15 @@ export function MapCanvas({
 				onResetView={resetView}
 			/>
 
+			{/* Mini-map */}
+			<MapMinimap
+				nodes={mapData.nodes}
+				pan={pan}
+				zoom={zoom}
+				containerWidth={containerWidth}
+				containerHeight={containerHeight}
+			/>
+
 			{/* Unplaced insights panel */}
 			{canEdit && unplacedInsights.length > 0 && (
 				<UnplacedInsightsPanel
@@ -396,6 +485,15 @@ export function MapCanvas({
 						projectId={projectId}
 					/>
 				</>
+			)}
+
+			{/* Search overlay (⌘K) */}
+			{showSearch && (
+				<MapSearchOverlay
+					nodes={mapData.nodes}
+					onSelectNode={handleSearchSelect}
+					onClose={() => setShowSearch(false)}
+				/>
 			)}
 		</div>
 	);
