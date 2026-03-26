@@ -1,8 +1,15 @@
-export default function SharePage() {
-	return (
-		<div className="p-8">
-			<h1 className="text-2xl font-semibold">Shared View</h1>
-			<p className="text-gray-500 mt-2">Stakeholder share view — built in Prompt 26.</p>
-		</div>
-	);
+import { SharePageClient } from "@/components/share/share-page";
+import { getSnapshotByToken } from "@/lib/queries/stack";
+
+interface SharePageProps {
+	params: Promise<{ token: string }>;
+}
+
+export default async function SharePage({ params }: SharePageProps) {
+	const { token } = await params;
+
+	// Check if token exists (don't leak snapshot data before passcode check)
+	const snapshot = await getSnapshotByToken(token);
+
+	return <SharePageClient token={token} exists={snapshot !== null} />;
 }
