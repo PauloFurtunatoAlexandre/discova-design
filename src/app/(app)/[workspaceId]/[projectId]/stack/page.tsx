@@ -1,7 +1,12 @@
 import { StackPageClient } from "@/components/stack/stack-page";
 import { auth } from "@/lib/auth/config";
 import { checkPermission } from "@/lib/permissions";
-import { getStackItems, getStackStats, syncSolutionNodesToStack } from "@/lib/queries/stack";
+import {
+	getActiveSnapshot,
+	getStackItems,
+	getStackStats,
+	syncSolutionNodesToStack,
+} from "@/lib/queries/stack";
 import { redirect } from "next/navigation";
 
 interface StackPageProps {
@@ -45,11 +50,23 @@ export default async function StackPage({ params }: StackPageProps) {
 	// Auto-sync solution nodes on page load (idempotent)
 	await syncSolutionNodesToStack(projectId);
 
-	// Fetch stack items + stats in parallel
-	const [items, stats] = await Promise.all([
+	// Fetch stack items, stats, and active snapshot in parallel
+	const [items, stats, activeSnapshot] = await Promise.all([
 		getStackItems(projectId, "rice_desc"),
 		getStackStats(projectId),
+		getActiveSnapshot(projectId),
 	]);
+
+	// Determine if current user can unlock (locker or admin)
+	const isLockerOrAdmin =
+		activeSnapshot?.lockedBy === session.user.id ||
+		(await checkPermission({
+			userId: session.user.id,
+			workspaceId,
+			projectId,
+			phase: "stack",
+			action: "write",
+		}).then((p) => p.allowed));
 
 	return (
 		<StackPageClient
@@ -58,6 +75,8 @@ export default async function StackPage({ params }: StackPageProps) {
 			workspaceId={workspaceId}
 			projectId={projectId}
 			canEdit={writePerm.allowed}
+			activeSnapshot={activeSnapshot}
+			isLockerOrAdmin={isLockerOrAdmin}
 		/>
 	);
 }

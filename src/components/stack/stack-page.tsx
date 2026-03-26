@@ -1,10 +1,12 @@
 "use client";
 
 import { syncStackItemsAction } from "@/actions/stack";
+import { LockStackModal, ShareLinkPanel } from "@/components/stack/lock-stack-modal";
+import { LockedBanner } from "@/components/stack/locked-banner";
 import { StackTable } from "@/components/stack/stack-table";
-import type { StackItemWithNode, StackSortBy } from "@/lib/queries/stack";
-import { motion } from "framer-motion";
-import { BarChart3, RefreshCw } from "lucide-react";
+import type { ActiveSnapshot, StackItemWithNode, StackSortBy } from "@/lib/queries/stack";
+import { AnimatePresence, motion } from "framer-motion";
+import { BarChart3, Lock, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";
 
@@ -14,12 +16,27 @@ interface StackPageProps {
 	workspaceId: string;
 	projectId: string;
 	canEdit: boolean;
+	activeSnapshot: ActiveSnapshot | null;
+	isLockerOrAdmin: boolean;
 }
 
-export function StackPageClient({ items, stats, workspaceId, projectId, canEdit }: StackPageProps) {
+export function StackPageClient({
+	items,
+	stats,
+	workspaceId,
+	projectId,
+	canEdit,
+	activeSnapshot,
+	isLockerOrAdmin,
+}: StackPageProps) {
 	const router = useRouter();
 	const [isSyncing, startSync] = useTransition();
 	const [sortBy, setSortBy] = useState<StackSortBy>("rice_desc");
+	const [showLockModal, setShowLockModal] = useState(false);
+	const [shareToken, setShareToken] = useState<string | null>(null);
+
+	const isLocked = activeSnapshot !== null;
+	const effectiveCanEdit = canEdit && !isLocked;
 
 	const handleSync = useCallback(() => {
 		startSync(async () => {
@@ -29,6 +46,15 @@ export function StackPageClient({ items, stats, workspaceId, projectId, canEdit 
 			}
 		});
 	}, [workspaceId, projectId, router]);
+
+	const handleLocked = useCallback(
+		(token: string) => {
+			setShowLockModal(false);
+			setShareToken(token);
+			router.refresh();
+		},
+		[router],
+	);
 
 	// Client-side sort (data already loaded)
 	const sortedItems = [...items].sort((a, b) => {
@@ -137,8 +163,8 @@ export function StackPageClient({ items, stats, workspaceId, projectId, canEdit 
 						<option value="oldest">Oldest</option>
 					</select>
 
-					{/* Sync button */}
-					{canEdit && (
+					{/* Sync button — only when unlocked */}
+					{effectiveCanEdit && (
 						<button
 							type="button"
 							onClick={handleSync}
@@ -168,8 +194,42 @@ export function StackPageClient({ items, stats, workspaceId, projectId, canEdit 
 							Sync
 						</button>
 					)}
+
+					{/* Lock button — only when unlocked and has items */}
+					{canEdit && !isLocked && items.length > 0 && (
+						<button
+							type="button"
+							onClick={() => setShowLockModal(true)}
+							style={{
+								display: "flex",
+								alignItems: "center",
+								gap: 6,
+								padding: "6px 12px",
+								fontFamily: "var(--font-body)",
+								fontSize: "var(--text-sm)",
+								background: "var(--color-accent-green)",
+								border: "none",
+								borderRadius: "var(--radius-md)",
+								color: "var(--color-bg-base)",
+								cursor: "pointer",
+							}}
+						>
+							<Lock size={14} />
+							Lock & Share
+						</button>
+					)}
 				</div>
 			</motion.div>
+
+			{/* Locked banner */}
+			{activeSnapshot && (
+				<LockedBanner
+					snapshot={activeSnapshot}
+					workspaceId={workspaceId}
+					projectId={projectId}
+					canUnlock={isLockerOrAdmin}
+				/>
+			)}
 
 			{/* Table */}
 			<motion.div
@@ -178,18 +238,38 @@ export function StackPageClient({ items, stats, workspaceId, projectId, canEdit 
 				transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.1 }}
 				style={{
 					background: "var(--color-bg-surface)",
-					border: "1px solid var(--color-border-default)",
+					border: `1px solid ${isLocked ? "var(--color-accent-green)" : "var(--color-border-default)"}`,
 					borderRadius: "var(--radius-lg)",
 					overflow: "hidden",
+					opacity: isLocked ? 0.85 : 1,
 				}}
 			>
 				<StackTable
 					items={sortedItems}
 					workspaceId={workspaceId}
 					projectId={projectId}
-					canEdit={canEdit}
+					canEdit={effectiveCanEdit}
 				/>
 			</motion.div>
+
+			{/* Lock modal */}
+			<AnimatePresence>
+				{showLockModal && (
+					<LockStackModal
+						workspaceId={workspaceId}
+						projectId={projectId}
+						onClose={() => setShowLockModal(false)}
+						onLocked={handleLocked}
+					/>
+				)}
+			</AnimatePresence>
+
+			{/* Share link panel */}
+			<AnimatePresence>
+				{shareToken && (
+					<ShareLinkPanel shareToken={shareToken} onClose={() => setShareToken(null)} />
+				)}
+			</AnimatePresence>
 
 			<style>{`
 				@keyframes spin {

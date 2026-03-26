@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { mapConnections, mapNodes, stackItems } from "@/lib/db/schema";
+import { mapConnections, mapNodes, stackItems, stackSnapshots } from "@/lib/db/schema";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -219,5 +219,83 @@ export async function getStackStats(projectId: string): Promise<{
 		totalItems: result?.totalItems ?? 0,
 		scoredItems: result?.scoredItems ?? 0,
 		tieredItems: result?.tieredItems ?? 0,
+	};
+}
+
+// ── Active snapshot (lock state) ──────────────────────────────────────────────
+
+export interface ActiveSnapshot {
+	id: string;
+	lockedBy: string;
+	lockedByName: string;
+	lockedAt: Date;
+	shareViewMode: "stakeholder" | "presentation";
+	shareToken: string;
+	createdAt: Date;
+}
+
+export async function getActiveSnapshot(projectId: string): Promise<ActiveSnapshot | null> {
+	const [row] = await db
+		.select({
+			id: stackSnapshots.id,
+			lockedBy: stackSnapshots.lockedBy,
+			lockedByName: sql<string>`(SELECT name FROM users WHERE users.id = ${stackSnapshots.lockedBy})`,
+			lockedAt: stackSnapshots.lockedAt,
+			shareViewMode: stackSnapshots.shareViewMode,
+			shareToken: stackSnapshots.shareToken,
+			createdAt: stackSnapshots.createdAt,
+		})
+		.from(stackSnapshots)
+		.where(eq(stackSnapshots.projectId, projectId))
+		.orderBy(desc(stackSnapshots.createdAt))
+		.limit(1);
+
+	if (!row) return null;
+
+	return {
+		id: row.id,
+		lockedBy: row.lockedBy,
+		lockedByName: row.lockedByName ?? "Unknown",
+		lockedAt: row.lockedAt,
+		shareViewMode: row.shareViewMode as ActiveSnapshot["shareViewMode"],
+		shareToken: row.shareToken,
+		createdAt: row.createdAt,
+	};
+}
+
+// ── Snapshot by share token ───────────────────────────────────────────────────
+
+export interface SnapshotWithData {
+	id: string;
+	projectId: string;
+	snapshotData: unknown;
+	shareViewMode: "stakeholder" | "presentation";
+	sharePasscodeHash: string;
+	lockedAt: Date;
+}
+
+export async function getSnapshotByToken(token: string): Promise<SnapshotWithData | null> {
+	const [row] = await db
+		.select({
+			id: stackSnapshots.id,
+			projectId: stackSnapshots.projectId,
+			snapshotData: stackSnapshots.snapshotData,
+			shareViewMode: stackSnapshots.shareViewMode,
+			sharePasscodeHash: stackSnapshots.sharePasscodeHash,
+			lockedAt: stackSnapshots.lockedAt,
+		})
+		.from(stackSnapshots)
+		.where(eq(stackSnapshots.shareToken, token))
+		.limit(1);
+
+	if (!row) return null;
+
+	return {
+		id: row.id,
+		projectId: row.projectId,
+		snapshotData: row.snapshotData,
+		shareViewMode: row.shareViewMode as SnapshotWithData["shareViewMode"],
+		sharePasscodeHash: row.sharePasscodeHash,
+		lockedAt: row.lockedAt,
 	};
 }

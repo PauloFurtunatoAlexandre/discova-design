@@ -26,3 +26,21 @@ export const syncStackItemsSchema = z.object({
 });
 
 export type SyncStackItemsInput = z.infer<typeof syncStackItemsSchema>;
+
+// ── Lock + Snapshot ──────────────────────────────────────────────────────────
+
+export const lockStackSchema = z.object({
+	passcode: z
+		.string()
+		.min(4, "Passcode must be at least 4 characters")
+		.max(64, "Passcode must be under 64 characters"),
+	viewMode: z.enum(["stakeholder", "presentation"]),
+});
+
+export type LockStackInput = z.infer<typeof lockStackSchema>;
+
+export const unlockStackSchema = z.object({
+	snapshotId: z.string().uuid(),
+});
+
+export type UnlockStackInput = z.infer<typeof unlockStackSchema>;
