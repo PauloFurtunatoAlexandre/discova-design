@@ -169,16 +169,46 @@ These are real bugs found during development. Every future implementation must c
 - Migrate all phase-scoped actions to `withPermission`
 - For workspace-level actions (projects, team, workspaces), create a `withWorkspaceAuth` wrapper that verifies membership + tier
 - For auth-level actions (signup, login), keep manual auth but add explicit Zod validation on all inputs
+- Specific gaps found:
+  - `src/actions/presence.ts` — `heartbeatAction` has NO workspace/project permission check (IDOR: reveals active users for any project)
+  - `src/actions/notifications.ts` — no workspace context validation on fetch/modify
+  - `src/actions/integrations.ts` — `getIntegrationsAction` doesn't verify user is workspace admin
+  - `src/actions/comments.ts` — uses custom `verifyMembership()` instead of centralized `checkPermission()`
 
-#### S2. Rate limiting on all public-facing endpoints
+#### S2. Fix integration token encryption (FAKE encryption)
+**Priority: CRITICAL**
+**File:** `src/lib/integrations/shared.ts` (lines 128-140)
+- `encryptToken()` uses Base64 encoding, NOT real encryption — tokens are essentially plaintext
+- Fallback key is hardcoded: `"dev-key-replace-in-production"` — if env var is missing, all tokens share one public key
+- **Fix:** Replace with AES-256-GCM using Node.js `crypto` module (32-byte key, random IV per token)
+- **Fix:** Fail loudly in production if `INTEGRATION_ENCRYPTION_KEY` is not set or < 32 chars
+- **Fix:** Move sensitive fields like `webhookUrl` out of plain `config` JSON column into encrypted storage
+
+#### S3. Fix OAuth state parameter (CSRF vulnerability)
+**Priority: CRITICAL**
+**Files:** All 4 integration callback routes (`src/app/api/integrations/{jira,linear,slack,figma}/callback/route.ts`)
+- OAuth `state` parameter is used directly as `workspaceId` with zero validation
+- Attacker can craft OAuth flow with `state=victim-workspace-id` — if victim completes, integration connects to wrong workspace
+- **Fix:** Generate cryptographically random state nonce server-side, store in short-lived session/cookie
+- **Fix:** On callback, validate state matches stored nonce AND verify user is a member of the target workspace
+
+#### S4. Missing authorization on Map Problems API
+**Priority: CRITICAL**
+**File:** `src/app/api/map/problems/route.ts` (lines 8-50)
+- GET route lists all problems for a project with NO permission check
+- Only validates that `projectId` query param exists
+- **Fix:** Add `checkPermission()` before querying, same as vault/quotes route pattern
+
+#### S5. Rate limiting on all public-facing endpoints
 **Priority: HIGH**
 **Files:** All `src/app/api/**/route.ts` (18 routes)
 - Only auth and engine/analyse have rate limiting currently
 - Add rate limiting to: all integration OAuth callbacks, vault API routes, permissions route, map problems route
 - Use existing `src/lib/auth/rate-limit.ts` pattern — extend to a shared utility
 - Consider IP + userId composite keys for authenticated routes
+- Note: current rate limiter is in-memory only (`Map<string, RateLimitEntry>`) — replace with Upstash before multi-instance deployment
 
-#### S3. Security headers in `next.config.ts`
+#### S6. Security headers in `next.config.ts`
 **Priority: HIGH**
 **File:** `next.config.ts`
 - Currently empty config (only Sentry wrapper)
@@ -186,7 +216,7 @@ These are real bugs found during development. Every future implementation must c
 - Add basic CSP: `default-src 'self'`, allow inline styles (needed for Framer Motion), allow Supabase/Sentry domains
 - Add `Strict-Transport-Security` for production
 
-#### S4. Input validation audit
+#### S7. Input validation audit
 **Priority: HIGH**
 **Files:** All actions and API routes
 - Verify every user-facing input is Zod-validated before database operations
@@ -194,17 +224,17 @@ These are real bugs found during development. Every future implementation must c
 - Add `.uuid()` validation on all ID parameters to prevent injection
 - Sanitize rich text content from Tiptap before storage
 
-#### S5. IDOR protection audit
+#### S8. IDOR protection audit
 **Priority: HIGH**
 - Every mutation that accepts `workspaceId` + `projectId` must verify the authenticated user is a member of that workspace AND the project belongs to that workspace
 - Create a reusable `verifyProjectOwnership(userId, workspaceId, projectId)` helper
 - Audit all existing actions for this pattern
 
-#### S6. Cookie and session security
+#### S9. Cookie and session security
 **Priority: MEDIUM**
 **File:** `src/lib/auth/config.ts`
+- **`allowDangerousEmailAccountLinking: true`** on Google provider — enables account takeover: attacker signs up via Google OAuth with victim's email and links to their existing account. Set to `false` and implement proper email verification flow
 - JWT strategy is used (required for credentials provider) — ensure `httpOnly`, `secure`, `sameSite: "lax"` are set
-- Review `allowDangerousEmailAccountLinking: true` on Google provider — document why it's needed or remove it
 - Add CSRF token rotation on session refresh
 
 ---
@@ -223,29 +253,38 @@ These are real bugs found during development. Every future implementation must c
   - `research_notes(projectId)` — vault page
   - `insight_cards(projectId)` — engine page
   - `map_nodes(projectId)` — map page
-  - `map_connections(projectId)` — map page
+  - `map_connections(projectId, sourceNodeId)`, `(projectId, targetNodeId)` — composites for map queries
   - `stack_items(projectId)` — stack page
   - `comments(targetType, targetId)` — comment threads
   - `audit_log(userId)`, `audit_log(workspaceId)` — audit queries
   - `notifications(userId, readAt)` — unread notification count
   - `tags(projectId)` — tag lookups
+  - `note_tags(noteId)`, `note_tags(tagId)` — tag filter joins
+  - `insight_evidence(quoteId)` — "insights linked to quote" lookups
+  - `insight_cards(projectId, createdBy)` — author filtering
 - Generate and run a migration after adding indexes
 
-#### P2. Query optimization (N+1 prevention)
+#### P2. Query optimization (specific hot paths)
 **Priority: HIGH**
 **Files:** `src/lib/queries/*.ts`
-- Audit all query files for sequential awaits that could be `Promise.all`
-- Check for N+1 patterns: fetching a list then looping to fetch related data
-- Use Drizzle `with` relations or explicit JOINs instead of multiple round-trips
+- **O(n²) connection counting** in `src/lib/queries/map.ts` (lines 46-48): `getMapData()` does `connectionRows.filter(c => c.sourceNodeId === node.id || c.targetNodeId === node.id).length` inside a loop over all nodes. Pre-compute a `Map<nodeId, count>` in a single pass instead.
+- **Stacked correlated EXISTS subqueries** in `src/lib/queries/vault-list.ts` (lines 137-147): Each tag filter adds a separate `EXISTS (SELECT 1 FROM note_tags...)`. With 5 tags = 5 correlated subqueries. Refactor to single JOIN with `GROUP BY ... HAVING COUNT(*) = tagCount`.
+- **Duplicated subquery in SELECT + ORDER BY** in `src/lib/queries/stack.ts` (lines 98-104): `solutionLabel` subquery runs twice per row (once in SELECT, once in ORDER BY). Use a CTE or window function to avoid duplication.
+- **Sequential dependency chain** in `src/lib/queries/engine.ts` (lines 93-107): Query 4 only executes if `insightNodeRow[0]` exists, creating a waterfall. Restructure to `Promise.allSettled` or eager JOIN.
 - Add `select()` to queries that return entire rows when only a few columns are needed
 
 #### P3. Dynamic imports for heavy client components
 **Priority: MEDIUM**
-**Files:** Map canvas, Tiptap editor, chart components
-- No `dynamic()` or `React.lazy()` is used anywhere
-- Lazy-load: `MapCanvas` (pan/zoom/drag logic + SVG), `TiptapEditor` (rich text), `CreateInsightForm` (Tiptap dep)
-- Use `next/dynamic` with `{ ssr: false }` for canvas and editor components
-- Add loading skeletons as fallback
+**Files:** Map canvas (508 lines), Tiptap editor (221 lines), Engine list (478 lines)
+- No `dynamic()` or `React.lazy()` is used anywhere in the codebase
+- Lazy-load with `next/dynamic({ ssr: false })`:
+  - `MapCanvas` — pan/zoom/drag + SVG rendering
+  - `NoteEditor` — Tiptap ecosystem (~80KB gzipped: StarterKit, Highlight, Link, Placeholder, CharacterCount)
+  - `CreateInsightForm` — depends on Tiptap
+  - `CreateNodeSlideover` — only shown on button click
+  - `MapSearchOverlay` — only shown on ⌘K
+  - `MapMinimap` — secondary UI, not critical path
+- Add loading skeletons as fallback for each
 
 #### P4. Loading states and Suspense boundaries
 **Priority: MEDIUM**
@@ -256,17 +295,34 @@ These are real bugs found during development. Every future implementation must c
 - Add Suspense boundaries around data-dependent sections within pages
 
 #### P5. Image optimization
-**Priority: LOW**
-- Audit for any raw `<img>` tags — migrate to `next/image`
-- Add `sizes` prop and responsive breakpoints
-- Configure `remotePatterns` in next.config for user avatars (Google, etc.)
+**Priority: MEDIUM**
+- Raw `<img>` tags found throughout — no `next/image` usage anywhere:
+  - `src/app/(auth)/login/page.tsx`, `src/app/(auth)/signup/page.tsx` — auth pages
+  - `src/app/(setup)/onboarding/onboarding-wizard.tsx` — onboarding
+  - `src/components/comments/comment-thread.tsx` — user avatars in comments
+  - `src/components/layout/workspace-switcher.tsx` — workspace logos
+  - `src/components/layout/topbar.tsx` — user menu avatar
+  - `src/components/team/member-table.tsx` — member avatars
+  - `src/components/presence/presence-avatars.tsx` — presence indicators
+- Replace all with `next/image`, add `placeholder="blur"`, explicit `width`/`height`
+- Configure `remotePatterns` in next.config for Google avatar URLs and workspace logos
 
-#### P6. Font loading strategy
+#### P6. Memoization for list components
 **Priority: LOW**
-**File:** `src/app/layout.tsx`
-- Verify fonts use `display: "swap"` to prevent FOIT
-- Consider `preload` for primary fonts (DM Sans, Lora)
-- Subset fonts if possible to reduce payload
+- `src/components/vault/vault-list.tsx` — `NoteCard` rendered in `.map()` without `React.memo`. Parent state changes re-render all cards.
+- `src/components/engine/engine-list-page.tsx` — same pattern with insight cards
+- Wrap card components in `React.memo()`
+- Consider `useMemo` for filtered/sorted lists
+
+#### P7. Query caching
+**Priority: LOW**
+- No `unstable_cache()` or React `cache()` usage detected anywhere
+- Read-heavy queries (`getVaultList`, `getEngineList`, `getStackItems`) are not cached between requests
+- Wrap expensive queries in `unstable_cache()` with `revalidateTag()` for granular invalidation
+- Replace broad `revalidatePath("/(app)", "layout")` with targeted tag-based invalidation
+
+#### P8. Font loading (VERIFIED OK)
+- `src/lib/fonts.ts` uses `next/font/google` with `display: "swap"` on all 3 fonts — no action needed
 
 ---
 
@@ -305,6 +361,9 @@ These are real bugs found during development. Every future implementation must c
 
 #### Q1. Date serialization safety layer
 **Priority: HIGH**
+**Affected query files:** `src/lib/queries/vault.ts` (lines 40-41), `src/lib/queries/engine.ts` (lines 20-21), `src/lib/queries/vault-list.ts` (line 17), `src/lib/queries/comments.ts` (lines 13-14, 24-25)
+**Affected client components:** `insight-card.tsx`, `comment-thread.tsx`, `note-card.tsx`, `stack-page.tsx`, `notification-bell.tsx`
+- Query types declare `createdAt: Date`, `updatedAt: Date` etc. but these become strings when serialized to client
 - Create a `serializeDates` utility that converts Date fields to ISO strings at the server boundary
 - Create corresponding `parseDates` for client hydration
 - Or: define Zod schemas for serialized types and use `.transform()` to parse dates on the client
@@ -315,7 +374,24 @@ These are real bugs found during development. Every future implementation must c
 - Define explicit `Serialized<T>` type that maps `Date` → `string` for server-to-client props
 - This catches Date serialization bugs at compile time instead of runtime
 
-#### Q3. Shared auth wrapper library
+#### Q3. Remaining hardcoded hex colors
+**Priority: MEDIUM**
+**Files:**
+- `src/components/integrations/integration-cards.tsx` (lines 27, 35, 43, 51) — `#0052CC` (Jira), `#5E6AD2` (Linear), `#4A154B` (Slack)
+- `src/app/error.tsx` (lines 29, 33) — `#E8C547`, `#0C0C0F`, `#666`
+- `src/app/(app)/[workspaceId]/settings/danger-zone.tsx` — `#e07356`, `#fff`
+- `src/app/(auth)/login/login-form.tsx`, `signup-form.tsx` — `#4285F4` (Google blue)
+- `src/app/not-found.tsx` — `#666`
+- **Fix:** Move integration brand colors to `src/styles/tokens.css` as `--color-brand-jira`, `--color-brand-linear`, etc. Fix error/not-found pages to use CSS variables.
+
+#### Q4. Accessibility gaps
+**Priority: MEDIUM**
+- `src/components/engine/engine-list-page.tsx` (line 222-233) — search input has `placeholder` but no `aria-label`
+- Several custom dropdowns use `<div>` instead of `<ul role="listbox">` pattern
+- Some interactive buttons missing descriptive `aria-label`
+- Inconsistent `focus-visible:ring-offset` on dark backgrounds
+
+#### Q5. Shared auth wrapper library
 **Priority: MEDIUM**
 **File:** `src/lib/permissions/guard.ts`
 - Extend `withPermission` to handle workspace-level actions (not just phase-scoped)
@@ -323,14 +399,14 @@ These are real bugs found during development. Every future implementation must c
 - Create `withWorkspacePermission` for workspace-level mutations
 - Reduce boilerplate across all 16 action files
 
-#### Q4. Test coverage expansion
+#### Q6. Test coverage expansion
 **Priority: MEDIUM**
 - Add integration tests for every Server Action (test auth, validation, IDOR protection)
 - Add E2E tests for critical user flows: onboarding → create project → vault → engine → map → stack
 - Test error boundaries render correctly
 - Test Date serialization round-trips
 
-#### Q5. Logging and observability
+#### Q7. Logging and observability
 **Priority: LOW**
 - Add structured logging (Pino) to all Server Actions — log action name, userId, duration
 - Add performance timing to database queries
@@ -340,13 +416,14 @@ These are real bugs found during development. Every future implementation must c
 
 ### Implementation Order
 
-When I say "implement improvement X", follow this priority order:
+When I say "implement Sprint N", follow this priority order:
 
 | Sprint | Items | Impact |
 |--------|-------|--------|
-| 1 | S1 (auth guards), P1 (indexes), S5 (IDOR) | Security + performance foundation |
-| 2 | S2 (rate limits), S3 (headers), S4 (validation) | Security hardening |
-| 3 | R1 (error boundaries), P4 (loading states), Q1 (date safety) | User experience + resilience |
-| 4 | P2 (query optimization), P3 (dynamic imports), Q3 (auth wrappers) | Performance + DX |
-| 5 | R3 (error handling), R4 (optimistic updates), Q2 (boundary types) | Polish |
-| 6 | Q4 (tests), Q5 (logging), P5 (images), P6 (fonts), S6 (cookies), R2 (error styles) | Cleanup |
+| 1 | S2 (token encryption), S3 (OAuth CSRF), S4 (map API auth), S1 (auth guards) | **CRITICAL security — must fix before production** |
+| 2 | P1 (database indexes), S8 (IDOR audit), S7 (input validation) | Security + performance foundation |
+| 3 | S5 (rate limits), S6 (headers), P2 (query hot paths) | Security hardening + performance |
+| 4 | Q1 (date safety), R1 (error boundaries), P4 (loading states) | Resilience + UX |
+| 5 | P3 (dynamic imports), P5 (images), Q3 (hardcoded colors), Q5 (auth wrappers) | Performance + quality |
+| 6 | R3 (error handling), R4 (optimistic updates), Q2 (boundary types), Q4 (accessibility) | Polish |
+| 7 | Q6 (tests), Q7 (logging), P6 (memoization), P7 (query caching), S9 (cookies), R2 (error styles) | Cleanup + observability |
