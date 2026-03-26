@@ -1,6 +1,7 @@
+import { EmptyWorkspace } from "@/components/dashboard/empty-workspace";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { projects } from "@/lib/db/schema";
+import { projects, workspaces } from "@/lib/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
@@ -24,29 +25,11 @@ export default async function WorkspaceRootPage({
 		redirect(`/${workspaceId}/${firstProject.id}`);
 	}
 
-	// No projects yet — show empty state
-	return (
-		<div className="flex flex-1 items-center justify-center">
-			<div className="text-center max-w-sm px-6">
-				<div
-					className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-3xl"
-					style={{
-						backgroundColor: "var(--color-bg-raised)",
-						border: "1px solid var(--color-border-subtle)",
-					}}
-				>
-					📂
-				</div>
-				<h2
-					className="text-xl font-semibold tracking-tight"
-					style={{ fontFamily: "var(--font-display)", color: "var(--color-text-primary)" }}
-				>
-					No projects yet
-				</h2>
-				<p className="mt-2 text-sm" style={{ color: "var(--color-text-muted)" }}>
-					Create your first project to start capturing research and building insights.
-				</p>
-			</div>
-		</div>
-	);
+	// Get workspace name for empty state
+	const workspace = await db.query.workspaces.findFirst({
+		where: eq(workspaces.id, workspaceId),
+		columns: { name: true },
+	});
+
+	return <EmptyWorkspace workspaceName={workspace?.name ?? "Workspace"} />;
 }
