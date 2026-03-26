@@ -23,12 +23,15 @@ import { workspaces } from "./workspaces";
 export const usersRelations = relations(users, ({ many }) => ({
 	accounts: many(accounts),
 	sessions: many(sessions),
-	workspaceMembers: many(workspaceMembers),
-	projectMembers: many(projectMembers),
+	workspaceMemberships: many(workspaceMembers, { relationName: "memberUser" }),
+	invitedMembers: many(workspaceMembers, { relationName: "inviter" }),
+	projectMemberships: many(projectMembers, { relationName: "projectMemberUser" }),
+	presetSetMembers: many(projectMembers, { relationName: "presetSetter" }),
 	createdWorkspaces: many(workspaces),
 	createdProjects: many(projects),
 	createdNotes: many(researchNotes),
-	createdInsights: many(insightCards),
+	createdInsights: many(insightCards, { relationName: "insightCreator" }),
+	acceptedInsights: many(insightCards, { relationName: "insightAcceptor" }),
 	createdQuotes: many(quotes),
 	notifications: many(notifications),
 	auditLogs: many(auditLog),
@@ -56,7 +59,11 @@ export const workspaceMembersRelations = relations(workspaceMembers, ({ one }) =
 		fields: [workspaceMembers.workspaceId],
 		references: [workspaces.id],
 	}),
-	user: one(users, { fields: [workspaceMembers.userId], references: [users.id] }),
+	user: one(users, {
+		fields: [workspaceMembers.userId],
+		references: [users.id],
+		relationName: "memberUser",
+	}),
 	inviter: one(users, {
 		fields: [workspaceMembers.invitedBy],
 		references: [users.id],
@@ -79,7 +86,11 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
 
 export const projectMembersRelations = relations(projectMembers, ({ one }) => ({
 	project: one(projects, { fields: [projectMembers.projectId], references: [projects.id] }),
-	user: one(users, { fields: [projectMembers.userId], references: [users.id] }),
+	user: one(users, {
+		fields: [projectMembers.userId],
+		references: [users.id],
+		relationName: "projectMemberUser",
+	}),
 	setBy: one(users, {
 		fields: [projectMembers.setBy],
 		references: [users.id],
@@ -112,7 +123,11 @@ export const quotesRelations = relations(quotes, ({ one, many }) => ({
 
 export const insightCardsRelations = relations(insightCards, ({ one, many }) => ({
 	project: one(projects, { fields: [insightCards.projectId], references: [projects.id] }),
-	createdBy: one(users, { fields: [insightCards.createdBy], references: [users.id] }),
+	createdBy: one(users, {
+		fields: [insightCards.createdBy],
+		references: [users.id],
+		relationName: "insightCreator",
+	}),
 	acceptedBy: one(users, {
 		fields: [insightCards.acceptedBy],
 		references: [users.id],
