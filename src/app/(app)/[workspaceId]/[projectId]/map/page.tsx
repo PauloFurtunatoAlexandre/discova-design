@@ -41,12 +41,14 @@ export default async function MapPage({
 	const layoutNodes = calculateLayout(rawData.nodes);
 
 	return (
-		<MapCanvas
-			mapData={{ nodes: layoutNodes, connections: rawData.connections }}
-			canEdit={writePermission.allowed}
-			workspaceId={workspaceId}
-			projectId={projectId}
-			unplacedInsights={unplacedInsights}
-		/>
+		<div className="h-[calc(100vh-var(--topbar-height))] w-full overflow-hidden">
+			<MapCanvas
+				mapData={{ nodes: layoutNodes, connections: rawData.connections }}
+				canEdit={writePermission.allowed}
+				workspaceId={workspaceId}
+				projectId={projectId}
+				unplacedInsights={unplacedInsights}
+			/>
+		</div>
 	);
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP } from "@/lib/map/constants";
-import { type MouseEvent, type WheelEvent, useCallback, useRef, useState } from "react";
+import { type MouseEvent, useCallback, useRef, useState } from "react";
 
 /**
  * Hook managing canvas pan and zoom state.
@@ -15,7 +15,8 @@ export function useCanvas() {
 	const [isPanning, setIsPanning] = useState(false);
 	const lastMouseRef = useRef({ x: 0, y: 0 });
 
-	const handleWheel = useCallback((e: WheelEvent) => {
+	/** Use with a native (non-passive) wheel listener, not React's onWheel. */
+	const handleWheelEvent = useCallback((e: globalThis.WheelEvent) => {
 		e.preventDefault();
 		const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
 		setZoom((prev) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, prev + delta)));
@@ -79,7 +80,7 @@ export function useCanvas() {
 		pan,
 		zoom,
 		isPanning,
-		handleWheel,
+		handleWheelEvent,
 		handleMouseDown,
 		handleMouseMove,
 		handleMouseUp,

@@ -50,7 +50,7 @@ export function MapCanvas({
 		pan,
 		zoom,
 		isPanning,
-		handleWheel,
+		handleWheelEvent,
 		handleMouseDown,
 		handleMouseMove,
 		handleMouseUp,
@@ -93,6 +93,15 @@ export function MapCanvas({
 	for (const node of mapData.nodes) {
 		nodeMap.set(node.id, node);
 	}
+
+	// ── Non-passive wheel listener (React onWheel is passive) ─────────
+	useEffect(() => {
+		const el = containerRef.current;
+		if (!el) return;
+		const onWheel = (e: WheelEvent) => handleWheelEvent(e);
+		el.addEventListener("wheel", onWheel, { passive: false });
+		return () => el.removeEventListener("wheel", onWheel);
+	}, [handleWheelEvent]);
 
 	// ── Keyboard shortcuts ─────────────────────────────────────────────
 	useEffect(() => {
@@ -319,7 +328,6 @@ export function MapCanvas({
 			}}
 			data-canvas-background
 			data-testid="map-canvas"
-			onWheel={handleWheel}
 			onMouseDown={(e) => {
 				handleDragMouseDown(e);
 				if (!dragState.isDragging && !nodeDragState.isDragging) handleCanvasClick(e);
