@@ -2,6 +2,7 @@
 
 import { createCommentAction, deleteCommentAction, updateCommentAction } from "@/actions/comments";
 import type { CommentThread } from "@/lib/queries/comments";
+import { formatRelativeTime } from "@/lib/utils/dates";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageSquare, Pencil, Reply, Send, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -456,18 +457,3 @@ function CommentBubble({
 	);
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatRelativeTime(date: Date | string): string {
-	const now = Date.now();
-	const d = typeof date === "string" ? new Date(date) : date;
-	const diff = now - d.getTime();
-	const minutes = Math.floor(diff / 60000);
-	if (minutes < 1) return "just now";
-	if (minutes < 60) return `${minutes}m ago`;
-	const hours = Math.floor(minutes / 60);
-	if (hours < 24) return `${hours}h ago`;
-	const days = Math.floor(hours / 24);
-	if (days < 7) return `${days}d ago`;
-	return d.toLocaleDateString();
-}

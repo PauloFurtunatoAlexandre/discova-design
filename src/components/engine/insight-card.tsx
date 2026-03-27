@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Edit2, Quote, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { formatRelativeTime } from "@/lib/utils/dates";
 import { ConfidenceRing } from "./confidence-ring";
 import { EvidenceList } from "./evidence-list";
 
@@ -20,26 +21,10 @@ export interface InsightCardProps {
 	projectId?: string | undefined;
 }
 
-// ─── Time-ago helper ──────────────────────────────────────────────────────────
-
-function timeAgo(date: Date | string): string {
-	const now = Date.now();
-	const d = new Date(date).getTime();
-	const diffSec = Math.floor((now - d) / 1000);
-	if (diffSec < 60) return "just now";
-	const diffMin = Math.floor(diffSec / 60);
-	if (diffMin < 60) return `${diffMin}m ago`;
-	const diffHr = Math.floor(diffMin / 60);
-	if (diffHr < 24) return `${diffHr}h ago`;
-	const diffDay = Math.floor(diffHr / 24);
-	if (diffDay < 7) return `${diffDay}d ago`;
-	return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
 // ─── Attribution line ─────────────────────────────────────────────────────────
 
 function Attribution({ insight }: { insight: InsightWithRelations }) {
-	const age = timeAgo(insight.createdAt);
+	const age = formatRelativeTime(insight.createdAt);
 	if (insight.isAiGenerated && insight.acceptedBy) {
 		return (
 			<span>
