@@ -8,13 +8,15 @@ import type { UnplacedInsight } from "@/lib/queries/map";
 import { Lightbulb } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { CreateNodeSlideover } from "./create-node-slideover";
+import dynamic from "next/dynamic";
 import { MapConnectionLine } from "./map-connection-line";
 import { MapFab } from "./map-fab";
-import { MapMinimap } from "./map-minimap";
 import { MapNode } from "./map-node";
-import { MapSearchOverlay } from "./map-search-overlay";
 import { MapToolbar } from "./map-toolbar";
+
+const CreateNodeSlideover = dynamic(() => import("./create-node-slideover").then((m) => m.CreateNodeSlideover), { ssr: false });
+const MapMinimap = dynamic(() => import("./map-minimap").then((m) => m.MapMinimap), { ssr: false });
+const MapSearchOverlay = dynamic(() => import("./map-search-overlay").then((m) => m.MapSearchOverlay), { ssr: false });
 import { NodeContextMenu } from "./node-context-menu";
 import { UnplacedInsightsPanel } from "./unplaced-insights-panel";
 import { useCanvas } from "./use-canvas";

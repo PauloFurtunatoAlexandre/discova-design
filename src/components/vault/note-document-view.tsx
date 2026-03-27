@@ -10,8 +10,10 @@ import { getPlainTextAtRange } from "@/lib/vault/quote-offsets";
 import type { Editor } from "@tiptap/react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { NoteEditor } from "./note-editor";
+import dynamic from "next/dynamic";
 import { NoteHeader } from "./note-header";
+
+const NoteEditor = dynamic(() => import("./note-editor").then((m) => m.NoteEditor), { ssr: false });
 import { NoteMetadataPanel } from "./note-metadata-panel";
 
 interface NoteDocumentViewProps {

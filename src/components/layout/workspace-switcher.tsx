@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Plus } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
@@ -138,7 +139,7 @@ export function WorkspaceSwitcher({
 										}}
 									>
 										{ws.logoUrl ? (
-											<img src={ws.logoUrl} alt={ws.name} className="h-full w-full object-cover" />
+											<Image src={ws.logoUrl} alt={ws.name} width={28} height={28} className="h-full w-full object-cover" />
 										) : (
 											initial
 										)}

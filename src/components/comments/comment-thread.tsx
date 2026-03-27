@@ -5,6 +5,7 @@ import type { CommentThread } from "@/lib/queries/comments";
 import { formatRelativeTime } from "@/lib/utils/dates";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageSquare, Pencil, Reply, Send, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 
@@ -343,7 +344,7 @@ function CommentBubble({
 					}}
 				>
 					{authorAvatar ? (
-						<img src={authorAvatar} alt={authorName} className="w-full h-full object-cover" />
+						<Image src={authorAvatar} alt={authorName} width={32} height={32} className="w-full h-full object-cover" />
 					) : (
 						authorName.charAt(0).toUpperCase()
 					)}

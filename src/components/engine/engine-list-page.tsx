@@ -1,7 +1,9 @@
 "use client";
 
-import { CreateInsightForm } from "@/components/engine/create-insight-form";
 import { EngineFilterBar } from "@/components/engine/engine-filter-bar";
+import dynamic from "next/dynamic";
+
+const CreateInsightForm = dynamic(() => import("@/components/engine/create-insight-form").then((m) => m.CreateInsightForm), { ssr: false });
 import type { EngineSortValue } from "@/components/engine/engine-sort";
 import { InsightCard } from "@/components/engine/insight-card";
 import { InsightCardExpanded } from "@/components/engine/insight-card-expanded";

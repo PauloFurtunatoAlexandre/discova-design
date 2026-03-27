@@ -24,7 +24,7 @@ const INTEGRATIONS: IntegrationDef[] = [
 		name: "Jira",
 		description: "Create and sync issues from your Priority Stack to Jira projects.",
 		icon: "🔷",
-		color: "#0052CC",
+		color: "var(--color-brand-jira)",
 		authUrlPath: "/api/integrations/jira/auth",
 	},
 	{
@@ -32,7 +32,7 @@ const INTEGRATIONS: IntegrationDef[] = [
 		name: "Linear",
 		description: "Push prioritized solutions to Linear as issues with RICE context.",
 		icon: "🟣",
-		color: "#5E6AD2",
+		color: "var(--color-brand-linear)",
 		authUrlPath: "/api/integrations/linear/auth",
 	},
 	{
@@ -40,7 +40,7 @@ const INTEGRATIONS: IntegrationDef[] = [
 		name: "Slack",
 		description: "Get notified in Slack when insights are validated or priorities change.",
 		icon: "💬",
-		color: "#4A154B",
+		color: "var(--color-brand-slack)",
 		authUrlPath: "/api/integrations/slack/auth",
 	},
 	{
@@ -48,7 +48,7 @@ const INTEGRATIONS: IntegrationDef[] = [
 		name: "Figma",
 		description: "Embed Figma frames in research notes and link designs to solutions.",
 		icon: "🎨",
-		color: "#F24E1E",
+		color: "var(--color-brand-figma)",
 		authUrlPath: "/api/integrations/figma/auth",
 	},
 ];

@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 import * as Sentry from "@sentry/nextjs";
 import { checkPermission } from "./check-permission";
 import { resolvePreset } from "./resolve-preset";
-import { getTier } from "./tier-checks";
+import { getTier, isMember as checkIsMember } from "./tier-checks";
 import type { AuthContext, PermissionAction, Phase, Tier } from "./types";
 
 interface GuardOptions {
@@ -110,5 +110,80 @@ export function withPermission<TArgs extends { workspaceId: string; projectId: s
 		}
 
 		return handlerResult;
+	};
+}
+
+// ── Simple auth guard (no workspace/project check) ──────────────────────────
+
+interface SimpleAuthContext {
+	userId: string;
+}
+
+/**
+ * Wrap a Server Action with simple authentication (session check only).
+ * Use for actions that don't need workspace/project context (e.g. user profile, notifications).
+ */
+export function withAuth<TArgs, TResult>(
+	handler: (ctx: SimpleAuthContext, args: TArgs) => Promise<TResult>,
+) {
+	return async (args: TArgs): Promise<TResult | { error: string }> => {
+		const session = await auth();
+		if (!session?.user?.id) {
+			return { error: "Authentication required. Please sign in." };
+		}
+		return handler({ userId: session.user.id }, args);
+	};
+}
+
+// ── Workspace-level auth guard ──────────────────────────────────────────────
+
+interface WorkspaceAuthContext {
+	userId: string;
+	workspaceId: string;
+	tier: Tier;
+}
+
+interface WorkspaceGuardOptions {
+	/** Minimum tier required. "member" = member or admin. "admin" = admin only. Default: "member". */
+	minTier?: "member" | "admin";
+}
+
+/**
+ * Wrap a Server Action with workspace membership + tier checking.
+ * Use for workspace-level mutations (team, settings, integrations).
+ */
+export function withWorkspacePermission<TArgs extends { workspaceId: string }, TResult>(
+	options: WorkspaceGuardOptions,
+	handler: (ctx: WorkspaceAuthContext, args: TArgs) => Promise<TResult>,
+) {
+	const minTier = options.minTier ?? "member";
+
+	return async (args: TArgs): Promise<TResult | { error: string }> => {
+		const session = await auth();
+		if (!session?.user?.id) {
+			return { error: "Authentication required. Please sign in." };
+		}
+
+		const userId = session.user.id;
+		const { workspaceId } = args;
+
+		const tier = await getTier(userId, workspaceId);
+
+		if (!tier) {
+			logger.warn({ userId, workspaceId }, "Workspace access denied: not a member");
+			return { error: "You are not a member of this workspace." };
+		}
+
+		if (minTier === "admin" && tier !== "admin") {
+			logger.warn({ userId, workspaceId, tier }, "Workspace access denied: admin required");
+			return { error: "Admin access required." };
+		}
+
+		if (minTier === "member" && tier === "viewer") {
+			logger.warn({ userId, workspaceId, tier }, "Workspace access denied: member required");
+			return { error: "Member access required." };
+		}
+
+		return handler({ userId, workspaceId, tier }, args);
 	};
 }

@@ -1,10 +1,19 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/auth/config";
 import { calculateLayout } from "@/lib/map/layout";
 import { checkPermission } from "@/lib/permissions";
 import { getMapData, getUnplacedInsights } from "@/lib/queries/map";
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
-import { MapCanvas } from "@/components/map/map-canvas";
+const MapCanvas = dynamic(() => import("@/components/map/map-canvas").then((m) => m.MapCanvas), {
+	ssr: false,
+	loading: () => (
+		<div className="flex h-full items-center justify-center" style={{ background: "var(--color-bg-sunken)" }}>
+			<Skeleton className="h-6 w-48" style={{ borderRadius: "var(--radius-md)" }} />
+		</div>
+	),
+});
 
 export default async function MapPage({
 	params,

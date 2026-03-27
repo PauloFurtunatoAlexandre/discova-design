@@ -4,6 +4,7 @@ import { changePresetAction, changeTierAction, removeMemberAction } from "@/acti
 import type { WorkspaceMember } from "@/lib/queries/team";
 import { AnimatePresence, motion } from "framer-motion";
 import { Crown, Eye, MoreHorizontal, Shield, UserMinus, UserX } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
@@ -167,7 +168,7 @@ function MemberRow({
 					}}
 				>
 					{member.avatarUrl ? (
-						<img src={member.avatarUrl} alt={member.name} className="w-full h-full object-cover" />
+						<Image src={member.avatarUrl} alt={member.name} width={36} height={36} className="w-full h-full object-cover" />
 					) : (
 						member.name.charAt(0).toUpperCase()
 					)}

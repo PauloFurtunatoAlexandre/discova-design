@@ -51,6 +51,13 @@
 	--color-status-info: #5b8af0;
 	--color-status-info-bg: rgba(91, 138, 240, 0.08);
 
+	/* Semantic — Integration Brand Colors */
+	--color-brand-jira: #0052CC;
+	--color-brand-linear: #5E6AD2;
+	--color-brand-slack: #4A154B;
+	--color-brand-figma: #F24E1E;
+	--color-brand-google: #4285F4;
+
 	/* Semantic — Discova Data Types */
 	--color-research: #d4a843;
 	--color-research-bg: rgba(212, 168, 67, 0.06);
@@ -184,6 +191,13 @@
 	--color-status-error-bg: rgba(192, 74, 42, 0.08);
 	--color-status-info: #2a3f8f;
 	--color-status-info-bg: rgba(42, 63, 143, 0.08);
+
+	/* Semantic — Integration Brand Colors */
+	--color-brand-jira: #0052CC;
+	--color-brand-linear: #5E6AD2;
+	--color-brand-slack: #4A154B;
+	--color-brand-figma: #F24E1E;
+	--color-brand-google: #4285F4;
 
 	/* Semantic — Discova Data Types */
 	--color-research: #b8882e;

@@ -36,7 +36,7 @@ export function DangerZone({ workspaceId, workspaceName }: DangerZoneProps) {
 				className="text-lg mb-4"
 				style={{
 					fontFamily: "var(--font-display)",
-					color: "var(--color-status-error, #e07356)",
+					color: "var(--color-status-error)",
 				}}
 			>
 				Danger Zone
@@ -46,8 +46,8 @@ export function DangerZone({ workspaceId, workspaceName }: DangerZoneProps) {
 				className="rounded-xl p-6 space-y-5"
 				style={{
 					border:
-						"1px solid color-mix(in srgb, var(--color-status-error, #e07356) 25%, transparent)",
-					backgroundColor: "color-mix(in srgb, var(--color-status-error, #e07356) 4%, transparent)",
+						"1px solid color-mix(in srgb, var(--color-status-error) 25%, transparent)",
+					backgroundColor: "color-mix(in srgb, var(--color-status-error) 4%, transparent)",
 				}}
 			>
 				<div>
@@ -108,8 +108,8 @@ export function DangerZone({ workspaceId, workspaceName }: DangerZoneProps) {
 					className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
 					style={{
 						backgroundColor:
-							canDelete && !isPending ? "var(--color-status-error, #e07356)" : "transparent",
-						color: canDelete && !isPending ? "#fff" : "var(--color-text-muted)",
+							canDelete && !isPending ? "var(--color-status-error)" : "transparent",
+						color: canDelete && !isPending ? "var(--color-text-inverse)" : "var(--color-text-muted)",
 						border: `1px solid ${canDelete && !isPending ? "transparent" : "var(--color-border-default)"}`,
 						cursor: !canDelete || isPending ? "not-allowed" : "pointer",
 						opacity: isPending ? 0.7 : 1,

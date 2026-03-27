@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { mapConnections, mapNodes, stackItems, stackSnapshots } from "@/lib/db/schema";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -142,7 +142,7 @@ async function fetchLinkedProblems(solutionNodeIds: string[]): Promise<Map<strin
 		.innerJoin(mapNodes, eq(mapNodes.id, mapConnections.sourceNodeId))
 		.where(
 			and(
-				sql`${mapConnections.targetNodeId} = ANY(${solutionNodeIds}::uuid[])`,
+				inArray(mapConnections.targetNodeId, solutionNodeIds),
 				eq(mapNodes.type, "problem"),
 			),
 		);
