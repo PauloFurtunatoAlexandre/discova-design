@@ -1,4 +1,4 @@
-import { pgTable, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { index, pgTable, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { insightCards } from "./insight-cards";
 import { quotes } from "./quotes";
 
@@ -13,5 +13,8 @@ export const insightEvidence = pgTable(
 			.notNull()
 			.references(() => quotes.id, { onDelete: "cascade" }),
 	},
-	(table) => [uniqueIndex("insight_evidence_unique").on(table.insightId, table.quoteId)],
+	(table) => [
+		uniqueIndex("insight_evidence_unique").on(table.insightId, table.quoteId),
+		index("insight_evidence_quote_idx").on(table.quoteId),
+	],
 );

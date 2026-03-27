@@ -1,4 +1,4 @@
-import { pgTable, primaryKey, uuid } from "drizzle-orm/pg-core";
+import { index, pgTable, primaryKey, uuid } from "drizzle-orm/pg-core";
 import { researchNotes } from "./research-notes";
 import { tags } from "./tags";
 
@@ -12,5 +12,8 @@ export const noteTags = pgTable(
 			.notNull()
 			.references(() => tags.id, { onDelete: "cascade" }),
 	},
-	(table) => [primaryKey({ columns: [table.noteId, table.tagId] })],
+	(table) => [
+		primaryKey({ columns: [table.noteId, table.tagId] }),
+		index("note_tags_tag_idx").on(table.tagId),
+	],
 );

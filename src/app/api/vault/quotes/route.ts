@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { quotes, researchNotes } from "@/lib/db/schema";
+import { projects, quotes, researchNotes } from "@/lib/db/schema";
 import { checkPermission } from "@/lib/permissions";
 import { and, eq, ilike } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -27,20 +27,31 @@ export async function GET(request: NextRequest) {
 		return NextResponse.json({ error: "projectId is required" }, { status: 400 });
 	}
 
-	// Derive workspaceId from project (best-effort; permission check uses projectId)
-	// We use a lightweight permission check here — vault read is sufficient
-	const workspaceId = searchParams.get("workspaceId") ?? "";
-	if (workspaceId) {
-		const permission = await checkPermission({
-			userId: session.user.id,
-			workspaceId,
-			projectId,
-			phase: "vault",
-			action: "read",
-		});
-		if (!permission.allowed) {
-			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+	// Look up workspace from project for permission check
+	let workspaceId = searchParams.get("workspaceId");
+	if (!workspaceId) {
+		const [project] = await db
+			.select({ workspaceId: projects.workspaceId })
+			.from(projects)
+			.where(eq(projects.id, projectId))
+			.limit(1);
+
+		if (!project) {
+			return NextResponse.json({ error: "Project not found" }, { status: 404 });
 		}
+		workspaceId = project.workspaceId;
+	}
+
+	const permission = await checkPermission({
+		userId: session.user.id,
+		workspaceId,
+		projectId,
+		phase: "vault",
+		action: "read",
+	});
+
+	if (!permission.allowed) {
+		return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 	}
 
 	const results = await db

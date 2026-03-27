@@ -22,6 +22,7 @@ export const insightCards = pgTable(
 	},
 	(table) => [
 		index("insight_cards_project_idx").on(table.projectId),
+		index("insight_cards_project_author_idx").on(table.projectId, table.createdBy),
 		index("insight_cards_confidence_idx").on(table.confidenceScore),
 		index("insight_cards_theme_idx").on(table.themeTag),
 	],

@@ -20,6 +20,7 @@ export const auditLog = pgTable(
 	(table) => [
 		index("audit_log_workspace_idx").on(table.workspaceId),
 		index("audit_log_workspace_action_idx").on(table.workspaceId, table.action),
+		index("audit_log_user_idx").on(table.userId),
 		index("audit_log_created_idx").on(table.createdAt),
 	],
 );
