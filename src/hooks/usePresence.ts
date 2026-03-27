@@ -8,16 +8,16 @@ const HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds
 
 type Phase = "vault" | "engine" | "map" | "stack" | "team";
 
-export function usePresence(projectId: string, phase: Phase | null) {
+export function usePresence(projectId: string, workspaceId: string, phase: Phase | null) {
 	const [users, setUsers] = useState<PresenceUser[]>([]);
 	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const heartbeat = useCallback(async () => {
-		const result = await heartbeatAction({ projectId, phase });
+		const result = await heartbeatAction({ projectId, workspaceId, phase });
 		if ("users" in result) {
 			setUsers(result.users);
 		}
-	}, [projectId, phase]);
+	}, [projectId, workspaceId, phase]);
 
 	useEffect(() => {
 		// Initial heartbeat

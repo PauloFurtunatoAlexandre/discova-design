@@ -8,7 +8,7 @@ import {
 	getAllIntegrations,
 	getIntegration,
 } from "@/lib/integrations/shared";
-import { isAdmin } from "@/lib/permissions/tier-checks";
+import { isAdmin, isMember } from "@/lib/permissions/tier-checks";
 import { revalidatePath } from "next/cache";
 
 // ── Get All Integrations ────────────────────────────────────────────────────
@@ -21,6 +21,11 @@ export async function getIntegrationsAction(args: {
 > {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Authentication required" };
+
+	// Verify user belongs to this workspace
+	if (!(await isMember(session.user.id, args.workspaceId))) {
+		return { error: "Forbidden" };
+	}
 
 	const rows = await getAllIntegrations(args.workspaceId);
 	return {
@@ -43,6 +48,10 @@ export async function getIntegrationAction(args: {
 > {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Authentication required" };
+
+	if (!(await isMember(session.user.id, args.workspaceId))) {
+		return { error: "Forbidden" };
+	}
 
 	const row = await getIntegration(args.workspaceId, args.type);
 	if (!row) return { integration: null };

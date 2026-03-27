@@ -7,6 +7,7 @@ type Phase = "vault" | "engine" | "map" | "stack" | "team";
 
 interface PresenceAvatarsProps {
 	projectId: string;
+	workspaceId: string;
 	phase: Phase | null;
 }
 
@@ -18,8 +19,8 @@ const PHASE_LABELS: Record<string, string> = {
 	team: "Team",
 };
 
-export function PresenceAvatars({ projectId, phase }: PresenceAvatarsProps) {
-	const users = usePresence(projectId, phase);
+export function PresenceAvatars({ projectId, workspaceId, phase }: PresenceAvatarsProps) {
+	const users = usePresence(projectId, workspaceId, phase);
 
 	if (users.length === 0) return null;
 

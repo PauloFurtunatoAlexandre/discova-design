@@ -1,7 +1,9 @@
 import { auth } from "@/lib/auth/config";
 import { exchangeLinearCode } from "@/lib/integrations/linear/client";
+import { verifyOAuthState } from "@/lib/integrations/oauth-state";
 import { encryptToken, upsertIntegration } from "@/lib/integrations/shared";
 import { logger } from "@/lib/logger";
+import { isMember } from "@/lib/permissions/tier-checks";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -17,7 +19,15 @@ export async function GET(req: NextRequest) {
 		return NextResponse.redirect(new URL("/?error=missing_params", req.url));
 	}
 
-	const workspaceId = state;
+	const workspaceId = verifyOAuthState(state);
+	if (!workspaceId) {
+		logger.warn({ userId: session.user.id }, "Invalid OAuth state in Linear callback");
+		return NextResponse.redirect(new URL("/?error=invalid_state", req.url));
+	}
+
+	if (!(await isMember(session.user.id, workspaceId))) {
+		return NextResponse.redirect(new URL("/?error=forbidden", req.url));
+	}
 
 	try {
 		const tokens = await exchangeLinearCode(code);

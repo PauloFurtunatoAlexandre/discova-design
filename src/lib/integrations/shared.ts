@@ -1,3 +1,4 @@
+import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { db } from "@/lib/db";
 import { integrations } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -123,18 +124,58 @@ export async function disconnectIntegration(
 		.where(and(eq(integrations.workspaceId, workspaceId), eq(integrations.type, type)));
 }
 
-// ── Token encryption helpers (placeholder — use a proper KMS in production) ──
+// ── Token encryption helpers (AES-256-GCM) ─────────────────────────────────
 
-const ENCRYPTION_KEY = process.env.INTEGRATION_ENCRYPTION_KEY ?? "dev-key-replace-in-production";
-
-export function encryptToken(token: string): string {
-	// In production, use AES-256-GCM with a KMS-managed key
-	return Buffer.from(`${ENCRYPTION_KEY}:${token}`).toString("base64");
+function getEncryptionKey(): Buffer {
+	const raw = process.env.INTEGRATION_ENCRYPTION_KEY;
+	if (!raw || raw.length < 32) {
+		if (process.env.NODE_ENV === "production") {
+			throw new Error(
+				"INTEGRATION_ENCRYPTION_KEY must be set and at least 32 characters in production",
+			);
+		}
+		// Dev-only fallback — never used in production
+		return Buffer.from("dev-only-key-do-not-use-in-prod!"); // exactly 32 bytes
+	}
+	// Use first 32 bytes of the key (AES-256 requires 32-byte key)
+	return Buffer.from(raw.slice(0, 32));
 }
 
+/**
+ * Encrypt a token using AES-256-GCM.
+ * Output format: base64(iv:authTag:ciphertext) — all binary, colon-separated after decode.
+ */
+export function encryptToken(token: string): string {
+	const key = getEncryptionKey();
+	const iv = randomBytes(12); // 96-bit IV for GCM
+	const cipher = createCipheriv("aes-256-gcm", key, iv);
+
+	const encrypted = Buffer.concat([cipher.update(token, "utf8"), cipher.final()]);
+	const authTag = cipher.getAuthTag(); // 16 bytes
+
+	// Pack as: iv (12) + authTag (16) + ciphertext (variable)
+	const packed = Buffer.concat([iv, authTag, encrypted]);
+	return packed.toString("base64");
+}
+
+/**
+ * Decrypt a token encrypted with encryptToken().
+ */
 export function decryptToken(encrypted: string): string {
-	const decoded = Buffer.from(encrypted, "base64").toString();
-	const prefix = `${ENCRYPTION_KEY}:`;
-	if (!decoded.startsWith(prefix)) throw new Error("Invalid token encryption");
-	return decoded.slice(prefix.length);
+	const key = getEncryptionKey();
+	const packed = Buffer.from(encrypted, "base64");
+
+	if (packed.length < 28) {
+		throw new Error("Invalid encrypted token: too short");
+	}
+
+	const iv = packed.subarray(0, 12);
+	const authTag = packed.subarray(12, 28);
+	const ciphertext = packed.subarray(28);
+
+	const decipher = createDecipheriv("aes-256-gcm", key, iv);
+	decipher.setAuthTag(authTag);
+
+	const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+	return decrypted.toString("utf8");
 }

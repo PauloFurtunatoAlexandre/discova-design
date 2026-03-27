@@ -142,7 +142,7 @@ Labels: font-family var(--font-mono), var(--text-xs), var(--color-text-muted), u
 ## CURRENT STATUS
 
 All 36 prompts implemented. MVP feature-complete.
-Next: Hardening phase — security, performance, resilience, and code quality.
+Hardening phase in progress — Sprint 1 (critical security fixes) underway.
 
 ---
 
