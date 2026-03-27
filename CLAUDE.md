@@ -142,7 +142,7 @@ Labels: font-family var(--font-mono), var(--text-xs), var(--color-text-muted), u
 ## CURRENT STATUS
 
 All 36 prompts implemented. MVP feature-complete.
-Hardening phase in progress — Sprints 1-3 complete. Next: Sprint 4.
+Hardening phase in progress — Sprints 1-5 complete. Next: Sprint 6.
 
 ---
 
