@@ -45,19 +45,14 @@ export async function getStackItems(
 	projectId: string,
 	sortBy: StackSortBy = "rice_desc",
 ): Promise<StackItemWithNode[]> {
-	const siId = sql.raw('"stack_items"."id"');
 	const siSolutionNodeId = sql.raw('"stack_items"."solution_node_id"');
 
 	const rows = await db
 		.select({
 			id: stackItems.id,
 			solutionNodeId: stackItems.solutionNodeId,
-			solutionLabel: sql<string>`(
-				SELECT label FROM map_nodes WHERE map_nodes.id = ${siSolutionNodeId}
-			)`,
-			solutionDescription: sql<string | null>`(
-				SELECT description FROM map_nodes WHERE map_nodes.id = ${siSolutionNodeId}
-			)`,
+			solutionLabel: mapNodes.label,
+			solutionDescription: mapNodes.description,
 			connectionCount: sql<number>`(
 				SELECT COUNT(*)::int FROM map_connections
 				WHERE target_node_id = ${siSolutionNodeId}
@@ -78,6 +73,7 @@ export async function getStackItems(
 			updatedAt: stackItems.updatedAt,
 		})
 		.from(stackItems)
+		.innerJoin(mapNodes, eq(mapNodes.id, stackItems.solutionNodeId))
 		.where(eq(stackItems.projectId, projectId))
 		.orderBy(
 			...(sortBy === "rice_desc"
@@ -96,13 +92,9 @@ export async function getStackItems(
 								desc(stackItems.riceScore),
 							]
 						: sortBy === "label_asc"
-							? [sql`(SELECT label FROM map_nodes WHERE map_nodes.id = ${siSolutionNodeId})`]
+							? [asc(mapNodes.label)]
 							: sortBy === "label_desc"
-								? [
-										desc(
-											sql`(SELECT label FROM map_nodes WHERE map_nodes.id = ${siSolutionNodeId})`,
-										),
-									]
+								? [desc(mapNodes.label)]
 								: sortBy === "oldest"
 									? [asc(stackItems.createdAt)]
 									: [desc(stackItems.createdAt)]),

@@ -135,16 +135,16 @@ export async function getVaultList(
 		}
 
 		if (filters.tags?.length) {
-			for (const tagName of filters.tags) {
-				conditions.push(
-					sql`EXISTS (
-						SELECT 1 FROM note_tags nt
-						JOIN tags t ON t.id = nt.tag_id
-						WHERE nt.note_id = ${researchNotes.id}
-						AND t.name = ${tagName}
-					)`,
-				);
-			}
+			// Single subquery with HAVING COUNT replaces N correlated EXISTS
+			conditions.push(
+				sql`${researchNotes.id} IN (
+					SELECT nt.note_id FROM note_tags nt
+					JOIN tags t ON t.id = nt.tag_id
+					WHERE t.name = ANY(${filters.tags}::text[])
+					GROUP BY nt.note_id
+					HAVING COUNT(DISTINCT t.name) = ${filters.tags.length}
+				)`,
+			);
 		}
 
 		return conditions;
@@ -187,7 +187,7 @@ export async function getVaultList(
 		createdAt: researchNotes.createdAt,
 		quoteCount: sql<number>`(SELECT COUNT(*) FROM quotes WHERE note_id = ${rnId})`.mapWith(Number),
 		insightCount:
-			sql<number>`(SELECT COUNT(DISTINCT insight_id) FROM insight_evidence WHERE quote_id IN (SELECT quotes.id FROM quotes WHERE quotes.note_id = ${rnId}))`.mapWith(
+			sql<number>`(SELECT COUNT(DISTINCT ie.insight_id) FROM insight_evidence ie JOIN quotes q ON q.id = ie.quote_id WHERE q.note_id = ${rnId})`.mapWith(
 				Number,
 			),
 	};

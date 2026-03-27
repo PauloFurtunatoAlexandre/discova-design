@@ -10,6 +10,10 @@ import {
 } from "@/lib/integrations/shared";
 import { isAdmin, isMember } from "@/lib/permissions/tier-checks";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const workspaceIdSchema = z.string().uuid();
+const integrationTypeSchema = z.enum(["jira", "linear", "slack", "figma"]);
 
 // ── Get All Integrations ────────────────────────────────────────────────────
 
@@ -21,6 +25,8 @@ export async function getIntegrationsAction(args: {
 > {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Authentication required" };
+
+	if (!workspaceIdSchema.safeParse(args.workspaceId).success) return { error: "Invalid workspace ID" };
 
 	// Verify user belongs to this workspace
 	if (!(await isMember(session.user.id, args.workspaceId))) {
@@ -49,6 +55,9 @@ export async function getIntegrationAction(args: {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Authentication required" };
 
+	if (!workspaceIdSchema.safeParse(args.workspaceId).success) return { error: "Invalid workspace ID" };
+	if (!integrationTypeSchema.safeParse(args.type).success) return { error: "Invalid integration type" };
+
 	if (!(await isMember(session.user.id, args.workspaceId))) {
 		return { error: "Forbidden" };
 	}
@@ -73,6 +82,9 @@ export async function disconnectIntegrationAction(args: {
 }): Promise<{ success: true } | { error: string }> {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Authentication required" };
+
+	if (!workspaceIdSchema.safeParse(args.workspaceId).success) return { error: "Invalid workspace ID" };
+	if (!integrationTypeSchema.safeParse(args.type).success) return { error: "Invalid integration type" };
 
 	const admin = await isAdmin(session.user.id, args.workspaceId);
 	if (!admin) return { error: "Only admins can manage integrations" };

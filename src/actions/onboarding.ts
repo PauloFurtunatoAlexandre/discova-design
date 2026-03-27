@@ -29,6 +29,8 @@ export async function updateWorkspaceNameAction(
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Unauthorized" };
 
+	if (!z.string().uuid().safeParse(workspaceId).success) return { error: "Invalid workspace ID" };
+
 	const parsed = z.string().min(1).max(64).safeParse(name.trim());
 	if (!parsed.success) return { error: "Workspace name must be between 1 and 64 characters." };
 
@@ -55,6 +57,8 @@ export async function setOnboardingRoleAction(
 ): Promise<{ error?: string | undefined; success?: boolean | undefined }> {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Unauthorized" };
+
+	if (!z.string().uuid().safeParse(workspaceId).success) return { error: "Invalid workspace ID" };
 
 	const validRoles = ["researcher", "pm", "member"] as const;
 	const parsed = z.enum(validRoles).safeParse(role);
@@ -88,6 +92,8 @@ export async function createOnboardingProjectAction(
 }> {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Unauthorized" };
+
+	if (!z.string().uuid().safeParse(workspaceId).success) return { error: "Invalid workspace ID" };
 
 	const parsedName = z.string().min(1).max(100).safeParse(name.trim());
 	if (!parsedName.success) return { error: "Project name must be between 1 and 100 characters." };

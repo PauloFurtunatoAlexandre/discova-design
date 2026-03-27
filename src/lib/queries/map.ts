@@ -28,9 +28,25 @@ export async function getMapData(projectId: string): Promise<MapData> {
 		.from(mapConnections)
 		.where(eq(mapConnections.projectId, projectId));
 
+	// Pre-build lookup maps to avoid O(n²) scanning
+	const outgoingByNode = new Map<string, number>();
+	const incomingByNode = new Map<string, number>();
+	const totalByNode = new Map<string, number>();
+	for (const c of connectionRows) {
+		outgoingByNode.set(c.sourceNodeId, (outgoingByNode.get(c.sourceNodeId) ?? 0) + 1);
+		incomingByNode.set(c.targetNodeId, (incomingByNode.get(c.targetNodeId) ?? 0) + 1);
+		totalByNode.set(c.sourceNodeId, (totalByNode.get(c.sourceNodeId) ?? 0) + 1);
+		totalByNode.set(c.targetNodeId, (totalByNode.get(c.targetNodeId) ?? 0) + 1);
+	}
+
 	const nodesWithState: MapNodeData[] = nodeRows.map((node) => {
 		const type = node.type as "insight" | "problem" | "solution";
-		const baseState = deriveBaseState(node.id, type, connectionRows);
+		const baseState = deriveBaseStateFast(
+			node.id,
+			type,
+			outgoingByNode.get(node.id) ?? 0,
+			incomingByNode.get(node.id) ?? 0,
+		);
 
 		return {
 			id: node.id,
@@ -43,9 +59,7 @@ export async function getMapData(projectId: string): Promise<MapData> {
 			isCollapsed: node.isCollapsed,
 			createdBy: node.createdBy,
 			baseState,
-			connectionCount: connectionRows.filter(
-				(c) => c.sourceNodeId === node.id || c.targetNodeId === node.id,
-			).length,
+			connectionCount: totalByNode.get(node.id) ?? 0,
 		};
 	});
 
@@ -92,31 +106,36 @@ export async function getUnplacedInsights(projectId: string): Promise<UnplacedIn
 }
 
 /**
+ * Derive the base visual state using pre-computed counts (O(1) per node).
+ */
+function deriveBaseStateFast(
+	_nodeId: string,
+	type: "insight" | "problem" | "solution",
+	outgoingCount: number,
+	incomingCount: number,
+): BaseState {
+	switch (type) {
+		case "insight":
+			return outgoingCount > 0 ? "connected" : "unconnected";
+		case "problem":
+			return incomingCount > 0 || outgoingCount > 0 ? "connected" : "unconnected";
+		case "solution":
+			return incomingCount > 0 ? "connected" : "orphan";
+		default:
+			return "unconnected";
+	}
+}
+
+/**
  * Derive the base visual state for a node based on its connections.
- *
- * - Insight: Connected if linked to at least 1 Problem (outgoing)
- * - Problem: Connected if has any connections
- * - Solution: Orphan if 0 incoming connections, Connected if >= 1
+ * Kept for external callers (e.g. single-node updates).
  */
 export function deriveBaseState(
 	nodeId: string,
 	type: "insight" | "problem" | "solution",
 	connections: Array<{ sourceNodeId: string; targetNodeId: string }>,
 ): BaseState {
-	const outgoing = connections.filter((c) => c.sourceNodeId === nodeId);
-	const incoming = connections.filter((c) => c.targetNodeId === nodeId);
-
-	switch (type) {
-		case "insight":
-			return outgoing.length > 0 ? "connected" : "unconnected";
-
-		case "problem":
-			return incoming.length > 0 || outgoing.length > 0 ? "connected" : "unconnected";
-
-		case "solution":
-			return incoming.length > 0 ? "connected" : "orphan";
-
-		default:
-			return "unconnected";
-	}
+	const outgoing = connections.filter((c) => c.sourceNodeId === nodeId).length;
+	const incoming = connections.filter((c) => c.targetNodeId === nodeId).length;
+	return deriveBaseStateFast(nodeId, type, outgoing, incoming);
 }

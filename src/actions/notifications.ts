@@ -8,6 +8,7 @@ import {
 	markAllRead,
 	markNotificationRead,
 } from "@/lib/queries/notifications";
+import { z } from "zod";
 
 // ── Get Notifications ───────────────────────────────────────────────────────
 
@@ -27,13 +28,18 @@ export async function getNotificationsAction(args?: {
 
 // ── Mark Read ───────────────────────────────────────────────────────────────
 
+const markReadSchema = z.object({ notificationId: z.string().uuid() });
+
 export async function markReadAction(args: {
 	notificationId: string;
 }): Promise<{ success: true } | { error: string }> {
 	const session = await auth();
 	if (!session?.user?.id) return { error: "Authentication required" };
 
-	await markNotificationRead(args.notificationId, session.user.id);
+	const parsed = markReadSchema.safeParse(args);
+	if (!parsed.success) return { error: "Invalid notification ID" };
+
+	await markNotificationRead(parsed.data.notificationId, session.user.id);
 	return { success: true };
 }
 
